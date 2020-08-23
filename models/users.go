@@ -13,6 +13,7 @@ type User struct {
 	Password  string
 	FullName  string
 	Activated bool `gorm:"default:0"`
+	Admin     bool `gorm:"default:0"`
 	Hash      string
 }
 

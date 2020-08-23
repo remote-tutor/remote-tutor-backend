@@ -3,6 +3,7 @@ package controllers
 import (
 	db "backend/database"
 	md "backend/models"
+	"backend/utils"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -54,5 +55,22 @@ func Register(c echo.Context) error {
 	db.CreateUser(&user)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "User created successfully",
+	})
+}
+
+// GetPendingUsers retrieves the non activated users to view to the admin
+func GetPendingUsers(c echo.Context) error {
+	queryParams := c.Request().URL.Query()
+	sortDesc := utils.ConvertToBoolArray(queryParams["sortDesc[]"])
+	sortBy := queryParams["sortBy[]"]
+	page := utils.ConvertToInt(queryParams["page"][0])
+	itemsPerPage := utils.ConvertToInt(queryParams["itemsPerPage"][0])
+
+	pendingUsers := db.GetPendingUsers(sortBy, sortDesc, page, itemsPerPage)
+	totalPendingUsers := db.GetTotalNumberOfPendingUsers()
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"pendingStudents":      pendingUsers,
+		"totalPendingStudents": totalPendingUsers,
 	})
 }

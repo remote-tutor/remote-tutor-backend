@@ -19,8 +19,10 @@ func InitializeRoutes(e *echo.Echo) {
 
 	e.POST("/login", controllers.Login)
 	e.POST("/register", controllers.Register)
+	e.POST("/announcement", controllers.CreateAnnouncement)
 
 	e.GET("/get-pending-students", controllers.GetPendingUsers)
+	e.GET("/announcements", controllers.GetAnnouncements)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Success")

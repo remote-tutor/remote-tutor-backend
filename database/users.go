@@ -12,6 +12,14 @@ func GetUserByUsername(username string) md.User {
 	return user
 }
 
+// GetUserByUserID searches the database for the user with the given userid
+func GetUserByUserID(userid uint) md.User {
+	db := GetDBConnection()
+	var user md.User
+	db.Where("userid = ?", userid).First(&user)
+	return user
+}
+
 // CreateUser inserts a new user to the database
 func CreateUser(user *md.User) {
 	db := GetDBConnection()

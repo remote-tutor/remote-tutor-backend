@@ -18,3 +18,18 @@ func GetAnnouncements() []md.Announcement {
 	db.Find(&announcements)
 	return announcements
 }
+
+// GetAnnouncementById retrieves the announcement by the announcement id
+func GetAnnouncementById(id uint) md.Announcement {
+	db := GetDBConnection()
+
+	var announcement md.Announcement
+	db.First(&announcement, id)
+	return announcement
+}
+
+// SaveAnnouncement saves the announcement
+func SaveAnnouncement(announcement *md.Announcement) {
+	db := GetDBConnection()
+	db.Save(announcement)
+}

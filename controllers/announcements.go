@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	db "backend/database"
+	dbInteractions "backend/database"
 	md "backend/models"
 	"net/http"
 	"github.com/labstack/echo"
@@ -9,7 +9,7 @@ import (
 
 // GetAnnouncements retrieves the non activated users to view to the admin
 func GetAnnouncements(c echo.Context) error {
-	announcements := db.GetAnnouncements()
+	announcements := dbInteractions.GetAnnouncements()
 	return c.JSON(http.StatusOK, echo.Map{
 		"announcements":      announcements,
 	})
@@ -28,8 +28,25 @@ func CreateAnnouncement(c echo.Context) error {
 		Content: content,
 	}
 
-	db.CreateAnnouncement(&announcement)
+	dbInteractions.CreateAnnouncement(&announcement)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Announcement created successfully",
+	})
+}
+
+func UpdateAnnouncement(c echo.Context) error {
+	announcementId := uint(1)
+	title := c.FormValue("title")
+	topic := c.FormValue("topic")
+	content := c.FormValue("content")
+
+	announcement := dbInteractions.GetAnnouncementById(announcementId)
+	announcement.Title = title
+	announcement.Topic = topic
+	announcement.Content = content
+
+	dbInteractions.SaveAnnouncement(&announcement)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Announcement updated successfully",
 	})
 }

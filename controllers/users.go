@@ -21,9 +21,15 @@ func Login(c echo.Context) error {
 			"message": "Invalid login credentials",
 		})
 	}
-
+	token, err := generateToken(&user)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Sorry, Unexpected Error Occurred",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Logged In!!",
+		"token":   token,
 	})
 }
 

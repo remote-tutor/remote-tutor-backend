@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	db "backend/database"
+	dbInteractions "backend/database"
 	md "backend/models"
 	"backend/utils"
 	"net/http"
@@ -14,7 +14,7 @@ import (
 func Login(c echo.Context) error {
 	username := c.FormValue("username")
 	password := c.FormValue("password")
-	user := db.GetUserByUsername(username)
+	user := dbInteractions.GetUserByUsername(username)
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if user.ID == 0 || err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
@@ -44,7 +44,7 @@ func Register(c echo.Context) error {
 			"message": "Password doesn't match",
 		})
 	}
-	user := db.GetUserByUsername(username) // check if a record with the same username is found
+	user := dbInteractions.GetUserByUsername(username) // check if a record with the same username is found
 	if user.ID != 0 {
 		return c.JSON(http.StatusNotAcceptable, echo.Map{ // return error to the user
 			"message": "This username is already taken",
@@ -58,7 +58,7 @@ func Register(c echo.Context) error {
 		Password: string(hashedPassword),
 		FullName: fullName,
 	}
-	db.CreateUser(&user)
+	dbInteractions.CreateUser(&user)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "User created successfully",
 	})
@@ -72,11 +72,24 @@ func GetPendingUsers(c echo.Context) error {
 	page := utils.ConvertToInt(queryParams["page"][0])
 	itemsPerPage := utils.ConvertToInt(queryParams["itemsPerPage"][0])
 
-	pendingUsers := db.GetPendingUsers(sortBy, sortDesc, page, itemsPerPage)
-	totalPendingUsers := db.GetTotalNumberOfPendingUsers()
+	pendingUsers := dbInteractions.GetPendingUsers(sortBy, sortDesc, page, itemsPerPage)
+	totalPendingUsers := dbInteractions.GetTotalNumberOfPendingUsers()
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"pendingStudents":      pendingUsers,
 		"totalPendingStudents": totalPendingUsers,
+	})
+}
+
+// CheckUserIsAdmin checks whether the user has admin rights or not
+func CheckUserIsAdmin(c echo.Context) error {
+	userid := uint(1)
+	user := dbInteractions.GetUserByUserID(userid)
+	isAdmin := false
+	if(user.Admin) {
+		isAdmin = true
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"admin":      isAdmin,
 	})
 }

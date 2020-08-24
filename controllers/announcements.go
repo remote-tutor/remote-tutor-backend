@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-// GetAnnouncements retrieves the non activated users to view to the admin
+//GetAnnouncements retrieves the non activated users to view to the admin
 func GetAnnouncements(c echo.Context) error {
 	announcements := dbInteractions.GetAnnouncements()
 	return c.JSON(http.StatusOK, echo.Map{
@@ -48,5 +48,14 @@ func UpdateAnnouncement(c echo.Context) error {
 	dbInteractions.SaveAnnouncement(&announcement)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Announcement updated successfully",
+	})
+}
+
+func DeleteAnnouncement(c echo.Context) error {
+	announcementId := uint(1)
+	announcement := dbInteractions.GetAnnouncementById(announcementId)
+	dbInteractions.DeleteAnnouncement(&announcement)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Announcement deleted successfully",
 	})
 }

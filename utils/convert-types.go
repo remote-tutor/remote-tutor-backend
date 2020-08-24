@@ -30,11 +30,3 @@ func ConvertToInt(value string) int {
 	}
 	return intValue
 }
-
-// func ConvertToUint(value string) uint {
-// 	uintValue, err := strconv.ParseUint(value, 10, 16)
-// 	if err != nil {
-// 		return 0
-// 	}
-// 	return uintValue
-// }

@@ -27,6 +27,8 @@ func InitializeRoutes(e *echo.Echo) {
 	e.GET("/announcements", controllers.GetAnnouncements)
 	e.GET("/isAdmin", controllers.GetAnnouncements)
 
+	e.DELETE("./announcement", controllers.DeleteAnnouncement)
+
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Success")
 	})

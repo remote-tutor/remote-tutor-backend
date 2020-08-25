@@ -16,6 +16,7 @@ func MigrateTables() {
 	if err == nil {
 		databaseConnection.LogMode(true)
 		databaseConnection.AutoMigrate(&md.User{})
+		databaseConnection.AutoMigrate(&md.Announcement{})
 	}
 }
 

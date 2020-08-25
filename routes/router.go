@@ -14,20 +14,22 @@ func InitializeRoutes(e *echo.Echo) {
 	// to enable sending requests from the frontend application
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:8080"},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))
 
 	e.POST("/login", controllers.Login)
 	e.POST("/register", controllers.Register)
-	e.POST("/announcement", controllers.CreateAnnouncement)
-
-	e.PUT("/announcement", controllers.UpdateAnnouncement)
 
 	e.GET("/get-pending-students", controllers.GetPendingUsers)
-	e.GET("/announcements", controllers.GetAnnouncements)
-	e.GET("/isAdmin", controllers.GetAnnouncements)
 
-	e.DELETE("./announcement", controllers.DeleteAnnouncement)
+	announcements := e.Group("/announcements")
+	announcements.Use(middleware.JWT([]byte("secret")))
+	announcements.GET("", controllers.GetAnnouncements)
+	announcements.POST("", controllers.CreateAnnouncement)
+	announcements.PUT("", controllers.UpdateAnnouncement)
+	announcements.DELETE("", controllers.DeleteAnnouncement)
+
+	e.GET("/isAdmin", controllers.GetAnnouncements)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Success")

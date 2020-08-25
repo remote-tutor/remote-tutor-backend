@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo"
 )
 
 func generateToken(user *md.User) (string, error) {
@@ -23,4 +24,11 @@ func generateToken(user *md.User) (string, error) {
 		return "", err
 	}
 	return t, nil
+}
+
+func fetchLoggedInUserID(c echo.Context) uint {
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	id := uint(claims["id"].(float64))
+	return id
 }

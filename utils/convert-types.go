@@ -30,3 +30,12 @@ func ConvertToInt(value string) int {
 	}
 	return intValue
 }
+
+// ConvertToUInt converts a string to a uint
+func ConvertToUInt(value string) uint {
+	uintValue, err := strconv.ParseUint(value, 10, 32)
+	if err != nil {
+		return 0
+	}
+	return uint(uintValue)
+}

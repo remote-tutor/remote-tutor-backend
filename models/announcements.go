@@ -1,14 +1,15 @@
 package models
+
 import (
 	"github.com/jinzhu/gorm"
 )
 
-// User struct to store the announcement data
+// Announcement struct to store the announcement data
 type Announcement struct {
 	gorm.Model
-	User  	User
-	UserID 	uint
-	Title 	string
-	Topic 	string
-	Content string
+	User    User
+	UserID  uint   `json:"user_id"`
+	Title   string `json:"title"`
+	Topic   string `json:"topic"`
+	Content string `json:"content"`
 }

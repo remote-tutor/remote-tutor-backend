@@ -2,6 +2,7 @@ package database
 
 import (
 	md "backend/models"
+	"fmt"
 )
 
 // CreateAnnouncement inserts a new user to the database
@@ -10,9 +11,13 @@ func CreateAnnouncement(announcement *md.Announcement) {
 }
 
 // GetAnnouncements retrieves the announcements
-func GetAnnouncements() []md.Announcement {
+func GetAnnouncements(title, topic, content string) []md.Announcement {
 	var announcements []md.Announcement
-	GetDBConnection().Find(&announcements)
+	// to add the searched word inside '%' pairs, we use the Sprintf function
+	// its normal use would be Sprintf("%s", variableName)
+	// but as we need to escape the '%' character we put a pair of '%' to escape it
+	GetDBConnection().Where("title LIKE ? AND topic LIKE ? AND content LIKE ?",
+		fmt.Sprintf("%%%s%%", title), fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", content)).Order("created_at DESC").Find(&announcements)
 	return announcements
 }
 

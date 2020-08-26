@@ -12,7 +12,10 @@ import (
 
 //GetAnnouncements retrieves the non activated users to view to the admin
 func GetAnnouncements(c echo.Context) error {
-	announcements := dbInteractions.GetAnnouncements()
+	title := c.QueryParam("title")
+	topic := c.QueryParam("topic")
+	content := c.QueryParam("content")
+	announcements := dbInteractions.GetAnnouncements(title, topic, content)
 	return c.JSON(http.StatusOK, echo.Map{
 		"announcements": announcements,
 	})
@@ -35,8 +38,8 @@ func CreateAnnouncement(c echo.Context) error {
 
 	dbInteractions.CreateAnnouncement(&announcement)
 	return c.JSON(http.StatusOK, echo.Map{
-		"message": "Announcement created successfully",
-		"id":      announcement.ID,
+		"message":      "Announcement created successfully",
+		"announcement": announcement,
 	})
 }
 
@@ -55,8 +58,8 @@ func UpdateAnnouncement(c echo.Context) error {
 
 	dbInteractions.SaveAnnouncement(&announcement)
 	return c.JSON(http.StatusOK, echo.Map{
-		"message": "Announcement updated successfully",
-		"id":      announcement.ID,
+		"message":      "Announcement updated successfully",
+		"announcement": announcement,
 	})
 }
 

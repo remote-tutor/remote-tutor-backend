@@ -13,14 +13,14 @@ import (
 func InitializeRoutes(e *echo.Echo) {
 	// to enable sending requests from the frontend application
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:8080"},
+		AllowOrigins: []string{"http://192.168.1.100:8080", "http://localhost:8080"},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))
 
 	e.POST("/login", controllers.Login)
 	e.POST("/register", controllers.Register)
 
-	e.GET("/get-pending-students", controllers.GetPendingUsers)
+	// e.GET("/get-pending-students", controllers.GetPendingUsers)
 
 	announcements := e.Group("/announcements")
 	announcements.Use(middleware.JWT([]byte("secret")))
@@ -28,6 +28,8 @@ func InitializeRoutes(e *echo.Echo) {
 	announcements.POST("", controllers.CreateAnnouncement)
 	announcements.PUT("", controllers.UpdateAnnouncement)
 	announcements.DELETE("", controllers.DeleteAnnouncement)
+
+	e.GET("/students", controllers.GetStudents)
 
 	e.GET("/isAdmin", controllers.GetAnnouncements)
 

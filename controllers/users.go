@@ -65,31 +65,50 @@ func Register(c echo.Context) error {
 }
 
 // GetPendingUsers retrieves the non activated users to view to the admin
-func GetPendingUsers(c echo.Context) error {
-	queryParams := c.Request().URL.Query()
-	sortDesc := utils.ConvertToBoolArray(queryParams["sortDesc[]"])
-	sortBy := queryParams["sortBy[]"]
-	page := utils.ConvertToInt(queryParams["page"][0])
-	itemsPerPage := utils.ConvertToInt(queryParams["itemsPerPage"][0])
+// func GetPendingUsers(c echo.Context) error {
+// 	queryParams := c.Request().URL.Query()
+// 	sortDesc := utils.ConvertToBoolArray(queryParams["sortDesc[]"])
+// 	sortBy := queryParams["sortBy[]"]
+// 	page := utils.ConvertToInt(queryParams["page"][0])
+// 	itemsPerPage := utils.ConvertToInt(queryParams["itemsPerPage"][0])
 
-	pendingUsers := dbInteractions.GetPendingUsers(sortBy, sortDesc, page, itemsPerPage)
-	totalPendingUsers := dbInteractions.GetTotalNumberOfPendingUsers()
+// 	pendingUsers := dbInteractions.GetPendingUsers(sortBy, sortDesc, page, itemsPerPage)
+// 	totalPendingUsers := dbInteractions.GetTotalNumberOfPendingUsers()
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"pendingStudents":      pendingUsers,
-		"totalPendingStudents": totalPendingUsers,
-	})
-}
+// 	return c.JSON(http.StatusOK, echo.Map{
+// 		"pendingStudents":      pendingUsers,
+// 		"totalPendingStudents": totalPendingUsers,
+// 	})
+// }
 
 // CheckUserIsAdmin checks whether the user has admin rights or not
 func CheckUserIsAdmin(c echo.Context) error {
 	userid := uint(1)
 	user := dbInteractions.GetUserByUserID(userid)
 	isAdmin := false
-	if(user.Admin) {
+	if user.Admin {
 		isAdmin = true
 	}
 	return c.JSON(http.StatusOK, echo.Map{
-		"admin":      isAdmin,
+		"admin": isAdmin,
+	})
+}
+
+// GetStudents gets the students to display to the user
+func GetStudents(c echo.Context) error {
+	pending := utils.ConvertToBool(c.QueryParam("pending"))
+	page := utils.ConvertToInt(c.QueryParam("page"))
+	itemsPerPage := utils.ConvertToInt(c.QueryParam("itemsPerPage"))
+	fullName := c.QueryParam("full_name")
+	sortBy := c.QueryParam("sortBy[]")
+	sortDesc := utils.ConvertToBool(c.QueryParam("sortDesc[]"))
+	searchByValue := c.QueryParam("searchByValue")
+	searchByField := c.QueryParam("searchByField")
+	students, numberOfStudents := dbInteractions.GetStudents(fullName, sortBy,
+		searchByValue, searchByField, page,
+		itemsPerPage, pending, sortDesc)
+	return c.JSON(http.StatusOK, echo.Map{
+		"students": students,
+		"total":    numberOfStudents,
 	})
 }

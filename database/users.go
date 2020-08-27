@@ -2,6 +2,9 @@ package database
 
 import (
 	md "backend/models"
+	"fmt"
+
+	"github.com/jinzhu/gorm"
 )
 
 // GetUserByUsername searches the database for the user with the given username to be used in the login action
@@ -26,29 +29,24 @@ func CreateUser(user *md.User) {
 	db.Create(user)
 }
 
-// GetPendingUsers retrieve the non activated users from the database
-func GetPendingUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int) []md.User {
-	db := GetDBConnection()
-	if sortBy != nil {
-		for i := 0; i < len(sortBy); i++ {
-			if sortDesc[i] {
-				db.Order(sortBy[i] + " DESC")
-			} else {
-				db.Order(sortBy[i])
-			}
-		}
-	}
-	db = db.Offset((page - 1) * itemsPerPage)
+// GetStudents retrieves the students
+func GetStudents(fullName, sortBy, searchByValue, searchByField string,
+	page, itemsPerPage int, pending, sortDesc bool) ([]md.User, int) {
 
-	var pendingUsers []md.User
-	db.Where("activated = 0").Find(&pendingUsers)
-	return pendingUsers
+	var students []md.User
+	query := GetDBConnection().Where(fmt.Sprintf("%s LIKE '%%%s%%'", searchByField, searchByValue))
+	numberOfRecords := countStudents(query)
+	sortByOrder := sortBy
+	if sortDesc {
+		sortByOrder += " DESC"
+	}
+	query.Offset(itemsPerPage * (page - 1)).Limit(itemsPerPage).
+		Order(sortByOrder).Find(&students)
+	return students, numberOfRecords
 }
 
-// GetTotalNumberOfPendingUsers returns the number of total pending users in the database
-func GetTotalNumberOfPendingUsers() int {
-	db := GetDBConnection()
-	var count int
-	db.Model(&md.User{}).Count(&count)
-	return count
+func countStudents(db *gorm.DB) int {
+	totalStudents := 0
+	db.Model(&md.User{}).Count(&totalStudents)
+	return totalStudents
 }

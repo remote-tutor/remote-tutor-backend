@@ -2,6 +2,7 @@ package utils
 
 import (
 	"strconv"
+	"time"
 )
 
 func fromStringToBool(value string) bool {
@@ -38,4 +39,9 @@ func ConvertToUInt(value string) uint {
 		return 0
 	}
 	return uint(uintValue)
+}
+
+func ConvertToTime(value string) time.Time {
+	intValue := ConvertToInt(value)
+	return time.Unix(int64(intValue), 0)
 }

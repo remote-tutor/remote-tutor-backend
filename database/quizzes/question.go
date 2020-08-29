@@ -15,6 +15,28 @@ func CreateLongAnswer(longAnswer *quizzesModel.LongAnswer) {
 	dbInstance.GetDBConnection().Create(longAnswer)
 }
 
+// UpdateMCQ updates mcq question in the database
+func UpdateMCQ(mcq *quizzesModel.MCQ) {
+	dbInstance.GetDBConnection().Save(mcq)
+}
+
+// UpdateLongAnswer updates long answer question in the database
+func UpdateLongAnswer(longAnswer *quizzesModel.LongAnswer) {
+	dbInstance.GetDBConnection().Save(longAnswer)
+}
+
+func GetMCQByID(id uint) quizzesModel.MCQ {
+	var mcq quizzesModel.MCQ
+	dbInstance.GetDBConnection().First(&mcq, id)
+	return mcq
+}
+
+func GetLongAnswerByID(id uint) quizzesModel.longAnswer {
+	var longAnswer quizzesModel.LongAnswer
+	dbInstance.GetDBConnection().First(&longAnswer, id)
+	return longAnswer
+}
+
 // GetMCQQuestionsByQuiz retrievs all mcq questions for a quiz
 func GetMCQQuestionsByQuiz(quizID uint) []quizzesModel.MCQ {
 	var mcqs []quizzesModel.MCQ

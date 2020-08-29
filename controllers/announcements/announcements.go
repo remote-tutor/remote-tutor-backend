@@ -60,7 +60,7 @@ func UpdateAnnouncement(c echo.Context) error {
 	announcement.Topic = topic
 	announcement.Content = content
 
-	announcementsDBInteractions.SaveAnnouncement(&announcement)
+	announcementsDBInteractions.UpdateAnnouncement(&announcement)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message":      "Announcement updated successfully",
 		"announcement": announcement,

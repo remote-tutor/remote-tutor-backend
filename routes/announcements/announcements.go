@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo/middleware"
 )
 
-// InitializeRoutes initializes all the required routes for the application
+// InitializeRoutes initializes all the required routes for announcements.
 func InitializeRoutes(e *echo.Echo) {
 	announcements := e.Group("/announcements")
 	announcements.Use(middleware.JWT([]byte("secret")))

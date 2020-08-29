@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-// InitializeRoutes initializes all the required routes for the application
+// InitializeRoutes initializes all the required routes for users
 func InitializeRoutes(e *echo.Echo) {
 	e.POST("/login", usersController.Login)
 	e.POST("/register", usersController.Register)

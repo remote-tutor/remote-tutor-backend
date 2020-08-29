@@ -11,17 +11,8 @@ import (
 
 //CreateMCQ creates a new mcq question for a quiz
 func CreateMCQ(c echo.Context) error {
-	text := c.FormValue("text")
-	totalMark := utils.ConvertToInt(c.FormValue("totalMark"))
-	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
 	correctAnswer := utils.ConvertToUInt(c.FormValue("correctAnswer"))
-
-	question := quizzesModel.Question{
-		Text:      text,
-		TotalMark: totalMark,
-		QuizID:    quizID,
-	}
-
+	question := constructQuestion(c)
 	mcq := quizzesModel.MCQ{
 		Question:      question,
 		CorrectAnswer: correctAnswer,
@@ -35,17 +26,8 @@ func CreateMCQ(c echo.Context) error {
 
 //CreateLongAnswer creates a new long answer question for a quiz
 func CreateLongAnswer(c echo.Context) error {
-	text := c.FormValue("text")
-	totalMark := utils.ConvertToInt(c.FormValue("totalMark"))
-	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
 	correctAnswer := c.FormValue("correctAnswer")
-
-	question := quizzesModel.Question{
-		Text:      text,
-		TotalMark: totalMark,
-		QuizID:    quizID,
-	}
-
+	question := constructQuestion(c)
 	longAnswer := quizzesModel.LongAnswer{
 		Question:      question,
 		CorrectAnswer: correctAnswer,
@@ -53,6 +35,30 @@ func CreateLongAnswer(c echo.Context) error {
 	quizzesDBInteractions.CreateLongAnswer(&longAnswer)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message":    "Long Answer question created successfully",
+		"longAnswer": longAnswer,
+	})
+}
+
+//UpdateMCQ updates mcq question for a quiz
+func UpdateMCQ(c echo.Context) error {
+	mcq := quizzesDBInteractions.GetMCQByID(utils.ConvertToUInt(c.FormValue("id")))
+	mcq.correctAnswer = utils.ConvertToUInt(c.FormValue("correctAnswer"))
+	mcq.question.totalMark = utils.ConvertToInt(c.FormValue("totalMark"))
+	mcq.question.text = c.FormValue("text")
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "MCQ question created successfully",
+		"mcq":     mcq,
+	})
+}
+
+//UpdateLongAnswer updates long answer question for a quiz
+func UpdateLongAnswer(c echo.Context) error {
+	longAnswer := quizzesDBInteractions.GetLongAnswerByID(utils.ConvertToUInt(c.FormValue("id")))
+	longAnswer.correctAnswer = utils.ConvertToUInt(c.FormValue("correctAnswer"))
+	longAnswer.question.totalMark = utils.ConvertToInt(c.FormValue("totalMark"))
+	longAnswer.question.text = c.FormValue("text")
+	return c.JSON(http.StatusOK, echo.Map{
+		"message":    "LongAnswer question created successfully",
 		"longAnswer": longAnswer,
 	})
 }
@@ -66,4 +72,17 @@ func GetQuestionsByQuiz(c echo.Context) error {
 		"mcqs":        mcqs,
 		"longAnswers": longAnswers,
 	})
+}
+
+func constructQuestion(c echo.Context) quizzesModel.Question {
+	text := c.FormValue("text")
+	totalMark := utils.ConvertToInt(c.FormValue("totalMark"))
+	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
+
+	question := quizzesModel.Question{
+		Text:      text,
+		TotalMark: totalMark,
+		QuizID:    quizID,
+	}
+	return question
 }

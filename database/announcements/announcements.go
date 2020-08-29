@@ -34,8 +34,8 @@ func GetAnnouncementByID(id uint) announcementsModel.Announcement {
 	return announcement
 }
 
-// SaveAnnouncement saves the announcement
-func SaveAnnouncement(announcement *announcementsModel.Announcement) {
+// UpdateAnnouncement updates the announcement
+func UpdateAnnouncement(announcement *announcementsModel.Announcement) {
 	dbInstance.GetDBConnection().Save(announcement)
 }
 

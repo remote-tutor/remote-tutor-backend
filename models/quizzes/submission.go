@@ -1,16 +1,16 @@
 package quizzes
 
 import (
-	md "backend/models"
+	usersModel "backend/models/users"
 )
 
 // Submission struct to store the Submission data
 type Submission struct {
-	Grade      int      `json:"grade"`
-	Question   Question `json:"question"`
-	QuestionID uint     `json:"questionID" gorm:"primary_key;auto_increment:false"`
-	User       md.User  `json:"user"`
-	UserID     uint     `json:"userID" gorm:"primary_key;auto_increment:false"`
+	Grade      int             `json:"grade"`
+	Question   Question        `json:"question"`
+	QuestionID uint            `json:"questionID" gorm:"primary_key;auto_increment:false"`
+	User       usersModel.User `json:"user"`
+	UserID     uint            `json:"userID" gorm:"primary_key;auto_increment:false"`
 }
 
 // MCQSubmission struct to store the MCQ Submission type data

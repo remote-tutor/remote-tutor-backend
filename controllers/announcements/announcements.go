@@ -1,8 +1,9 @@
 package controllers
 
 import (
-	dbInteractions "backend/database"
-	md "backend/models"
+	authController "backend/controllers/auth"
+	announcementsDBInteractions "backend/database/announcements"
+	anouncementsModel "backend/models/announcements"
 	"backend/utils"
 	"fmt"
 	"net/http"
@@ -17,7 +18,7 @@ func GetAnnouncements(c echo.Context) error {
 	content := c.QueryParam("content")
 	length := utils.ConvertToInt(c.QueryParam("length"))
 	currentPage := utils.ConvertToInt(c.QueryParam("currentPage"))
-	announcements, numberOfAnnouncements := dbInteractions.GetAnnouncements(title, topic, content, length, currentPage)
+	announcements, numberOfAnnouncements := announcementsDBInteractions.GetAnnouncements(title, topic, content, length, currentPage)
 	return c.JSON(http.StatusOK, echo.Map{
 		"announcements": announcements,
 		"total":         numberOfAnnouncements,
@@ -26,20 +27,20 @@ func GetAnnouncements(c echo.Context) error {
 
 // CreateAnnouncement creates a new announcement based on the user input
 func CreateAnnouncement(c echo.Context) error {
-	userid := FetchLoggedInUserID(c)
+	userid := authController.FetchLoggedInUserID(c)
 
 	title := c.FormValue("title")
 	topic := c.FormValue("topic")
 	content := c.FormValue("content")
 
-	announcement := md.Announcement{
+	announcement := anouncementsModel.Announcement{
 		UserID:  userid,
 		Title:   title,
 		Topic:   topic,
 		Content: content,
 	}
 
-	dbInteractions.CreateAnnouncement(&announcement)
+	announcementsDBInteractions.CreateAnnouncement(&announcement)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message":      "Announcement created successfully",
 		"announcement": announcement,
@@ -54,12 +55,12 @@ func UpdateAnnouncement(c echo.Context) error {
 	topic := c.FormValue("topic")
 	content := c.FormValue("content")
 
-	announcement := dbInteractions.GetAnnouncementById(announcementID)
+	announcement := announcementsDBInteractions.GetAnnouncementByID(announcementID)
 	announcement.Title = title
 	announcement.Topic = topic
 	announcement.Content = content
 
-	dbInteractions.SaveAnnouncement(&announcement)
+	announcementsDBInteractions.SaveAnnouncement(&announcement)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message":      "Announcement updated successfully",
 		"announcement": announcement,
@@ -69,8 +70,8 @@ func UpdateAnnouncement(c echo.Context) error {
 // DeleteAnnouncement deletes the announcement that the user selects
 func DeleteAnnouncement(c echo.Context) error {
 	announcementID := utils.ConvertToUInt(c.FormValue("id"))
-	announcement := dbInteractions.GetAnnouncementById(announcementID)
-	dbInteractions.DeleteAnnouncement(&announcement)
+	announcement := announcementsDBInteractions.GetAnnouncementByID(announcementID)
+	announcementsDBInteractions.DeleteAnnouncement(&announcement)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Announcement deleted successfully",
 	})

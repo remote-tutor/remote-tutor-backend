@@ -1,14 +1,14 @@
 package controllers
 
 import (
-	md "backend/models"
+	usersModel "backend/models/users"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
-func generateToken(user *md.User) (string, error) {
+func GenerateToken(user *usersModel.User) (string, error) {
 	// Create token
 	token := jwt.New(jwt.SigningMethodHS256)
 
@@ -26,6 +26,7 @@ func generateToken(user *md.User) (string, error) {
 	return t, nil
 }
 
+// FetchLoggedInUserID retrieves the logged-in user's ID
 func FetchLoggedInUserID(c echo.Context) uint {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)

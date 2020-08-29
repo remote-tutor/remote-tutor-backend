@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-//GetAnnouncements retrieves the non activated users to view to the admin
+//GetAnnouncements retrieves list of announcements with the client specified length.
 func GetAnnouncements(c echo.Context) error {
 	title := c.QueryParam("title")
 	topic := c.QueryParam("topic")
@@ -26,7 +26,7 @@ func GetAnnouncements(c echo.Context) error {
 
 // CreateAnnouncement creates a new announcement based on the user input
 func CreateAnnouncement(c echo.Context) error {
-	userid := fetchLoggedInUserID(c)
+	userid := FetchLoggedInUserID(c)
 
 	title := c.FormValue("title")
 	topic := c.FormValue("topic")

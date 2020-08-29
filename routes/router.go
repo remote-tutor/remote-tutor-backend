@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/controllers"
+	quizzesController "backend/controllers/quizzes"
 
 	"net/http"
 
@@ -28,6 +29,13 @@ func InitializeRoutes(e *echo.Echo) {
 	announcements.POST("", controllers.CreateAnnouncement)
 	announcements.PUT("", controllers.UpdateAnnouncement)
 	announcements.DELETE("", controllers.DeleteAnnouncement)
+
+	quizzes := e.Group("/quizzes")
+	quizzes.Use(middleware.JWT([]byte("secret")))
+	quizzes.GET("/past", quizzesController.GetPastQuizzes)
+	quizzes.GET("/future", quizzesController.GetFutureQuizzes)
+	quizzes.GET("/current", quizzesController.GetCurrentQuizzes)
+	quizzes.POST("", quizzesController.CreateQuiz)
 
 	e.GET("/isAdmin", controllers.GetAnnouncements)
 

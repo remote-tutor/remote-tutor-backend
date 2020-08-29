@@ -15,6 +15,7 @@ type User struct {
 	Activated bool   `gorm:"default:0" json:"activated"`
 	Admin     bool   `gorm:"default:0" json:"admin"`
 	Hash      string `json:"hash"`
+	Year      int    `json:"year"`
 }
 
 // AfterCreate updates the Hash column of the user after creation

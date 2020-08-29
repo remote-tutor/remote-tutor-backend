@@ -26,7 +26,7 @@ func generateToken(user *md.User) (string, error) {
 	return t, nil
 }
 
-func fetchLoggedInUserID(c echo.Context) uint {
+func FetchLoggedInUserID(c echo.Context) uint {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	id := uint(claims["id"].(float64))

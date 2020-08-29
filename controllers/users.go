@@ -86,10 +86,10 @@ func CheckUserIsAdmin(c echo.Context) error {
 	userid := uint(1)
 	user := dbInteractions.GetUserByUserID(userid)
 	isAdmin := false
-	if(user.Admin) {
+	if user.Admin {
 		isAdmin = true
 	}
 	return c.JSON(http.StatusOK, echo.Map{
-		"admin":      isAdmin,
+		"admin": isAdmin,
 	})
 }

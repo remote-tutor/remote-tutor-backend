@@ -31,7 +31,7 @@ func GetMCQByID(id uint) quizzesModel.MCQ {
 	return mcq
 }
 
-func GetLongAnswerByID(id uint) quizzesModel.longAnswer {
+func GetLongAnswerByID(id uint) quizzesModel.LongAnswer {
 	var longAnswer quizzesModel.LongAnswer
 	dbInstance.GetDBConnection().First(&longAnswer, id)
 	return longAnswer

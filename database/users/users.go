@@ -17,7 +17,7 @@ func GetUserByUsername(username string) usersModel.User {
 func GetUserByUserID(userid uint) usersModel.User {
 	db := dbInstance.GetDBConnection()
 	var user usersModel.User
-	db.Where("userid = ?", userid).First(&user)
+	db.Where("id = ?", userid).First(&user)
 	return user
 }
 

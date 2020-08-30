@@ -32,3 +32,15 @@ func GetCurrentQuizzes(year int) []quizzesModel.Quiz {
 	dbInstance.GetDBConnection().Where("year = ? AND start_time < ? AND end_time > ?", year, currentTime, currentTime).Find(&currentQuizzes)
 	return currentQuizzes
 }
+
+// UpdateQuiz updates the quiz in the database
+func UpdateQuiz(quiz *quizzesModel.Quiz) {
+	dbInstance.GetDBConnection().Save(quiz)
+}
+
+// GetQuizByID retrieves the quiz by the quizID
+func GetQuizByID(id uint) quizzesModel.Quiz {
+	var quiz quizzesModel.Quiz
+	dbInstance.GetDBConnection().First(&quiz, id)
+	return quiz
+}

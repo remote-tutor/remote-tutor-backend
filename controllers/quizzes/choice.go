@@ -36,7 +36,17 @@ func UpdateChoice(c echo.Context) error {
 
 	choiceDBInteractions.UpdateChoice(&choice)
 	return c.JSON(http.StatusOK, echo.Map{
-		"message": "Choice updates successfully",
+		"message": "Choice updated successfully",
 		"choice":  choice,
+	})
+}
+
+// DeleteChoice deletes an existing choice
+func DeleteChoice(c echo.Context) error {
+	id := utils.ConvertToUInt(c.FormValue("id"))
+	choice := choiceDBInteractions.GetChoiceByID(id)
+	choiceDBInteractions.DeleteChoice(&choice)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Choice deleted successfully",
 	})
 }

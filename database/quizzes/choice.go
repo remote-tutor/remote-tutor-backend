@@ -15,6 +15,11 @@ func UpdateChoice(choice *quizzesModel.Choice) {
 	dbInstance.GetDBConnection().Save(choice)
 }
 
+// DeleteChoice deletes the given choice in the database
+func DeleteChoice(choice *quizzesModel.Choice) {
+	dbInstance.GetDBConnection().Delete(choice)
+}
+
 // GetChoiceByID returns the choice with the specific ID
 func GetChoiceByID(id uint) quizzesModel.Choice {
 	var choice quizzesModel.Choice

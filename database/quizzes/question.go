@@ -25,6 +25,16 @@ func UpdateLongAnswer(longAnswer *quizzesModel.LongAnswer) {
 	dbInstance.GetDBConnection().Save(longAnswer)
 }
 
+// DeleteMCQ deletes mcq question in the database
+func DeleteMCQ(mcq *quizzesModel.MCQ) {
+	dbInstance.GetDBConnection().Delete(mcq)
+}
+
+// DeleteLongAnswer deletes long answer question in the database
+func DeleteLongAnswer(longAnswer *quizzesModel.LongAnswer) {
+	dbInstance.GetDBConnection().Delete(longAnswer)
+}
+
 func GetMCQByID(id uint) quizzesModel.MCQ {
 	var mcq quizzesModel.MCQ
 	dbInstance.GetDBConnection().First(&mcq, id)
@@ -37,15 +47,15 @@ func GetLongAnswerByID(id uint) quizzesModel.LongAnswer {
 	return longAnswer
 }
 
-// GetMCQQuestionsByQuiz retrievs all mcq questions for a quiz
-func GetMCQQuestionsByQuiz(quizID uint) []quizzesModel.MCQ {
+// GetMCQsByQuiz retrievs all mcq questions for a quiz
+func GetMCQsByQuiz(quizID uint) []quizzesModel.MCQ {
 	var mcqs []quizzesModel.MCQ
 	dbInstance.GetDBConnection().Preload("Choices").Where("quiz_id = ?", quizID).Find(&mcqs)
 	return mcqs
 }
 
-// GetLongAnswerQuestionsByQuiz retrievs all long answer questions for a quiz
-func GetLongAnswerQuestionsByQuiz(quizID uint) []quizzesModel.LongAnswer {
+// GetLongAnswersByQuiz retrievs all long answer questions for a quiz
+func GetLongAnswersByQuiz(quizID uint) []quizzesModel.LongAnswer {
 	var longAnswers []quizzesModel.LongAnswer
 	dbInstance.GetDBConnection().Where("quiz_id = ?", quizID).Find(&longAnswers)
 	return longAnswers

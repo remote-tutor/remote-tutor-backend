@@ -10,4 +10,5 @@ import (
 func InitializeChoiceRoutes(quizzes *echo.Group) {
 	quizzes.POST("/choices", quizzesController.CreateChoice)
 	quizzes.PUT("/choices", quizzesController.UpdateChoice)
+	quizzes.DELETE("/choices", quizzesController.DeleteChoice)
 }

@@ -65,11 +65,29 @@ func UpdateLongAnswer(c echo.Context) error {
 	})
 }
 
+// DeleteMCQ deletes mcq question for a quiz
+func DeleteMCQ(c echo.Context) error {
+	mcq := quizzesDBInteractions.GetMCQByID(utils.ConvertToUInt(c.FormValue("id")))
+	quizzesDBInteractions.DeleteMCQ(&mcq)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "MCQ question deleted successfully",
+	})
+}
+
+// DeleteLongAnswer deletes long answer question for a quiz
+func DeleteLongAnswer(c echo.Context) error {
+	longAnswer := quizzesDBInteractions.GetMCQByID(utils.ConvertToUInt(c.FormValue("id")))
+	quizzesDBInteractions.DeleteMCQ(&longAnswer)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Long Answer question deleted successfully",
+	})
+}
+
 //GetQuestionsByQuiz retrieves all questions for a quiz
 func GetQuestionsByQuiz(c echo.Context) error {
 	quizID := utils.ConvertToUInt(c.QueryParam("quizID"))
-	mcqs := quizzesDBInteractions.GetMCQQuestionsByQuiz(quizID)
-	longAnswers := quizzesDBInteractions.GetLongAnswerQuestionsByQuiz(quizID)
+	mcqs := quizzesDBInteractions.GetMCQsByQuiz(quizID)
+	longAnswers := quizzesDBInteractions.GetLongAnswersByQuiz(quizID)
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcqs":        mcqs,
 		"longAnswers": longAnswers,

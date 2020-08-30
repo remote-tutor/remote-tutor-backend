@@ -45,6 +45,7 @@ func UpdateMCQ(c echo.Context) error {
 	mcq.CorrectAnswer = utils.ConvertToUInt(c.FormValue("correctAnswer"))
 	mcq.Question.TotalMark = utils.ConvertToInt(c.FormValue("totalMark"))
 	mcq.Question.Text = c.FormValue("text")
+	quizzesDBInteractions.UpdateMCQ(&mcq)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "MCQ question created successfully",
 		"mcq":     mcq,
@@ -57,6 +58,7 @@ func UpdateLongAnswer(c echo.Context) error {
 	longAnswer.CorrectAnswer = c.FormValue("correctAnswer")
 	longAnswer.Question.TotalMark = utils.ConvertToInt(c.FormValue("totalMark"))
 	longAnswer.Question.Text = c.FormValue("text")
+	quizzesDBInteractions.UpdateLongAnswer(&longAnswer)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message":    "LongAnswer question created successfully",
 		"longAnswer": longAnswer,

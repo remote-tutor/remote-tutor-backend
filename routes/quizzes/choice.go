@@ -9,4 +9,5 @@ import (
 // InitializeChoiceRoutes initializes all choice routes
 func InitializeChoiceRoutes(quizzes *echo.Group) {
 	quizzes.POST("/choices", quizzesController.CreateChoice)
+	quizzes.PUT("/choices", quizzesController.UpdateChoice)
 }

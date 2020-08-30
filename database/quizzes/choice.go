@@ -9,3 +9,15 @@ import (
 func CreateChoice(choice *quizzesModel.Choice) {
 	dbInstance.GetDBConnection().Create(choice)
 }
+
+// UpdateChoice updates the given choice in the database
+func UpdateChoice(choice *quizzesModel.Choice) {
+	dbInstance.GetDBConnection().Save(choice)
+}
+
+// GetChoiceByID returns the choice with the specific ID
+func GetChoiceByID(id uint) quizzesModel.Choice {
+	var choice quizzesModel.Choice
+	dbInstance.GetDBConnection().First(&choice, id)
+	return choice
+}

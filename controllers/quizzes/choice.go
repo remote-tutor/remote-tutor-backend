@@ -25,3 +25,18 @@ func CreateChoice(c echo.Context) error {
 		"choice":  choice,
 	})
 }
+
+// UpdateChoice updates an existing choice
+func UpdateChoice(c echo.Context) error {
+	id := utils.ConvertToUInt(c.FormValue("id"))
+	text := c.FormValue("text")
+
+	choice := choiceDBInteractions.GetChoiceByID(id)
+	choice.Text = text
+
+	choiceDBInteractions.UpdateChoice(&choice)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Choice updates successfully",
+		"choice":  choice,
+	})
+}

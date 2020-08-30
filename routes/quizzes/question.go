@@ -8,6 +8,7 @@ import (
 
 // InitializeQuestionRoutes initializes all question routes
 func InitializeQuestionRoutes(quizzes *echo.Group) {
+	quizzes.GET("/questions", quizzesController.GetQuestionsByQuiz)
 	quizzes.POST("/questions/mcq", quizzesController.CreateMCQ)
 	quizzes.POST("/questions/longanswer", quizzesController.CreateLongAnswer)
 	quizzes.PUT("/questions/mcq", quizzesController.UpdateMCQ)

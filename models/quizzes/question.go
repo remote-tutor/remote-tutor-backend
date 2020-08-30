@@ -16,7 +16,8 @@ type Question struct {
 // MCQ struct to store the MCQ question type data
 type MCQ struct {
 	Question      `json:"question"`
-	CorrectAnswer uint `json:"correctAnswer"`
+	CorrectAnswer uint     `json:"correctAnswer"`
+	Choices       []Choice `json:"choices"`
 }
 
 // LongAnswer struct to store the LongAnswer question type data

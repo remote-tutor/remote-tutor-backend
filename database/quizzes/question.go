@@ -40,7 +40,7 @@ func GetLongAnswerByID(id uint) quizzesModel.LongAnswer {
 // GetMCQQuestionsByQuiz retrievs all mcq questions for a quiz
 func GetMCQQuestionsByQuiz(quizID uint) []quizzesModel.MCQ {
 	var mcqs []quizzesModel.MCQ
-	dbInstance.GetDBConnection().Where("quiz_id = ?", quizID).Find(&mcqs)
+	dbInstance.GetDBConnection().Preload("Choices").Where("quiz_id = ?", quizID).Find(&mcqs)
 	return mcqs
 }
 

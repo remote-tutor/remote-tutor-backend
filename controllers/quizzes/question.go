@@ -76,8 +76,8 @@ func DeleteMCQ(c echo.Context) error {
 
 // DeleteLongAnswer deletes long answer question for a quiz
 func DeleteLongAnswer(c echo.Context) error {
-	longAnswer := quizzesDBInteractions.GetMCQByID(utils.ConvertToUInt(c.FormValue("id")))
-	quizzesDBInteractions.DeleteMCQ(&longAnswer)
+	longAnswer := quizzesDBInteractions.GetLongAnswerByID(utils.ConvertToUInt(c.FormValue("id")))
+	quizzesDBInteractions.DeleteLongAnswer(&longAnswer)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Long Answer question deleted successfully",
 	})

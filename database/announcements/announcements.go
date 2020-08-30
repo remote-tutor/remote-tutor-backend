@@ -41,7 +41,7 @@ func UpdateAnnouncement(announcement *announcementsModel.Announcement) {
 
 // DeleteAnnouncement deletes the announcement
 func DeleteAnnouncement(announcement *announcementsModel.Announcement) {
-	dbInstance.GetDBConnection().Delete(announcement)
+	dbInstance.GetDBConnection().Unscoped().Delete(announcement)
 }
 
 // countAnnouncements counts the number of records in the database by specific search

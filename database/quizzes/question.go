@@ -27,12 +27,12 @@ func UpdateLongAnswer(longAnswer *quizzesModel.LongAnswer) {
 
 // DeleteMCQ deletes mcq question in the database
 func DeleteMCQ(mcq *quizzesModel.MCQ) {
-	dbInstance.GetDBConnection().Delete(mcq)
+	dbInstance.GetDBConnection().Unscoped().Delete(mcq)
 }
 
 // DeleteLongAnswer deletes long answer question in the database
 func DeleteLongAnswer(longAnswer *quizzesModel.LongAnswer) {
-	dbInstance.GetDBConnection().Delete(longAnswer)
+	dbInstance.GetDBConnection().Unscoped().Delete(longAnswer)
 }
 
 func GetMCQByID(id uint) quizzesModel.MCQ {

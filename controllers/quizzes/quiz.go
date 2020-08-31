@@ -32,6 +32,23 @@ func CreateQuiz(c echo.Context) error {
 	})
 }
 
+// UpdateQuiz updtes an existing quiz
+func UpdateQuiz(c echo.Context) error {
+	quizID := utils.ConvertToUInt(c.FormValue("id"))
+
+	quiz := quizzesDBInteractions.GetQuizByID(quizID)
+	quiz.Title = c.FormValue("title")
+	quiz.Year = utils.ConvertToInt(c.FormValue("year"))
+	quiz.StartTime = utils.ConvertToTime(c.FormValue("startTime"))
+	quiz.EndTime = utils.ConvertToTime(c.FormValue("endTime"))
+
+	quizzesDBInteractions.UpdateQuiz(&quiz)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Quiz updated successfully",
+		"quiz":    quiz,
+	})
+}
+
 //GetPastQuizzes retrieves list of past quizzes for the logged in user
 func GetPastQuizzes(c echo.Context) error {
 	userid := authController.FetchLoggedInUserID(c)

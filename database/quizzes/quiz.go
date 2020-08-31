@@ -38,7 +38,12 @@ func DeleteQuiz(quiz *quizzesModel.Quiz) {
 	dbInstance.GetDBConnection().Unscoped().Delete(quiz)
 }
 
-// GetQuizByID retrieves the quiz by the quiz id
+// UpdateQuiz updates the quiz in the database
+func UpdateQuiz(quiz *quizzesModel.Quiz) {
+	dbInstance.GetDBConnection().Save(quiz)
+}
+
+// GetQuizByID retrieves the quiz by the quizID
 func GetQuizByID(id uint) quizzesModel.Quiz {
 	var quiz quizzesModel.Quiz
 	dbInstance.GetDBConnection().First(&quiz, id)

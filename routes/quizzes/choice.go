@@ -7,8 +7,8 @@ import (
 )
 
 // InitializeChoiceRoutes initializes all choice routes
-func InitializeChoiceRoutes(quizzes *echo.Group) {
-	quizzes.POST("/choices", quizzesController.CreateChoice)
-	quizzes.PUT("/choices", quizzesController.UpdateChoice)
-	quizzes.DELETE("/choices", quizzesController.DeleteChoice)
+func InitializeChoiceRoutes(quizzes *echo.Group, adminQuizzes *echo.Group) {
+	adminQuizzes.POST("/choices", quizzesController.CreateChoice)
+	adminQuizzes.PUT("/choices", quizzesController.UpdateChoice)
+	adminQuizzes.DELETE("/choices", quizzesController.DeleteChoice)
 }

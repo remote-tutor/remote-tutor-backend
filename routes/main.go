@@ -1,6 +1,7 @@
 package routes
 
 import (
+	authControllers "backend/controllers/auth"
 	announcementRouter "backend/routes/announcements"
 	quizRouter "backend/routes/quizzes"
 	userRouter "backend/routes/users"
@@ -18,10 +19,14 @@ func InitializeRoutes(e *echo.Echo) {
 		AllowOrigins: []string{"http://localhost:8080"},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))
+	middleware.ErrJWTMissing.Message = "Please login"
+	adminRouter := e.Group("/admin",
+		middleware.JWT([]byte("secret")),
+		authControllers.CheckAdmin)
 
-	userRouter.InitializeRoutes(e)
-	announcementRouter.InitializeRoutes(e)
-	quizRouter.InitializeRoutes(e)
+	userRouter.InitializeRoutes(e, adminRouter)
+	announcementRouter.InitializeRoutes(e, adminRouter)
+	quizRouter.InitializeRoutes(e, adminRouter)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Success")

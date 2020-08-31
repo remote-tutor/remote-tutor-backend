@@ -33,3 +33,11 @@ func FetchLoggedInUserID(c echo.Context) uint {
 	id := uint(claims["id"].(float64))
 	return id
 }
+
+// FetchLoggedInUserAdminStatus retrieves the logged-in user admin status
+func FetchLoggedInUserAdminStatus(c echo.Context) bool {
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	admin := claims["admin"].(bool)
+	return admin
+}

@@ -19,8 +19,7 @@ func CreateMCQ(c echo.Context) error {
 	}
 	quizzesDBInteractions.CreateMCQ(&mcq)
 	return c.JSON(http.StatusOK, echo.Map{
-		"message": "MCQ question created successfully",
-		"mcq":     mcq,
+		"mcq": mcq,
 	})
 }
 
@@ -34,7 +33,6 @@ func CreateLongAnswer(c echo.Context) error {
 	}
 	quizzesDBInteractions.CreateLongAnswer(&longAnswer)
 	return c.JSON(http.StatusOK, echo.Map{
-		"message":    "Long Answer question created successfully",
 		"longAnswer": longAnswer,
 	})
 }

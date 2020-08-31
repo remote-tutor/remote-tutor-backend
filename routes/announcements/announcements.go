@@ -8,11 +8,12 @@ import (
 )
 
 // InitializeRoutes initializes all the required routes for announcements.
-func InitializeRoutes(e *echo.Echo) {
-	announcements := e.Group("/announcements")
-	announcements.Use(middleware.JWT([]byte("secret")))
+func InitializeRoutes(e *echo.Echo, adminRouter *echo.Group) {
+	announcements := e.Group("/announcements", middleware.JWT([]byte("secret")))
 	announcements.GET("", announcementsController.GetAnnouncements)
-	announcements.POST("", announcementsController.CreateAnnouncement)
-	announcements.PUT("", announcementsController.UpdateAnnouncement)
-	announcements.DELETE("", announcementsController.DeleteAnnouncement)
+
+	adminAnnouncements := adminRouter.Group("/announcements")
+	adminAnnouncements.POST("", announcementsController.CreateAnnouncement)
+	adminAnnouncements.PUT("", announcementsController.UpdateAnnouncement)
+	adminAnnouncements.DELETE("", announcementsController.DeleteAnnouncement)
 }

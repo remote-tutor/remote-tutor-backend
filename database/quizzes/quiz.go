@@ -32,3 +32,15 @@ func GetCurrentQuizzes(year int) []quizzesModel.Quiz {
 	dbInstance.GetDBConnection().Where("year = ? AND start_time < ? AND end_time > ?", year, currentTime, currentTime).Find(&currentQuizzes)
 	return currentQuizzes
 }
+
+// DeleteQuiz deletes the specified quiz from the database
+func DeleteQuiz(quiz *quizzesModel.Quiz) {
+	dbInstance.GetDBConnection().Unscoped().Delete(quiz)
+}
+
+// GetQuizByID retrieves the quiz by the quiz id
+func GetQuizByID(id uint) quizzesModel.Quiz {
+	var quiz quizzesModel.Quiz
+	dbInstance.GetDBConnection().First(&quiz, id)
+	return quiz
+}

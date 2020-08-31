@@ -61,3 +61,13 @@ func GetCurrentQuizzes(c echo.Context) error {
 		"currentQuizzes": currentQuizzes,
 	})
 }
+
+// DeleteQuiz deletes the quiz that the user selects
+func DeleteQuiz(c echo.Context) error {
+	quizID := utils.ConvertToUInt(c.FormValue("id"))
+	quiz := quizzesDBInteractions.GetQuizByID(quizID)
+	quizzesDBInteractions.DeleteQuiz(&quiz)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Quiz deleted successfully",
+	})
+}

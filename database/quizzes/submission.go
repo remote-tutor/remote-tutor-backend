@@ -18,7 +18,7 @@ func UpdateMCQSubmission(mcqSubmission *quizzesModel.MCQSubmission) {
 // GetMCQSubmissionByQuestionID retrieves the submission for a specific user for a specific question
 func GetMCQSubmissionByQuestionID(userID uint, mcqID uint) quizzesModel.MCQSubmission {
 	var mcqSubmission quizzesModel.MCQSubmission
-	dbInstance.GetDBConnection().Where("userid = ? AND mcqid = ?", userID, mcqID).Find(&mcqSubmission)
+	dbInstance.GetDBConnection().Where("user_id = ? AND question_id = ?", userID, mcqID).Find(&mcqSubmission)
 	return mcqSubmission
 }
 

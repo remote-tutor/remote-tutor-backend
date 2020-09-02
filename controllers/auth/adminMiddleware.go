@@ -13,7 +13,7 @@ func CheckAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 		if admin {
 			return next(c)
 		}
-		return c.JSON(http.StatusUnauthorized, echo.Map{
+		return c.JSON(http.StatusForbidden, echo.Map{
 			"message": "Unauthorized admin access",
 		})
 	}

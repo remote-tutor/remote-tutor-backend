@@ -61,7 +61,7 @@ func UpdateMCQSubmission(c echo.Context) error {
 	mcqID := utils.ConvertToUInt(c.FormValue("mcqID"))
 	userResult := utils.ConvertToUInt(c.FormValue("userResult"))
 
-	mcqSubmission := quizzesDBInteractions.GetMCQSubmissionByQuestionID(mcqID, userID)
+	mcqSubmission := quizzesDBInteractions.GetMCQSubmissionByQuestionID(userID, mcqID)
 	mcqSubmission.UserResult = userResult
 
 	quizzesDBInteractions.UpdateMCQSubmission(&mcqSubmission)

@@ -5,7 +5,8 @@ import (
 	"time"
 )
 
-func fromStringToBool(value string) bool {
+// ConvertToBool converts a string to a bool
+func ConvertToBool(value string) bool {
 	boolValue, err := strconv.ParseBool(value)
 	if err != nil {
 		return false
@@ -18,7 +19,7 @@ func ConvertToBoolArray(value []string) []bool {
 	length := len(value)
 	var boolArray []bool
 	for i := 0; i < length; i++ {
-		boolArray[i] = fromStringToBool(value[i])
+		boolArray[i] = ConvertToBool(value[i])
 	}
 	return boolArray
 }

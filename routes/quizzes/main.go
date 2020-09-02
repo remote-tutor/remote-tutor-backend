@@ -13,4 +13,5 @@ func InitializeRoutes(e *echo.Echo, adminRouter *echo.Group) {
 	InitializeQuizRoutes(quizzes, adminQuizzes)
 	InitializeQuestionRoutes(quizzes, adminQuizzes)
 	InitializeChoiceRoutes(quizzes, adminQuizzes)
+	InitializeSubmissionRoutes(quizzes, adminQuizzes)
 }

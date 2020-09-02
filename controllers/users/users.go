@@ -31,6 +31,8 @@ func Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Logged In!!",
 		"token":   token,
+		"admin":   user.Admin,
+		"name":    user.FullName,
 	})
 }
 

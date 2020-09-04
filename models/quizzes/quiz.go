@@ -3,7 +3,7 @@ package quizzes
 import (
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // Quiz struct to store the quiz data

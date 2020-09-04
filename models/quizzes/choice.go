@@ -1,7 +1,7 @@
 package quizzes
 
 import (
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // Choice struct to store the choice data

@@ -3,7 +3,7 @@ package models
 import (
 	usersModel "backend/models/users"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // Announcement struct to store the announcement data

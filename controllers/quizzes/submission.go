@@ -14,17 +14,9 @@ import (
 func GetSubmissionsByQuizAndUser(c echo.Context) error {
 	userID := authController.FetchLoggedInUserID(c)
 	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
-	displayUserResult := utils.ConvertToBool(c.QueryParam("displayUserResult"))
 	mcqSubmissions := quizzesDBInteractions.GetMCQSubmissionsByQuizID(userID, quizID)
 	longAnswerSubmissions := quizzesDBInteractions.GetLongAnswerSubmissionsByQuizID(userID, quizID)
-	if !displayUserResult {
-		for _, submissionItem := range mcqSubmissions {
-			submissionItem.UserResult = 0
-		}
-		for _, submissionItem := range longAnswerSubmissions {
-			submissionItem.UserResult = ""
-		}
-	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcqSubmissions":        mcqSubmissions,
 		"longAnswerSubmissions": longAnswerSubmissions,

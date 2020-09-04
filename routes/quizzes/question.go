@@ -7,15 +7,15 @@ import (
 )
 
 // InitializeQuestionRoutes initializes all question routes
-func InitializeQuestionRoutes(quizzes *echo.Group) {
+func InitializeQuestionRoutes(quizzes *echo.Group, adminQuizzes *echo.Group) {
 	quizzes.GET("/questions", quizzesController.GetQuestionsByQuiz)
 
-	quizzes.POST("/questions/mcq", quizzesController.CreateMCQ)
-	quizzes.POST("/questions/longanswer", quizzesController.CreateLongAnswer)
+	adminQuizzes.POST("/questions/mcq", quizzesController.CreateMCQ)
+	adminQuizzes.POST("/questions/longanswer", quizzesController.CreateLongAnswer)
 
-	quizzes.PUT("/questions/mcq", quizzesController.UpdateMCQ)
-	quizzes.PUT("/questions/longanswer", quizzesController.UpdateLongAnswer)
+	adminQuizzes.PUT("/questions/mcq", quizzesController.UpdateMCQ)
+	adminQuizzes.PUT("/questions/longanswer", quizzesController.UpdateLongAnswer)
 
-	quizzes.DELETE("/questions/mcq", quizzesController.DeleteMCQ)
-	quizzes.DELETE("/questions/longanswer", quizzesController.DeleteLongAnswer)
+	adminQuizzes.DELETE("/questions/mcq", quizzesController.DeleteMCQ)
+	adminQuizzes.DELETE("/questions/longanswer", quizzesController.DeleteLongAnswer)
 }

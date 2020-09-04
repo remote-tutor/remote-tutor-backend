@@ -88,3 +88,12 @@ func DeleteQuiz(c echo.Context) error {
 		"message": "Quiz deleted successfully",
 	})
 }
+
+// GetQuizByID returns a quiz with the specific passed id
+func GetQuizByID(c echo.Context) error {
+	quizID := utils.ConvertToUInt(c.QueryParam("id"))
+	quiz := quizzesDBInteractions.GetQuizByID(quizID)
+	return c.JSON(http.StatusOK, echo.Map{
+		"quiz": quiz,
+	})
+}

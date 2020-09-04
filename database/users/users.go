@@ -47,9 +47,9 @@ func GetPendingUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int) [
 }
 
 // GetTotalNumberOfPendingUsers returns the number of total pending users in the database
-func GetTotalNumberOfPendingUsers() int {
+func GetTotalNumberOfPendingUsers() int64 {
 	db := dbInstance.GetDBConnection()
-	var count int
+	var count int64
 	db.Model(&usersModel.User{}).Count(&count)
 	return count
 }

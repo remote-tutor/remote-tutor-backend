@@ -7,11 +7,13 @@ import (
 )
 
 // InitializeQuizRoutes initializes all quiz routes
-func InitializeQuizRoutes(quizzes *echo.Group) {
+func InitializeQuizRoutes(quizzes *echo.Group, adminQuizzes *echo.Group) {
 	quizzes.GET("/past", quizzesController.GetPastQuizzes)
 	quizzes.GET("/future", quizzesController.GetFutureQuizzes)
 	quizzes.GET("/current", quizzesController.GetCurrentQuizzes)
-	quizzes.POST("", quizzesController.CreateQuiz)
-	quizzes.DELETE("", quizzesController.DeleteQuiz)
-	quizzes.PUT("", quizzesController.UpdateQuiz)
+	quizzes.GET("/quiz", quizzesController.GetQuizByID)
+
+	adminQuizzes.POST("", quizzesController.CreateQuiz)
+	adminQuizzes.DELETE("", quizzesController.DeleteQuiz)
+	adminQuizzes.PUT("", quizzesController.UpdateQuiz)
 }

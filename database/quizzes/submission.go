@@ -26,8 +26,8 @@ func GetMCQSubmissionByQuestionID(userID uint, mcqID uint) quizzesModel.MCQSubmi
 func GetMCQSubmissionsByQuizID(userID uint, quizID uint) []quizzesModel.MCQSubmission {
 	db := dbInstance.GetDBConnection()
 	var mcqSubmissions []quizzesModel.MCQSubmission
-	subQuery := db.Table("mcqs").Select("id").Where("quiz_id = ? AND user_id = ?", quizID, userID).SubQuery()
-	db.Where("question_id IN ?", subQuery).Find(&mcqSubmissions)
+	subQuery := db.Table("mcqs").Select("id").Where("quiz_id = ? AND user_id = ?", quizID, userID)
+	db.Where("question_id IN (?)", subQuery).Find(&mcqSubmissions)
 	return mcqSubmissions
 }
 
@@ -35,7 +35,7 @@ func GetMCQSubmissionsByQuizID(userID uint, quizID uint) []quizzesModel.MCQSubmi
 func GetLongAnswerSubmissionsByQuizID(userID uint, quizID uint) []quizzesModel.LongAnswerSubmission {
 	db := dbInstance.GetDBConnection()
 	var longAnswerSubmission []quizzesModel.LongAnswerSubmission
-	subQuery := db.Table("mcqs").Select("id").Where("quiz_id = ? AND user_id = ?", quizID, userID).SubQuery()
-	db.Where("question_id IN ?", subQuery).Find(&longAnswerSubmission)
+	subQuery := db.Table("mcqs").Select("id").Where("quiz_id = ? AND user_id = ?", quizID, userID)
+	db.Where("question_id IN (?)", subQuery).Find(&longAnswerSubmission)
 	return longAnswerSubmission
 }

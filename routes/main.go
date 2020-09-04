@@ -16,7 +16,7 @@ import (
 func InitializeRoutes(e *echo.Echo) {
 	// to enable sending requests from the frontend application
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:8080"},
+		AllowOrigins: []string{"http://localhost:8080", "https://motawfik10.github.io"},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))
 	middleware.ErrJWTMissing.Message = "Please login"
@@ -29,7 +29,7 @@ func InitializeRoutes(e *echo.Echo) {
 	quizRouter.InitializeRoutes(e, adminRouter)
 
 	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Success")
-	}, middleware.JWT([]byte("secret")))
+		return c.String(http.StatusOK, "From APache")
+	})
 
 }

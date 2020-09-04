@@ -5,7 +5,7 @@ import (
 	announcementsModel "backend/models/announcements"
 	"fmt"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // CreateAnnouncement inserts a new user to the database
@@ -14,7 +14,7 @@ func CreateAnnouncement(announcement *announcementsModel.Announcement) {
 }
 
 // GetAnnouncements retrieves the announcements
-func GetAnnouncements(title, topic, content string, length, currentPage int) ([]announcementsModel.Announcement, int) {
+func GetAnnouncements(title, topic, content string, length, currentPage int) ([]announcementsModel.Announcement, int64) {
 	var announcements []announcementsModel.Announcement
 	// to add the searched word inside '%' pairs, we use the Sprintf function
 	// its normal use would be Sprintf("%s", variableName)
@@ -45,8 +45,8 @@ func DeleteAnnouncement(announcement *announcementsModel.Announcement) {
 }
 
 // countAnnouncements counts the number of records in the database by specific search
-func countAnnouncements(db *gorm.DB) int {
-	totalAnnouncements := 0
+func countAnnouncements(db *gorm.DB) int64 {
+	totalAnnouncements := int64(0)
 	db.Model(&announcementsModel.Announcement{}).Count(&totalAnnouncements)
 	return totalAnnouncements
 }

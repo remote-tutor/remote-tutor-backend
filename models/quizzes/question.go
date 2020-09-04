@@ -1,7 +1,7 @@
 package quizzes
 
 import (
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // Question struct to store the question data

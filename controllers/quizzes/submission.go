@@ -14,6 +14,8 @@ import (
 func GetSubmissionsByQuizAndUser(c echo.Context) error {
 	userID := authController.FetchLoggedInUserID(c)
 	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
+
+	// displayUserResult := utils.ConvertToBool(c.QueryParam("displayUserResult"))
 	mcqSubmissions := quizzesDBInteractions.GetMCQSubmissionsByQuizID(userID, quizID)
 	longAnswerSubmissions := quizzesDBInteractions.GetLongAnswerSubmissionsByQuizID(userID, quizID)
 
@@ -53,7 +55,7 @@ func UpdateMCQSubmission(c echo.Context) error {
 	mcqID := utils.ConvertToUInt(c.FormValue("mcqID"))
 	userResult := utils.ConvertToUInt(c.FormValue("userResult"))
 
-	mcqSubmission := quizzesDBInteractions.GetMCQSubmissionByQuestionID(mcqID, userID)
+	mcqSubmission := quizzesDBInteractions.GetMCQSubmissionByQuestionID(userID, mcqID)
 	mcqSubmission.UserResult = userResult
 
 	quizzesDBInteractions.UpdateMCQSubmission(&mcqSubmission)

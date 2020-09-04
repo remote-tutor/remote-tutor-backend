@@ -1,22 +1,45 @@
 package database
 
 import (
-	md "backend/models"
+	announcementsModel "backend/models/announcements"
+	quizzesModel "backend/models/quizzes"
+	usersModel "backend/models/users"
+	"log"
+	"os"
+	"time"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql" // to import the gorm database wrapper
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var (
-	databaseConnection, err = gorm.Open("mysql", "root:password@/tutoring?charset=utf8&parseTime=True&loc=Local")
+	newLogger = logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		logger.Config{
+			SlowThreshold: time.Second, // Slow SQL threshold
+			LogLevel:      logger.Warn, // Log level
+		},
+	)
+	dsn                     = "root:password@tcp(127.0.0.1:3306)/tutoring?charset=utf8mb4&parseTime=True&loc=Local"
+	databaseConnection, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: newLogger,
+	})
 )
 
 // MigrateTables makes sure that the tables are migrated at the start of the application
 func MigrateTables() {
 	if err == nil {
-		databaseConnection.LogMode(true)
-		databaseConnection.AutoMigrate(&md.User{})
-		databaseConnection.AutoMigrate(&md.Announcement{})
+		databaseConnection.AutoMigrate(&usersModel.User{})
+		databaseConnection.AutoMigrate(&announcementsModel.Announcement{})
+
+		databaseConnection.AutoMigrate(&quizzesModel.Quiz{})
+		databaseConnection.AutoMigrate(&quizzesModel.MCQ{})
+		databaseConnection.AutoMigrate(&quizzesModel.LongAnswer{})
+		databaseConnection.AutoMigrate(&quizzesModel.Choice{})
+		databaseConnection.AutoMigrate(&quizzesModel.MCQSubmission{})
+		databaseConnection.AutoMigrate(&quizzesModel.LongAnswerSubmission{})
+		databaseConnection.AutoMigrate(&quizzesModel.QuizGrade{})
 	}
 }
 

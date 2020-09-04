@@ -1,8 +1,9 @@
 package controllers
 
 import (
-	dbInteractions "backend/database"
-	md "backend/models"
+	authController "backend/controllers/auth"
+	usersDBInteractions "backend/database/users"
+	usersModel "backend/models/users"
 	"backend/utils"
 	"net/http"
 
@@ -14,14 +15,14 @@ import (
 func Login(c echo.Context) error {
 	username := c.FormValue("username")
 	password := c.FormValue("password")
-	user := dbInteractions.GetUserByUsername(username)
+	user := usersDBInteractions.GetUserByUsername(username)
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if user.ID == 0 || err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"message": "Invalid login credentials",
 		})
 	}
-	token, err := generateToken(&user)
+	token, err := authController.GenerateToken(&user)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Sorry, Unexpected Error Occurred",
@@ -30,6 +31,8 @@ func Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Logged In!!",
 		"token":   token,
+		"admin":   user.Admin,
+		"name":    user.FullName,
 	})
 }
 
@@ -44,7 +47,7 @@ func Register(c echo.Context) error {
 			"message": "Password doesn't match",
 		})
 	}
-	user := dbInteractions.GetUserByUsername(username) // check if a record with the same username is found
+	user := usersDBInteractions.GetUserByUsername(username) // check if a record with the same username is found
 	if user.ID != 0 {
 		return c.JSON(http.StatusNotAcceptable, echo.Map{ // return error to the user
 			"message": "This username is already taken",
@@ -53,12 +56,12 @@ func Register(c echo.Context) error {
 
 	// hash the password that the user entered
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), 10)
-	user = md.User{
+	user = usersModel.User{
 		Username: username,
 		Password: string(hashedPassword),
 		FullName: fullName,
 	}
-	dbInteractions.CreateUser(&user)
+	usersDBInteractions.CreateUser(&user)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "User created successfully",
 	})
@@ -72,8 +75,8 @@ func GetPendingUsers(c echo.Context) error {
 	page := utils.ConvertToInt(queryParams["page"][0])
 	itemsPerPage := utils.ConvertToInt(queryParams["itemsPerPage"][0])
 
-	pendingUsers := dbInteractions.GetPendingUsers(sortBy, sortDesc, page, itemsPerPage)
-	totalPendingUsers := dbInteractions.GetTotalNumberOfPendingUsers()
+	pendingUsers := usersDBInteractions.GetPendingUsers(sortBy, sortDesc, page, itemsPerPage)
+	totalPendingUsers := usersDBInteractions.GetTotalNumberOfPendingUsers()
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"pendingStudents":      pendingUsers,
@@ -84,12 +87,12 @@ func GetPendingUsers(c echo.Context) error {
 // CheckUserIsAdmin checks whether the user has admin rights or not
 func CheckUserIsAdmin(c echo.Context) error {
 	userid := uint(1)
-	user := dbInteractions.GetUserByUserID(userid)
+	user := usersDBInteractions.GetUserByUserID(userid)
 	isAdmin := false
-	if(user.Admin) {
+	if user.Admin {
 		isAdmin = true
 	}
 	return c.JSON(http.StatusOK, echo.Map{
-		"admin":      isAdmin,
+		"admin": isAdmin,
 	})
 }

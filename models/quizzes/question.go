@@ -1,12 +1,8 @@
 package quizzes
 
-import (
-	"gorm.io/gorm"
-)
-
 // Question struct to store the question data
 type Question struct {
-	gorm.Model
+	ID        uint   `json:"id"`
 	Text      string `json:"text"`
 	TotalMark int    `json:"totalMark"`
 	Quiz      Quiz   `json:"quiz"`

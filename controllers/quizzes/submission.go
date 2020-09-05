@@ -32,13 +32,13 @@ func CreateMCQSubmission(c echo.Context) error {
 	userResult := utils.ConvertToUInt(c.FormValue("userResult"))
 
 	submission := quizzesModel.Submission{
-		UserID:     userID,
-		QuestionID: mcqID,
+		UserID: userID,
 	}
 
 	mcqSubmission := quizzesModel.MCQSubmission{
 		Submission: submission,
 		UserResult: userResult,
+		MCQID:      mcqID,
 	}
 
 	quizzesDBInteractions.CreateMCQSubmission(&mcqSubmission)

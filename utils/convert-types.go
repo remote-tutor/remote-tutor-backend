@@ -2,6 +2,7 @@ package utils
 
 import (
 	"strconv"
+	"time"
 )
 
 // ConvertToBool converts a string to a bool
@@ -39,4 +40,11 @@ func ConvertToUInt(value string) uint {
 		return 0
 	}
 	return uint(uintValue)
+}
+
+// ConvertToTime converts an int timestamp to time object
+func ConvertToTime(value string) time.Time {
+	intValue := ConvertToInt(value)
+	intValue /= 1000
+	return time.Unix(int64(intValue), 0)
 }

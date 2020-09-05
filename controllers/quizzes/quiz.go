@@ -53,7 +53,13 @@ func UpdateQuiz(c echo.Context) error {
 func GetPastQuizzes(c echo.Context) error {
 	userid := authController.FetchLoggedInUserID(c)
 	user := usersDBInteractions.GetUserByUserID(userid)
-	pastQuizzes := quizzesDBInteractions.GetPastQuizzes(user.Year)
+	var year int
+	if user.Admin {
+		year = utils.ConvertToInt(c.FormValue("year"))
+	} else {
+		year = user.Year
+	}
+	pastQuizzes := quizzesDBInteractions.GetPastQuizzes(year)
 	return c.JSON(http.StatusOK, echo.Map{
 		"pastQuizzes": pastQuizzes,
 	})
@@ -63,7 +69,13 @@ func GetPastQuizzes(c echo.Context) error {
 func GetFutureQuizzes(c echo.Context) error {
 	userid := authController.FetchLoggedInUserID(c)
 	user := usersDBInteractions.GetUserByUserID(userid)
-	futureQuizzes := quizzesDBInteractions.GetFutureQuizzes(user.Year)
+	var year int
+	if user.Admin {
+		year = utils.ConvertToInt(c.FormValue("year"))
+	} else {
+		year = user.Year
+	}
+	futureQuizzes := quizzesDBInteractions.GetFutureQuizzes(year)
 	return c.JSON(http.StatusOK, echo.Map{
 		"futureQuizzes": futureQuizzes,
 	})
@@ -73,7 +85,13 @@ func GetFutureQuizzes(c echo.Context) error {
 func GetCurrentQuizzes(c echo.Context) error {
 	userid := authController.FetchLoggedInUserID(c)
 	user := usersDBInteractions.GetUserByUserID(userid)
-	currentQuizzes := quizzesDBInteractions.GetCurrentQuizzes(user.Year)
+	var year int
+	if user.Admin {
+		year = utils.ConvertToInt(c.FormValue("year"))
+	} else {
+		year = user.Year
+	}
+	currentQuizzes := quizzesDBInteractions.GetCurrentQuizzes(year)
 	return c.JSON(http.StatusOK, echo.Map{
 		"currentQuizzes": currentQuizzes,
 	})

@@ -29,7 +29,7 @@ func CreateQuizGrade(c echo.Context) error {
 // GetGradesByQuiz Fetches logged-in user's grade for a quiz
 func GetGradesByQuiz(c echo.Context) error {
 	userID := authController.FetchLoggedInUserID(c)
-	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
+	quizID := utils.ConvertToUInt(c.QueryParam("quizID"))
 
 	quizGrade := quizzesDBInteractions.GetGradesByQuizID(userID, quizID)
 	return c.JSON(http.StatusOK, echo.Map{

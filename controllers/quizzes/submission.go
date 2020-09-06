@@ -13,7 +13,7 @@ import (
 // GetSubmissionsByQuizAndUser retrieves all mcq and long answer submission for a specific quiz for a specific user
 func GetSubmissionsByQuizAndUser(c echo.Context) error {
 	userID := authController.FetchLoggedInUserID(c)
-	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
+	quizID := utils.ConvertToUInt(c.QueryParam("quizID"))
 
 	// displayUserResult := utils.ConvertToBool(c.QueryParam("displayUserResult"))
 	mcqSubmissions := quizzesDBInteractions.GetMCQSubmissionsByQuizID(userID, quizID)

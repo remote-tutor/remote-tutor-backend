@@ -18,7 +18,7 @@ func UpdateMCQSubmission(mcqSubmission *quizzesModel.MCQSubmission) {
 // GetMCQSubmissionByQuestionID retrieves the submission for a specific user for a specific question
 func GetMCQSubmissionByQuestionID(userID uint, mcqID uint) quizzesModel.MCQSubmission {
 	var mcqSubmission quizzesModel.MCQSubmission
-	dbInstance.GetDBConnection().Where("user_id = ? AND question_id = ?", userID, mcqID).Find(&mcqSubmission)
+	dbInstance.GetDBConnection().Where("user_id = ? AND mcq_id = ?", userID, mcqID).Find(&mcqSubmission)
 	return mcqSubmission
 }
 
@@ -27,7 +27,7 @@ func GetMCQSubmissionsByQuizID(userID uint, quizID uint) []quizzesModel.MCQSubmi
 	db := dbInstance.GetDBConnection()
 	var mcqSubmissions []quizzesModel.MCQSubmission
 	subQuery := db.Table("mcqs").Select("id").Where("quiz_id = ? AND user_id = ?", quizID, userID)
-	db.Where("question_id IN (?)", subQuery).Find(&mcqSubmissions)
+	db.Where("mcq_id IN (?)", subQuery).Find(&mcqSubmissions)
 	return mcqSubmissions
 }
 
@@ -36,6 +36,6 @@ func GetLongAnswerSubmissionsByQuizID(userID uint, quizID uint) []quizzesModel.L
 	db := dbInstance.GetDBConnection()
 	var longAnswerSubmission []quizzesModel.LongAnswerSubmission
 	subQuery := db.Table("mcqs").Select("id").Where("quiz_id = ? AND user_id = ?", quizID, userID)
-	db.Where("question_id IN (?)", subQuery).Find(&longAnswerSubmission)
+	db.Where("long_answer_id IN (?)", subQuery).Find(&longAnswerSubmission)
 	return longAnswerSubmission
 }

@@ -38,6 +38,10 @@ func GetGradesByQuiz(c echo.Context) error {
 }
 
 // GetGradesByQuizForAllUsers fetches all class grades for a quiz
-// func GetGradesByQuizForAllUsers(c echo.Context) {
-
-// }
+func GetGradesByQuizForAllUsers(c echo.Context) error {
+	quizID := utils.ConvertToUInt(c.QueryParam("quizID"))
+	quizGrades := quizzesDBInteractions.GetGradesByQuizForAllUsers(quizID)
+	return c.JSON(http.StatusOK, echo.Map{
+		"quizGrades": quizGrades,
+	})
+}

@@ -8,6 +8,7 @@ import (
 	"backend/utils"
 	"net/http"
 
+	"github.com/jinzhu/now"
 	"github.com/labstack/echo"
 )
 
@@ -113,5 +114,16 @@ func GetQuizByID(c echo.Context) error {
 	quiz := quizzesDBInteractions.GetQuizByID(quizID)
 	return c.JSON(http.StatusOK, echo.Map{
 		"quiz": quiz,
+	})
+}
+
+// GetQuizzesByMonth gets the quizzes within amonth period.
+func GetQuizzesByMonth(c echo.Context) error {
+	date := utils.ConvertToTime(c.FormValue("date"))
+	endOfMonth := now.With(date).EndOfMonth()
+	startOfMonth := now.With(date).BeginningOfMonth()
+	quizzes := quizzesDBInteractions.GetQuizzesByMonth(startOfMonth, endOfMonth)
+	return c.JSON(http.StatusOK, echo.Map{
+		"quizzes": quizzes,
 	})
 }

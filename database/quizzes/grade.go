@@ -23,6 +23,8 @@ func GetGradesByQuizID(userID uint, quizID uint) quizzesModel.QuizGrade {
 }
 
 // GetGradesByQuizForAllUsers retrieves all class grades for a specific quiz
-// fun GetGradesByQuizForAllUsers(quizID) [] quizzesModel.QuizGrade {
-// 	//To Do
-// }
+func GetGradesByQuizForAllUsers(quizID uint) []quizzesModel.QuizGrade {
+	var quizGrades []quizzesModel.QuizGrade
+	dbInstance.GetDBConnection().Where("quiz_id = ?", quizID).Joins("User").Order("full_name").Find(&quizGrades)
+	return quizGrades
+}

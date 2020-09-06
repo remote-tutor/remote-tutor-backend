@@ -11,5 +11,6 @@ func InitializeGradeRoutes(quizzes *echo.Group, adminQuizzes *echo.Group) {
 	quizzes.GET("/grades", quizzesController.GetGradesByQuiz)
 	quizzes.POST("/grades", quizzesController.CreateQuizGrade)
 
-	// adminQuizzes.GET("/grades", quizzesController.GetGradesByQuizForAllUsers)
+	adminQuizzes.GET("/grades", quizzesController.GetGradesByQuizForAllUsers)
+	// adminQuizzes.PUT("/grades", quizzesController.UpdateQuizTotalMark)
 }

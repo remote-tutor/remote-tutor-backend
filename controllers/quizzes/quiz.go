@@ -117,12 +117,19 @@ func GetQuizByID(c echo.Context) error {
 	})
 }
 
-// GetQuizzesByMonth gets the quizzes within amonth period.
-func GetQuizzesByMonth(c echo.Context) error {
-	date := utils.ConvertToTime(c.FormValue("date"))
+// GetQuizzesByMonthAndYear gets the quizzes within amonth period.
+func GetQuizzesByMonthAndYear(c echo.Context) error {
+	isAdmin := authController.FetchLoggedInUserAdminStatus(c)
+	var year int
+	if isAdmin {
+		year = utils.ConvertToInt(c.QueryParam("year"))
+	} else {
+		year = authController.FetchLoggedInUserYear(c)
+	}
+	date := utils.ConvertToTime(c.QueryParam("date"))
 	endOfMonth := now.With(date).EndOfMonth()
 	startOfMonth := now.With(date).BeginningOfMonth()
-	quizzes := quizzesDBInteractions.GetQuizzesByMonth(startOfMonth, endOfMonth)
+	quizzes := quizzesDBInteractions.GetQuizzesByMonthAndYear(year, startOfMonth, endOfMonth)
 	return c.JSON(http.StatusOK, echo.Map{
 		"quizzes": quizzes,
 	})

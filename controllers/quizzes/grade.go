@@ -33,7 +33,7 @@ func GetGradesByQuiz(c echo.Context) error {
 
 	quizGrade := quizzesDBInteractions.GetGradesByQuizID(userID, quizID)
 	return c.JSON(http.StatusOK, echo.Map{
-		"quizGrade": quizGrade,
+		"quizGrade": []quizzesModel.QuizGrade{quizGrade},
 	})
 }
 

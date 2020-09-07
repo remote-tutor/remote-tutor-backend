@@ -50,9 +50,12 @@ func GetQuizByID(id uint) quizzesModel.Quiz {
 	return quiz
 }
 
-// GetQuizzesByMonth retrieves all the quizzes within a month period.
-func GetQuizzesByMonth(startOfMonth, endOfMonth time.Time) []quizzesModel.Quiz {
+// GetQuizzesByMonthAndYear retrieves all the quizzes within a month period.
+func GetQuizzesByMonthAndYear(year int, startOfMonth, endOfMonth time.Time) []quizzesModel.Quiz {
 	var quizzes []quizzesModel.Quiz
-	dbInstance.GetDBConnection().Where("start_time >= ? AND end_time <= ?", startOfMonth, endOfMonth).Find(&quizzes)
+	dbInstance.GetDBConnection().
+		Where("year = ? AND start_time >= ? AND end_time <= ?", year, startOfMonth, endOfMonth).
+		Order("start_time").
+		Find(&quizzes)
 	return quizzes
 }

@@ -18,7 +18,7 @@ func UpdateGrade(grade *quizzesModel.QuizGrade) {
 // GetGradesByQuizID gets grade for logged-in user for a specific quiz
 func GetGradesByQuizID(userID uint, quizID uint) quizzesModel.QuizGrade {
 	var quizGrade quizzesModel.QuizGrade
-	dbInstance.GetDBConnection().Where("user_id = ? AND quiz_id = ?", userID, quizID).FirstOrInit(&quizGrade)
+	dbInstance.GetDBConnection().Where("user_id = ? AND quiz_id = ?", userID, quizID).Preload("User").FirstOrInit(&quizGrade)
 	return quizGrade
 }
 

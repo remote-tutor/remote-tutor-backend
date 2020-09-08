@@ -18,6 +18,8 @@ func CreateMCQ(c echo.Context) error {
 		CorrectAnswer: correctAnswer,
 	}
 	quizzesDBInteractions.CreateMCQ(&mcq)
+
+	updateQuizTotalMark(1, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcq": mcq,
 	})
@@ -32,6 +34,8 @@ func CreateLongAnswer(c echo.Context) error {
 		CorrectAnswer: correctAnswer,
 	}
 	quizzesDBInteractions.CreateLongAnswer(&longAnswer)
+
+	updateQuizTotalMark(question.TotalMark, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"longAnswer": longAnswer,
 	})
@@ -53,10 +57,13 @@ func UpdateMCQ(c echo.Context) error {
 //UpdateLongAnswer updates long answer question for a quiz
 func UpdateLongAnswer(c echo.Context) error {
 	longAnswer := quizzesDBInteractions.GetLongAnswerByID(utils.ConvertToUInt(c.FormValue("id")))
+	oldTotalMark := longAnswer.Question.TotalMark
 	longAnswer.CorrectAnswer = c.FormValue("correctAnswer")
 	longAnswer.Question.TotalMark = utils.ConvertToInt(c.FormValue("totalMark"))
 	longAnswer.Question.Text = c.FormValue("text")
 	quizzesDBInteractions.UpdateLongAnswer(&longAnswer)
+
+	updateQuizTotalMark(longAnswer.Question.TotalMark-oldTotalMark, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message":    "LongAnswer question created successfully",
 		"longAnswer": longAnswer,
@@ -67,6 +74,8 @@ func UpdateLongAnswer(c echo.Context) error {
 func DeleteMCQ(c echo.Context) error {
 	mcq := quizzesDBInteractions.GetMCQByID(utils.ConvertToUInt(c.FormValue("id")))
 	quizzesDBInteractions.DeleteMCQ(&mcq)
+
+	updateQuizTotalMark(-1, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "MCQ question deleted successfully",
 	})
@@ -76,6 +85,8 @@ func DeleteMCQ(c echo.Context) error {
 func DeleteLongAnswer(c echo.Context) error {
 	longAnswer := quizzesDBInteractions.GetLongAnswerByID(utils.ConvertToUInt(c.FormValue("id")))
 	quizzesDBInteractions.DeleteLongAnswer(&longAnswer)
+
+	updateQuizTotalMark(-longAnswer.Question.TotalMark, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Long Answer question deleted successfully",
 	})
@@ -103,4 +114,11 @@ func constructQuestion(c echo.Context) quizzesModel.Question {
 		QuizID:    quizID,
 	}
 	return question
+}
+
+func updateQuizTotalMark(markDifference int, c echo.Context) {
+	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
+	quiz := quizzesDBInteractions.GetQuizByID(quizID)
+	quiz.TotalMark += markDifference
+	quizzesDBInteractions.UpdateQuiz(&quiz)
 }

@@ -13,4 +13,5 @@ type Quiz struct {
 	Year      int       `json:"year"`
 	StartTime time.Time `json:"startTime"`
 	EndTime   time.Time `json:"endTime"`
+	TotalMark int       `json:"totalMark"`
 }

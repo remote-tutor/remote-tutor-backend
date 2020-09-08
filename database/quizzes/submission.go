@@ -25,7 +25,7 @@ func GetMCQSubmissionByQuestionID(userID uint, mcqID uint) quizzesModel.MCQSubmi
 // GetMCQSubmissionsByQuizID retrieves all the mcq submissions for a specific user for a specific quiz
 func GetMCQSubmissionsByQuizID(userID uint, quizID uint) []quizzesModel.MCQSubmission {
 	db := dbInstance.GetDBConnection()
-	var mcqSubmissions []quizzesModel.MCQSubmission
+	mcqSubmissions := make([]quizzesModel.MCQSubmission, 0)
 	subQuery := db.Table("mcqs").Select("id").Where("quiz_id = ? AND user_id = ?", quizID, userID)
 	db.Where("mcq_id IN (?)", subQuery).Find(&mcqSubmissions)
 	return mcqSubmissions
@@ -34,7 +34,7 @@ func GetMCQSubmissionsByQuizID(userID uint, quizID uint) []quizzesModel.MCQSubmi
 // GetLongAnswerSubmissionsByQuizID retrieves all the longAnswer submissions for a specific quiz
 func GetLongAnswerSubmissionsByQuizID(userID uint, quizID uint) []quizzesModel.LongAnswerSubmission {
 	db := dbInstance.GetDBConnection()
-	var longAnswerSubmission []quizzesModel.LongAnswerSubmission
+	longAnswerSubmission := make([]quizzesModel.LongAnswerSubmission, 0)
 	subQuery := db.Table("mcqs").Select("id").Where("quiz_id = ? AND user_id = ?", quizID, userID)
 	db.Where("long_answer_id IN (?)", subQuery).Find(&longAnswerSubmission)
 	return longAnswerSubmission

@@ -52,7 +52,7 @@ func GetPendingUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int, s
 	}
 	db = db.Offset((page - 1) * itemsPerPage).Limit(itemsPerPage)
 
-	var pendingUsers []usersModel.User
+	pendingUsers := make([]usersModel.User, 0)
 	db.Where("activated = 0").Find(&pendingUsers)
 	return pendingUsers
 }

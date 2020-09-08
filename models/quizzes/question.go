@@ -2,7 +2,7 @@ package quizzes
 
 // Question struct to store the question data
 type Question struct {
-	ID        uint   `json:"id"`
+	ID        uint   `json:"ID"`
 	Text      string `json:"text"`
 	TotalMark int    `json:"totalMark"`
 	Quiz      Quiz   `json:"quiz"`

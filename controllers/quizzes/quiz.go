@@ -56,7 +56,7 @@ func GetPastQuizzes(c echo.Context) error {
 	user := usersDBInteractions.GetUserByUserID(userid)
 	var year int
 	if user.Admin {
-		year = utils.ConvertToInt(c.FormValue("year"))
+		year = utils.ConvertToInt(c.QueryParam("year"))
 	} else {
 		year = user.Year
 	}
@@ -72,7 +72,7 @@ func GetFutureQuizzes(c echo.Context) error {
 	user := usersDBInteractions.GetUserByUserID(userid)
 	var year int
 	if user.Admin {
-		year = utils.ConvertToInt(c.FormValue("year"))
+		year = utils.ConvertToInt(c.QueryParam("year"))
 	} else {
 		year = user.Year
 	}
@@ -88,7 +88,7 @@ func GetCurrentQuizzes(c echo.Context) error {
 	user := usersDBInteractions.GetUserByUserID(userid)
 	var year int
 	if user.Admin {
-		year = utils.ConvertToInt(c.FormValue("year"))
+		year = utils.ConvertToInt(c.QueryParam("year"))
 	} else {
 		year = user.Year
 	}

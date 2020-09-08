@@ -15,7 +15,6 @@ func GetSubmissionsByQuizAndUser(c echo.Context) error {
 	userID := authController.FetchLoggedInUserID(c)
 	quizID := utils.ConvertToUInt(c.QueryParam("quizID"))
 
-	// displayUserResult := utils.ConvertToBool(c.QueryParam("displayUserResult"))
 	mcqSubmissions := quizzesDBInteractions.GetMCQSubmissionsByQuizID(userID, quizID)
 	longAnswerSubmissions := quizzesDBInteractions.GetLongAnswerSubmissionsByQuizID(userID, quizID)
 

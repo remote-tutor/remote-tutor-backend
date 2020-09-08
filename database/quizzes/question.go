@@ -49,14 +49,14 @@ func GetLongAnswerByID(id uint) quizzesModel.LongAnswer {
 
 // GetMCQsByQuiz retrievs all mcq questions for a quiz
 func GetMCQsByQuiz(quizID uint) []quizzesModel.MCQ {
-	var mcqs []quizzesModel.MCQ
+	mcqs := make([]quizzesModel.MCQ, 0)
 	dbInstance.GetDBConnection().Preload("Choices").Where("quiz_id = ?", quizID).Find(&mcqs)
 	return mcqs
 }
 
 // GetLongAnswersByQuiz retrievs all long answer questions for a quiz
 func GetLongAnswersByQuiz(quizID uint) []quizzesModel.LongAnswer {
-	var longAnswers []quizzesModel.LongAnswer
+	longAnswers := make([]quizzesModel.LongAnswer, 0)
 	dbInstance.GetDBConnection().Where("quiz_id = ?", quizID).Find(&longAnswers)
 	return longAnswers
 }

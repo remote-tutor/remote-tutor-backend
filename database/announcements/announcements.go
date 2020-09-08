@@ -15,7 +15,7 @@ func CreateAnnouncement(announcement *announcementsModel.Announcement) {
 
 // GetAnnouncements retrieves the announcements
 func GetAnnouncements(title, topic, content string, length, currentPage int) ([]announcementsModel.Announcement, int64) {
-	var announcements []announcementsModel.Announcement
+	announcements := make([]announcementsModel.Announcement, 0)
 	// to add the searched word inside '%' pairs, we use the Sprintf function
 	// its normal use would be Sprintf("%s", variableName)
 	// but as we need to escape the '%' character we put a pair of '%' to escape it

@@ -1,10 +1,12 @@
 package quizzes
 
 import (
+	authController "backend/controllers/auth"
 	quizzesDBInteractions "backend/database/quizzes"
 	quizzesModel "backend/models/quizzes"
 	"backend/utils"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo"
 )
@@ -49,7 +51,7 @@ func UpdateMCQ(c echo.Context) error {
 	mcq.Question.Text = c.FormValue("text")
 	quizzesDBInteractions.UpdateMCQ(&mcq)
 	return c.JSON(http.StatusOK, echo.Map{
-		"message": "MCQ question created successfully",
+		"message": "MCQ question updated successfully",
 		"mcq":     mcq,
 	})
 }
@@ -96,6 +98,11 @@ func DeleteLongAnswer(c echo.Context) error {
 func GetQuestionsByQuiz(c echo.Context) error {
 	quizID := utils.ConvertToUInt(c.QueryParam("quizID"))
 	mcqs := quizzesDBInteractions.GetMCQsByQuiz(quizID)
+	quiz := quizzesDBInteractions.GetQuizByID(quizID)
+	isAdmin := authController.FetchLoggedInUserAdminStatus(c)
+	if !isAdmin && time.Now().Before(quiz.EndTime) {
+		utils.ShuffleQuestions(&mcqs)
+	}
 	longAnswers := quizzesDBInteractions.GetLongAnswersByQuiz(quizID)
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcqs":        mcqs,

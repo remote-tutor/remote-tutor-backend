@@ -51,7 +51,6 @@ func CreateMCQSubmission(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"message":       "MCQ submission created successfully",
 		"mcqSubmission": mcqSubmission,
 	})
 }
@@ -79,7 +78,6 @@ func UpdateMCQSubmission(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"message":       "MCQ submission updated successfully",
 		"mcqSubmission": mcqSubmission,
 	})
 }

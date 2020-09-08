@@ -7,13 +7,13 @@ import (
 // Submission struct to store the Submission data
 type Submission struct {
 	Grade  int             `json:"grade"`
-	User   usersModel.User `json:"user"`
+	User   usersModel.User `json:"user" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	UserID uint            `json:"userID" gorm:"primary_key;autoIncrement:false"`
 }
 
 // MCQSubmission struct to store the MCQ Submission type data
 type MCQSubmission struct {
-	MCQ        MCQ  `json:"mcq"`
+	MCQ        MCQ  `json:"mcq" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	MCQID      uint `json:"mcqID" gorm:"primary_key;autoIncrement:false"`
 	Submission `json:"submission"`
 	UserResult uint `json:"userResult"`
@@ -21,7 +21,7 @@ type MCQSubmission struct {
 
 // LongAnswerSubmission struct to store the LongAnswer Submission type data
 type LongAnswerSubmission struct {
-	LongAnswer   LongAnswer `json:"longAnswer"`
+	LongAnswer   LongAnswer `json:"longAnswer" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	LongAnswerID uint       `json:"longAnswerID" gorm:"primary_key;autoIncrement:false"`
 	Submission   `json:"submission"`
 	UserResult   string `json:"userResult"`

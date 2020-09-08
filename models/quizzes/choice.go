@@ -8,6 +8,6 @@ import (
 type Choice struct {
 	gorm.Model
 	Text  string `json:"text"`
-	MCQ   MCQ    `json:"mcq"`
+	MCQ   MCQ    `json:"mcq" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	MCQID uint   `json:"mcqID"`
 }

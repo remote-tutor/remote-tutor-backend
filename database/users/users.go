@@ -3,6 +3,7 @@ package database
 import (
 	dbInstance "backend/database"
 	usersModel "backend/models/users"
+	"fmt"
 )
 
 // GetUserByUsername searches the database for the user with the given username to be used in the login action
@@ -27,9 +28,19 @@ func CreateUser(user *usersModel.User) {
 	db.Create(user)
 }
 
+// UpdateUser updates the user information
+func UpdateUser(user *usersModel.User) {
+	dbInstance.GetDBConnection().Save(user)
+}
+
 // GetPendingUsers retrieve the non activated users from the database
-func GetPendingUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int) []usersModel.User {
+func GetPendingUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int, searchByValue, searchByField string) []usersModel.User {
 	db := dbInstance.GetDBConnection()
+	if searchByField == "username" {
+		db = db.Where("username LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
+	} else if searchByField == "fullName" {
+		db = db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
+	}
 	if sortBy != nil {
 		for i := 0; i < len(sortBy); i++ {
 			if sortDesc[i] {
@@ -39,7 +50,7 @@ func GetPendingUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int) [
 			}
 		}
 	}
-	db = db.Offset((page - 1) * itemsPerPage)
+	db = db.Offset((page - 1) * itemsPerPage).Limit(itemsPerPage)
 
 	var pendingUsers []usersModel.User
 	db.Where("activated = 0").Find(&pendingUsers)
@@ -47,9 +58,14 @@ func GetPendingUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int) [
 }
 
 // GetTotalNumberOfPendingUsers returns the number of total pending users in the database
-func GetTotalNumberOfPendingUsers() int64 {
+func GetTotalNumberOfPendingUsers(searchByValue, searchByField string) int64 {
 	db := dbInstance.GetDBConnection()
+	if searchByField == "username" {
+		db = db.Where("username LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
+	} else if searchByField == "fullName" {
+		db = db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
+	}
 	var count int64
-	db.Model(&usersModel.User{}).Count(&count)
+	db.Model(&usersModel.User{}).Where("activated = 0").Count(&count)
 	return count
 }

@@ -22,6 +22,11 @@ func Login(c echo.Context) error {
 			"message": "Invalid login credentials",
 		})
 	}
+	if !user.Activated {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"message": "Sorry, you haven't been verified yet",
+		})
+	}
 	token, err := authController.GenerateToken(&user)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -74,13 +79,41 @@ func GetPendingUsers(c echo.Context) error {
 	sortBy := queryParams["sortBy[]"]
 	page := utils.ConvertToInt(queryParams["page"][0])
 	itemsPerPage := utils.ConvertToInt(queryParams["itemsPerPage"][0])
+	searchByValue := c.QueryParam("searchByValue")
+	searchByField := c.QueryParam("searchByField")
 
-	pendingUsers := usersDBInteractions.GetPendingUsers(sortBy, sortDesc, page, itemsPerPage)
-	totalPendingUsers := usersDBInteractions.GetTotalNumberOfPendingUsers()
+	pendingUsers := usersDBInteractions.GetPendingUsers(sortBy, sortDesc, page, itemsPerPage, searchByValue, searchByField)
+	totalPendingUsers := usersDBInteractions.GetTotalNumberOfPendingUsers(searchByValue, searchByField)
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"pendingStudents":      pendingUsers,
 		"totalPendingStudents": totalPendingUsers,
+	})
+}
+
+// UpdateUser updates the user in the database
+func UpdateUser(c echo.Context) error {
+	userID := utils.ConvertToUInt(c.FormValue("userID"))
+	fullName := c.FormValue("fullName")
+	year := utils.ConvertToInt(c.FormValue("year"))
+	if fullName == "" || year < 1 || year > 3 {
+		return c.JSON(http.StatusUnprocessableEntity, echo.Map{
+			"userID":  userID,
+			"message": "Error while saving the data, make sure you entered a correct name and/or year",
+		})
+	}
+	status := utils.ConvertToInt(c.FormValue("status"))
+	user := usersDBInteractions.GetUserByUserID(userID)
+	user.FullName = fullName
+	if status == 1 {
+		user.Activated = true
+		user.Admin = true
+	} else if status == 0 {
+		user.Activated = true
+	}
+	usersDBInteractions.UpdateUser(&user)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "User updated successfully",
 	})
 }
 

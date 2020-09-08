@@ -3,6 +3,7 @@ package database
 import (
 	dbInstance "backend/database"
 	usersModel "backend/models/users"
+	"fmt"
 )
 
 // GetUserByUsername searches the database for the user with the given username to be used in the login action
@@ -33,8 +34,13 @@ func UpdateUser(user *usersModel.User) {
 }
 
 // GetPendingUsers retrieve the non activated users from the database
-func GetPendingUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int) []usersModel.User {
+func GetPendingUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int, searchByValue, searchByField string) []usersModel.User {
 	db := dbInstance.GetDBConnection()
+	if searchByField == "username" {
+		db = db.Where("username LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
+	} else if searchByField == "fullName" {
+		db = db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
+	}
 	if sortBy != nil {
 		for i := 0; i < len(sortBy); i++ {
 			if sortDesc[i] {
@@ -52,8 +58,13 @@ func GetPendingUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int) [
 }
 
 // GetTotalNumberOfPendingUsers returns the number of total pending users in the database
-func GetTotalNumberOfPendingUsers() int64 {
+func GetTotalNumberOfPendingUsers(searchByValue, searchByField string) int64 {
 	db := dbInstance.GetDBConnection()
+	if searchByField == "username" {
+		db = db.Where("username LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
+	} else if searchByField == "fullName" {
+		db = db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
+	}
 	var count int64
 	db.Model(&usersModel.User{}).Where("activated = 0").Count(&count)
 	return count

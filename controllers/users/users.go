@@ -74,9 +74,11 @@ func GetPendingUsers(c echo.Context) error {
 	sortBy := queryParams["sortBy[]"]
 	page := utils.ConvertToInt(queryParams["page"][0])
 	itemsPerPage := utils.ConvertToInt(queryParams["itemsPerPage"][0])
+	searchByValue := c.QueryParam("searchByValue")
+	searchByField := c.QueryParam("searchByField")
 
-	pendingUsers := usersDBInteractions.GetPendingUsers(sortBy, sortDesc, page, itemsPerPage)
-	totalPendingUsers := usersDBInteractions.GetTotalNumberOfPendingUsers()
+	pendingUsers := usersDBInteractions.GetPendingUsers(sortBy, sortDesc, page, itemsPerPage, searchByValue, searchByField)
+	totalPendingUsers := usersDBInteractions.GetTotalNumberOfPendingUsers(searchByValue, searchByField)
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"pendingStudents":      pendingUsers,
@@ -88,6 +90,13 @@ func GetPendingUsers(c echo.Context) error {
 func UpdateUser(c echo.Context) error {
 	userID := utils.ConvertToUInt(c.FormValue("userID"))
 	fullName := c.FormValue("fullName")
+	year := utils.ConvertToInt(c.FormValue("year"))
+	if fullName == "" || year < 1 || year > 3 {
+		return c.JSON(http.StatusUnprocessableEntity, echo.Map{
+			"userID":  userID,
+			"message": "Error while saving the data, make sure you entered a correct name and/or year",
+		})
+	}
 	status := utils.ConvertToInt(c.FormValue("status"))
 	user := usersDBInteractions.GetUserByUserID(userID)
 	user.FullName = fullName
@@ -98,7 +107,9 @@ func UpdateUser(c echo.Context) error {
 		user.Activated = true
 	}
 	usersDBInteractions.UpdateUser(&user)
-	return c.JSON(http.StatusOK, echo.Map{})
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "User updated successfully",
+	})
 }
 
 // CheckUserIsAdmin checks whether the user has admin rights or not

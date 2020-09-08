@@ -49,7 +49,7 @@ func UpdateMCQ(c echo.Context) error {
 	mcq.Question.Text = c.FormValue("text")
 	quizzesDBInteractions.UpdateMCQ(&mcq)
 	return c.JSON(http.StatusOK, echo.Map{
-		"message": "MCQ question created successfully",
+		"message": "MCQ question updated successfully",
 		"mcq":     mcq,
 	})
 }

@@ -5,7 +5,7 @@ type Question struct {
 	ID        uint   `json:"ID"`
 	Text      string `json:"text"`
 	TotalMark int    `json:"totalMark"`
-	Quiz      Quiz   `json:"quiz"`
+	Quiz      Quiz   `json:"quiz" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	QuizID    uint   `json:"quizID"`
 }
 
@@ -13,7 +13,7 @@ type Question struct {
 type MCQ struct {
 	Question      `json:"question"`
 	CorrectAnswer uint     `json:"correctAnswer"`
-	Choices       []Choice `json:"choices"`
+	Choices       []Choice `json:"choices" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 // LongAnswer struct to store the LongAnswer question type data

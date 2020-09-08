@@ -21,7 +21,6 @@ func CreateQuizGrade(c echo.Context) error {
 	}
 	quizzesDBInteractions.CreateGrade(&quizGrade)
 	return c.JSON(http.StatusOK, echo.Map{
-		"message":   "Quiz grade created successfully",
 		"quizGrade": quizGrade,
 	})
 }

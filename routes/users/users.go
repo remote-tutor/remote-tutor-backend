@@ -10,5 +10,7 @@ import (
 func InitializeRoutes(e *echo.Echo, adminRoute *echo.Group) {
 	e.POST("/login", usersController.Login)
 	e.POST("/register", usersController.Register)
-	e.GET("/get-pending-students", usersController.GetPendingUsers)
+
+	e.GET("/pending-students", usersController.GetPendingUsers)
+	e.PUT("/students", usersController.UpdateUser)
 }

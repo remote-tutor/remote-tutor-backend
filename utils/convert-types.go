@@ -17,7 +17,7 @@ func ConvertToBool(value string) bool {
 // ConvertToBoolArray converts a string array to a bool array
 func ConvertToBoolArray(value []string) []bool {
 	length := len(value)
-	var boolArray []bool
+	boolArray := make([]bool, length)
 	for i := 0; i < length; i++ {
 		boolArray[i] = ConvertToBool(value[i])
 	}

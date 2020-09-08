@@ -75,13 +75,30 @@ func GetPendingUsers(c echo.Context) error {
 	page := utils.ConvertToInt(queryParams["page"][0])
 	itemsPerPage := utils.ConvertToInt(queryParams["itemsPerPage"][0])
 
-	pendingUsers := dbInteractions.GetPendingUsers(sortBy, sortDesc, page, itemsPerPage)
-	totalPendingUsers := dbInteractions.GetTotalNumberOfPendingUsers()
+	pendingUsers := usersDBInteractions.GetPendingUsers(sortBy, sortDesc, page, itemsPerPage)
+	totalPendingUsers := usersDBInteractions.GetTotalNumberOfPendingUsers()
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"pendingStudents":      pendingUsers,
 		"totalPendingStudents": totalPendingUsers,
 	})
+}
+
+// UpdateUser updates the user in the database
+func UpdateUser(c echo.Context) error {
+	userID := utils.ConvertToUInt(c.FormValue("userID"))
+	fullName := c.FormValue("fullName")
+	status := utils.ConvertToInt(c.FormValue("status"))
+	user := usersDBInteractions.GetUserByUserID(userID)
+	user.FullName = fullName
+	if status == 1 {
+		user.Activated = true
+		user.Admin = true
+	} else if status == 0 {
+		user.Activated = true
+	}
+	usersDBInteractions.UpdateUser(&user)
+	return c.JSON(http.StatusOK, echo.Map{})
 }
 
 // CheckUserIsAdmin checks whether the user has admin rights or not

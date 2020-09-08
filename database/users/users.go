@@ -27,6 +27,11 @@ func CreateUser(user *usersModel.User) {
 	db.Create(user)
 }
 
+// UpdateUser updates the user information
+func UpdateUser(user *usersModel.User) {
+	dbInstance.GetDBConnection().Save(user)
+}
+
 // GetPendingUsers retrieve the non activated users from the database
 func GetPendingUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int) []usersModel.User {
 	db := dbInstance.GetDBConnection()
@@ -39,7 +44,7 @@ func GetPendingUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int) [
 			}
 		}
 	}
-	db = db.Offset((page - 1) * itemsPerPage)
+	db = db.Offset((page - 1) * itemsPerPage).Limit(itemsPerPage)
 
 	var pendingUsers []usersModel.User
 	db.Where("activated = 0").Find(&pendingUsers)
@@ -50,6 +55,6 @@ func GetPendingUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int) [
 func GetTotalNumberOfPendingUsers() int64 {
 	db := dbInstance.GetDBConnection()
 	var count int64
-	db.Model(&usersModel.User{}).Count(&count)
+	db.Model(&usersModel.User{}).Where("activated = 0").Count(&count)
 	return count
 }

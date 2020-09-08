@@ -22,6 +22,11 @@ func Login(c echo.Context) error {
 			"message": "Invalid login credentials",
 		})
 	}
+	if !user.Activated {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"message": "Sorry, you haven't been verified yet",
+		})
+	}
 	token, err := authController.GenerateToken(&user)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{

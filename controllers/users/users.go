@@ -47,6 +47,9 @@ func Register(c echo.Context) error {
 	username := c.FormValue("username")
 	password := c.FormValue("password")
 	confirmPassword := c.FormValue("confirmPassword")
+	year := utils.ConvertToInt(c.FormValue("year"))
+	phoneNumber := c.FormValue("phoneNumber")
+	parentNumber := c.FormValue("parentNumber")
 	if password != confirmPassword { // check if the password doesn't match the confirm password
 		return c.JSON(http.StatusNotAcceptable, echo.Map{ // return error to the user
 			"message": "Password doesn't match",
@@ -62,9 +65,12 @@ func Register(c echo.Context) error {
 	// hash the password that the user entered
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), 10)
 	user = usersModel.User{
-		Username: username,
-		Password: string(hashedPassword),
-		FullName: fullName,
+		Username:     username,
+		Password:     string(hashedPassword),
+		FullName:     fullName,
+		Year:         year,
+		PhoneNumber:  phoneNumber,
+		ParentNumber: parentNumber,
 	}
 	usersDBInteractions.CreateUser(&user)
 	return c.JSON(http.StatusOK, echo.Map{
@@ -96,7 +102,9 @@ func UpdateUser(c echo.Context) error {
 	userID := utils.ConvertToUInt(c.FormValue("userID"))
 	fullName := c.FormValue("fullName")
 	year := utils.ConvertToInt(c.FormValue("year"))
-	if fullName == "" || year < 1 || year > 3 {
+	phoneNumber := c.FormValue("phoneNumber")
+	parentNumber := c.FormValue("parentNumber")
+	if fullName == "" || year < 1 || year > 3 || len(phoneNumber) != 11 || len(parentNumber) != 11 {
 		return c.JSON(http.StatusUnprocessableEntity, echo.Map{
 			"userID":  userID,
 			"message": "Error while saving the data, make sure you entered a correct name and/or year",
@@ -105,6 +113,9 @@ func UpdateUser(c echo.Context) error {
 	status := utils.ConvertToInt(c.FormValue("status"))
 	user := usersDBInteractions.GetUserByUserID(userID)
 	user.FullName = fullName
+	user.Year = year
+	user.PhoneNumber = phoneNumber
+	user.ParentNumber = parentNumber
 	if status == 1 {
 		user.Activated = true
 		user.Admin = true

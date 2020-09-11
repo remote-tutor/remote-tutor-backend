@@ -5,7 +5,11 @@ import (
 	quizzesDBInteractions "backend/database/quizzes"
 	quizzesModel "backend/models/quizzes"
 	"backend/utils"
+	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo"
@@ -21,6 +25,7 @@ func CreateMCQ(c echo.Context) error {
 	}
 	quizzesDBInteractions.CreateMCQ(&mcq)
 
+	createImageFile(mcq.Question)
 	updateQuizTotalMark(1, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcq": mcq,
@@ -46,9 +51,14 @@ func CreateLongAnswer(c echo.Context) error {
 //UpdateMCQ updates mcq question for a quiz
 func UpdateMCQ(c echo.Context) error {
 	mcq := quizzesDBInteractions.GetMCQByID(utils.ConvertToUInt(c.FormValue("id")))
+	question := constructQuestion(c)
 	mcq.CorrectAnswer = utils.ConvertToUInt(c.FormValue("correctAnswer"))
-	mcq.Question.TotalMark = utils.ConvertToInt(c.FormValue("totalMark"))
-	mcq.Question.Text = c.FormValue("text")
+	mcq.Question.TotalMark = question.TotalMark
+	mcq.Question.Text = question.Text
+	mcq.Question.ImagePath = question.ImagePath
+	mcq.Question.Image = question.Image
+
+	createImageFile(mcq.Question)
 	quizzesDBInteractions.UpdateMCQ(&mcq)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "MCQ question updated successfully",
@@ -114,13 +124,48 @@ func constructQuestion(c echo.Context) quizzesModel.Question {
 	text := c.FormValue("text")
 	totalMark := utils.ConvertToInt(c.FormValue("totalMark"))
 	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
-
 	question := quizzesModel.Question{
 		Text:      text,
 		TotalMark: totalMark,
 		QuizID:    quizID,
 	}
+
+	image, err := c.FormFile("image")
+	if err != nil {
+		fmt.Println("ERROR FROM FORMFILE")
+	} else {
+		src, err := image.Open()
+		if err != nil {
+			fmt.Println("ERROR FROM OPEN METHOD")
+		} else {
+			defer src.Close()
+			question.Image = src
+			question.ImagePath = image.Filename[strings.LastIndex(image.Filename, ".")+1:]
+		}
+	}
 	return question
+}
+
+func createImageFile(question quizzesModel.Question) {
+	createDirectoryIfNotExist(fmt.Sprintf("quizzesImages/quiz %d", question.QuizID))
+
+	question.ImagePath = fmt.Sprintf("quizzesImages/quiz %d/question %d.%s",
+		question.QuizID, question.ID, question.ImagePath)
+	dst, err := os.Create(question.ImagePath)
+	if err != nil {
+		fmt.Println("ERROR FROM CREATE METHOD")
+	} else {
+		defer dst.Close()
+		if _, err = io.Copy(dst, question.Image); err != nil {
+			fmt.Println("ERROR FROM COPY METHOD")
+		}
+	}
+}
+
+func createDirectoryIfNotExist(directoryName string) {
+	if _, err := os.Stat(directoryName); os.IsNotExist(err) {
+		os.Mkdir(directoryName, os.FileMode(int(0777)))
+	}
 }
 
 func updateQuizTotalMark(markDifference int, c echo.Context) {

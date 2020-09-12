@@ -7,6 +7,8 @@ type Question struct {
 	TotalMark int    `json:"totalMark"`
 	Quiz      Quiz   `json:"quiz" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	QuizID    uint   `json:"quizID"`
+	ImagePath string `json:"imagePath"`
+	Image     []byte `json:"image" gorm:"-"`
 }
 
 // MCQ struct to store the MCQ question type data

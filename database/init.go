@@ -22,7 +22,7 @@ var (
 			Colorful:      true,             // Disable color
 		},
 	)
-	dsn                     = "root:password@tcp(127.0.0.1:3306)/tutoring?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn                     = "root:password@tcp(127.0.0.1:3306)/tutoring?charset=utf8mb4&parseTime=True&loc=Africa%2FCairo"
 	databaseConnection, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: newLogger,
 	})

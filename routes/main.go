@@ -16,7 +16,10 @@ import (
 func InitializeRoutes(e *echo.Echo) {
 	// to enable sending requests from the frontend application
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:8080", "https://motawfik10.github.io"},
+		AllowOrigins: []string{"http://localhost:8080",
+			"https://remote-tutor.github.io",
+			"https://thematrixeg.com",
+		},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))
 	middleware.ErrJWTMissing.Message = "Please login"

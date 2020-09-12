@@ -17,15 +17,26 @@ import (
 
 //CreateMCQ creates a new mcq question for a quiz
 func CreateMCQ(c echo.Context) error {
+	question, err := constructQuestion(c)
+	if err != nil {
+		return c.JSON(http.StatusUnsupportedMediaType, echo.Map{
+			"message": "Error uploading the image, please try again later",
+		})
+	}
+
 	correctAnswer := utils.ConvertToUInt(c.FormValue("correctAnswer"))
-	question := constructQuestion(c)
 	mcq := quizzesModel.MCQ{
 		Question:      question,
 		CorrectAnswer: correctAnswer,
 	}
 	quizzesDBInteractions.CreateMCQ(&mcq)
 
-	createImageFile(mcq.Question)
+	err = createImageFile(&mcq.Question)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "An unexpected error occured when tring to save the image, please try again later",
+		})
+	}
 	updateQuizTotalMark(1, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcq": mcq,
@@ -34,8 +45,14 @@ func CreateMCQ(c echo.Context) error {
 
 //CreateLongAnswer creates a new long answer question for a quiz
 func CreateLongAnswer(c echo.Context) error {
+	question, err := constructQuestion(c)
+	if err != nil {
+		return c.JSON(http.StatusUnsupportedMediaType, echo.Map{
+			"message": "Error uploading the image, please try again later",
+		})
+	}
+
 	correctAnswer := c.FormValue("correctAnswer")
-	question := constructQuestion(c)
 	longAnswer := quizzesModel.LongAnswer{
 		Question:      question,
 		CorrectAnswer: correctAnswer,
@@ -50,15 +67,26 @@ func CreateLongAnswer(c echo.Context) error {
 
 //UpdateMCQ updates mcq question for a quiz
 func UpdateMCQ(c echo.Context) error {
+	question, err := constructQuestion(c)
+	if err != nil {
+		return c.JSON(http.StatusUnsupportedMediaType, echo.Map{
+			"message": "Error uploading the image, please try again later",
+		})
+	}
+
 	mcq := quizzesDBInteractions.GetMCQByID(utils.ConvertToUInt(c.FormValue("id")))
-	question := constructQuestion(c)
 	mcq.CorrectAnswer = utils.ConvertToUInt(c.FormValue("correctAnswer"))
 	mcq.Question.TotalMark = question.TotalMark
 	mcq.Question.Text = question.Text
 	mcq.Question.ImagePath = question.ImagePath
 	mcq.Question.Image = question.Image
 
-	createImageFile(mcq.Question)
+	err = createImageFile(&mcq.Question)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "An unexpected error occured when tring to save the image, please try again later",
+		})
+	}
 	quizzesDBInteractions.UpdateMCQ(&mcq)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "MCQ question updated successfully",
@@ -120,7 +148,7 @@ func GetQuestionsByQuiz(c echo.Context) error {
 	})
 }
 
-func constructQuestion(c echo.Context) quizzesModel.Question {
+func constructQuestion(c echo.Context) (quizzesModel.Question, error) {
 	text := c.FormValue("text")
 	totalMark := utils.ConvertToInt(c.FormValue("totalMark"))
 	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
@@ -132,34 +160,33 @@ func constructQuestion(c echo.Context) quizzesModel.Question {
 
 	image, err := c.FormFile("image")
 	if err != nil {
-		fmt.Println("ERROR FROM FORMFILE")
-	} else {
-		src, err := image.Open()
-		if err != nil {
-			fmt.Println("ERROR FROM OPEN METHOD")
-		} else {
-			defer src.Close()
-			question.Image = src
-			question.ImagePath = image.Filename[strings.LastIndex(image.Filename, ".")+1:]
-		}
+		return question, err
 	}
-	return question
+	src, err := image.Open()
+	if err != nil {
+		return question, err
+	}
+	defer src.Close()
+	question.Image = src
+	question.ImagePath = image.Filename[strings.LastIndex(image.Filename, ".")+1:]
+
+	return question, nil
 }
 
-func createImageFile(question quizzesModel.Question) {
+func createImageFile(question *quizzesModel.Question) error {
 	createDirectoryIfNotExist(fmt.Sprintf("quizzesImages/quiz %d", question.QuizID))
 
 	question.ImagePath = fmt.Sprintf("quizzesImages/quiz %d/question %d.%s",
 		question.QuizID, question.ID, question.ImagePath)
 	dst, err := os.Create(question.ImagePath)
 	if err != nil {
-		fmt.Println("ERROR FROM CREATE METHOD")
-	} else {
-		defer dst.Close()
-		if _, err = io.Copy(dst, question.Image); err != nil {
-			fmt.Println("ERROR FROM COPY METHOD")
-		}
+		return err
 	}
+	defer dst.Close()
+	if _, err = io.Copy(dst, question.Image); err != nil {
+		return err
+	}
+	return nil
 }
 
 func createDirectoryIfNotExist(directoryName string) {

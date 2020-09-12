@@ -11,6 +11,6 @@ func InitializeRoutes(e *echo.Echo, adminRoute *echo.Group) {
 	e.POST("/login", usersController.Login)
 	e.POST("/register", usersController.Register)
 
-	e.GET("/pending-students", usersController.GetPendingUsers)
+	adminRoute.GET("/students", usersController.GetUsers)
 	e.PUT("/students", usersController.UpdateUser)
 }

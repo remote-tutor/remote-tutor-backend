@@ -78,8 +78,8 @@ func Register(c echo.Context) error {
 	})
 }
 
-// GetPendingUsers retrieves the non activated users to view to the admin
-func GetPendingUsers(c echo.Context) error {
+// GetUsers retrieves the non activated users to view to the admin
+func GetUsers(c echo.Context) error {
 	queryParams := c.Request().URL.Query()
 	sortDesc := utils.ConvertToBoolArray(queryParams["sortDesc[]"])
 	sortBy := queryParams["sortBy[]"]
@@ -87,13 +87,14 @@ func GetPendingUsers(c echo.Context) error {
 	itemsPerPage := utils.ConvertToInt(queryParams["itemsPerPage"][0])
 	searchByValue := c.QueryParam("searchByValue")
 	searchByField := c.QueryParam("searchByField")
+	pending := utils.ConvertToBool(c.QueryParam("pending"))
 
-	pendingUsers := usersDBInteractions.GetPendingUsers(sortBy, sortDesc, page, itemsPerPage, searchByValue, searchByField)
-	totalPendingUsers := usersDBInteractions.GetTotalNumberOfPendingUsers(searchByValue, searchByField)
+	users := usersDBInteractions.GetUsers(sortBy, sortDesc, page, itemsPerPage, searchByValue, searchByField, pending)
+	totalUsers := usersDBInteractions.GetTotalNumberOfUsers(searchByValue, searchByField, pending)
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"pendingStudents":      pendingUsers,
-		"totalPendingStudents": totalPendingUsers,
+		"students":      users,
+		"totalStudents": totalUsers,
 	})
 }
 
@@ -121,6 +122,11 @@ func UpdateUser(c echo.Context) error {
 		user.Admin = true
 	} else if status == 0 {
 		user.Activated = true
+	} else if status == -1 {
+		usersDBInteractions.DeleteUser(&user)
+		return c.JSON(http.StatusOK, echo.Map{
+			"message": "User deleted successfully",
+		})
 	}
 	usersDBInteractions.UpdateUser(&user)
 	return c.JSON(http.StatusOK, echo.Map{

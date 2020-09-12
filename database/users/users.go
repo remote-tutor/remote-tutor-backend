@@ -33,8 +33,13 @@ func UpdateUser(user *usersModel.User) {
 	dbInstance.GetDBConnection().Save(user)
 }
 
-// GetPendingUsers retrieve the non activated users from the database
-func GetPendingUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int, searchByValue, searchByField string) []usersModel.User {
+// DeleteUser deletes the user from the database
+func DeleteUser(user *usersModel.User) {
+	dbInstance.GetDBConnection().Unscoped().Delete(user)
+}
+
+// GetUsers retrieve the non activated users from the database
+func GetUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int, searchByValue, searchByField string, pending bool) []usersModel.User {
 	db := dbInstance.GetDBConnection()
 	if searchByField == "username" {
 		db = db.Where("username LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
@@ -53,12 +58,12 @@ func GetPendingUsers(sortBy []string, sortDesc []bool, page, itemsPerPage int, s
 	db = db.Offset((page - 1) * itemsPerPage).Limit(itemsPerPage)
 
 	pendingUsers := make([]usersModel.User, 0)
-	db.Where("activated = 0").Find(&pendingUsers)
+	db.Where("activated = ?", !pending).Find(&pendingUsers)
 	return pendingUsers
 }
 
-// GetTotalNumberOfPendingUsers returns the number of total pending users in the database
-func GetTotalNumberOfPendingUsers(searchByValue, searchByField string) int64 {
+// GetTotalNumberOfUsers returns the number of total pending users in the database
+func GetTotalNumberOfUsers(searchByValue, searchByField string, pending bool) int64 {
 	db := dbInstance.GetDBConnection()
 	if searchByField == "username" {
 		db = db.Where("username LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
@@ -66,6 +71,6 @@ func GetTotalNumberOfPendingUsers(searchByValue, searchByField string) int64 {
 		db = db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
 	}
 	var count int64
-	db.Model(&usersModel.User{}).Where("activated = 0").Count(&count)
+	db.Model(&usersModel.User{}).Where("activated = ?", !pending).Count(&count)
 	return count
 }

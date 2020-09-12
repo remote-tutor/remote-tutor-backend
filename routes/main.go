@@ -6,6 +6,7 @@ import (
 	quizRouter "backend/routes/quizzes"
 	userRouter "backend/routes/users"
 
+	quizzesController "backend/controllers/quizzes"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -30,6 +31,8 @@ func InitializeRoutes(e *echo.Echo) {
 	userRouter.InitializeRoutes(e, adminRouter)
 	announcementRouter.InitializeRoutes(e, adminRouter)
 	quizRouter.InitializeRoutes(e, adminRouter)
+
+	e.GET("/image/:imagePath/:quizID/:questionID", quizzesController.GetQuestionImage)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "From APache")

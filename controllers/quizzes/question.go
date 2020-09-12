@@ -6,7 +6,7 @@ import (
 	quizzesModel "backend/models/quizzes"
 	"backend/utils"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -31,12 +31,13 @@ func CreateMCQ(c echo.Context) error {
 	}
 	quizzesDBInteractions.CreateMCQ(&mcq)
 
-	err = createImageFile(&mcq.Question)
+	err = createImageFile(&mcq.Question, mcq.Question.ImagePath)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "An unexpected error occured when tring to save the image, please try again later",
 		})
 	}
+	quizzesDBInteractions.UpdateMCQ(&mcq)
 	updateQuizTotalMark(1, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcq": mcq,
@@ -78,10 +79,12 @@ func UpdateMCQ(c echo.Context) error {
 	mcq.CorrectAnswer = utils.ConvertToUInt(c.FormValue("correctAnswer"))
 	mcq.Question.TotalMark = question.TotalMark
 	mcq.Question.Text = question.Text
-	mcq.Question.ImagePath = question.ImagePath
-	mcq.Question.Image = question.Image
+	if question.ImagePath != "" {
+		mcq.Question.ImagePath = question.ImagePath
+		mcq.Question.Image = question.Image
+	}
 
-	err = createImageFile(&mcq.Question)
+	err = createImageFile(&mcq.Question, question.ImagePath)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "An unexpected error occured when tring to save the image, please try again later",
@@ -139,12 +142,30 @@ func GetQuestionsByQuiz(c echo.Context) error {
 	quiz := quizzesDBInteractions.GetQuizByID(quizID)
 	isAdmin := authController.FetchLoggedInUserAdminStatus(c)
 	if !isAdmin && time.Now().Before(quiz.EndTime) {
-		utils.ShuffleQuestions(&mcqs)
+		utils.ShuffleQuestions(mcqs)
 	}
 	longAnswers := quizzesDBInteractions.GetLongAnswersByQuiz(quizID)
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcqs":        mcqs,
 		"longAnswers": longAnswers,
+	})
+}
+
+// GetQuestionImage gets the image of the specified question
+func GetQuestionImage(c echo.Context) error {
+	imagePath := c.Param("imagePath")
+	quizID := c.Param("quizID")
+	questionID := c.Param("questionID")
+	fullPath := imagePath + "/" + quizID + "/" + questionID
+	if _, err := os.Stat(fullPath); err == nil {
+		bytes, err := ioutil.ReadFile(fullPath)
+		if err == nil {
+			c.Response().Header().Set("Content-Type", "image/*")
+			return c.Blob(http.StatusOK, "image/*", bytes)
+		}
+	}
+	return c.JSON(http.StatusInternalServerError, echo.Map{
+		"message": "Error while retrieving the file",
 	})
 }
 
@@ -160,6 +181,9 @@ func constructQuestion(c echo.Context) (quizzesModel.Question, error) {
 
 	image, err := c.FormFile("image")
 	if err != nil {
+		if err.Error() == "http: no such file" {
+			return question, nil
+		}
 		return question, err
 	}
 	src, err := image.Open()
@@ -167,13 +191,20 @@ func constructQuestion(c echo.Context) (quizzesModel.Question, error) {
 		return question, err
 	}
 	defer src.Close()
-	question.Image = src
+	bytes, err := ioutil.ReadAll(src)
+	if err != nil {
+		return question, err
+	}
+	question.Image = bytes
 	question.ImagePath = image.Filename[strings.LastIndex(image.Filename, ".")+1:]
 
 	return question, nil
 }
 
-func createImageFile(question *quizzesModel.Question) error {
+func createImageFile(question *quizzesModel.Question, newPath string) error {
+	if newPath == "" {
+		return nil
+	}
 	createDirectoryIfNotExist(fmt.Sprintf("quizzesImages/quiz %d", question.QuizID))
 
 	question.ImagePath = fmt.Sprintf("quizzesImages/quiz %d/question %d.%s",
@@ -183,7 +214,7 @@ func createImageFile(question *quizzesModel.Question) error {
 		return err
 	}
 	defer dst.Close()
-	if _, err = io.Copy(dst, question.Image); err != nil {
+	if _, err = dst.Write(question.Image); err != nil {
 		return err
 	}
 	return nil

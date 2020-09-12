@@ -6,6 +6,7 @@ import (
 	quizRouter "backend/routes/quizzes"
 	userRouter "backend/routes/users"
 
+	quizzesController "backend/controllers/quizzes"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -17,7 +18,7 @@ func InitializeRoutes(e *echo.Echo) {
 	// to enable sending requests from the frontend application
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:8080", "https://motawfik10.github.io"},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization, "ResponseType"},
 	}))
 	middleware.ErrJWTMissing.Message = "Please login"
 	adminRouter := e.Group("/admin",
@@ -27,6 +28,8 @@ func InitializeRoutes(e *echo.Echo) {
 	userRouter.InitializeRoutes(e, adminRouter)
 	announcementRouter.InitializeRoutes(e, adminRouter)
 	quizRouter.InitializeRoutes(e, adminRouter)
+
+	e.GET("/image/:imagePath/:quizID/:questionID", quizzesController.GetQuestionImage)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "From APache")

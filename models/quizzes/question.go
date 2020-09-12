@@ -1,16 +1,14 @@
 package quizzes
 
-import "mime/multipart"
-
 // Question struct to store the question data
 type Question struct {
-	ID        uint           `json:"ID"`
-	Text      string         `json:"text"`
-	TotalMark int            `json:"totalMark"`
-	Quiz      Quiz           `json:"quiz" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	QuizID    uint           `json:"quizID"`
-	ImagePath string         `json:"imagePath"`
-	Image     multipart.File `json:"image" gorm:"-"`
+	ID        uint   `json:"ID"`
+	Text      string `json:"text"`
+	TotalMark int    `json:"totalMark"`
+	Quiz      Quiz   `json:"quiz" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	QuizID    uint   `json:"quizID"`
+	ImagePath string `json:"imagePath"`
+	Image     []byte `json:"image" gorm:"-"`
 }
 
 // MCQ struct to store the MCQ question type data

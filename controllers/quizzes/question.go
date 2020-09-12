@@ -38,7 +38,7 @@ func CreateMCQ(c echo.Context) error {
 		})
 	}
 	quizzesDBInteractions.UpdateMCQ(&mcq)
-	updateQuizTotalMark(1, c)
+	updateQuizTotalMark(mcq.Question.TotalMark, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcq": mcq,
 	})
@@ -76,6 +76,7 @@ func UpdateMCQ(c echo.Context) error {
 	}
 
 	mcq := quizzesDBInteractions.GetMCQByID(utils.ConvertToUInt(c.FormValue("id")))
+	oldTotalMark := mcq.Question.TotalMark
 	mcq.CorrectAnswer = utils.ConvertToUInt(c.FormValue("correctAnswer"))
 	mcq.Question.TotalMark = question.TotalMark
 	mcq.Question.Text = question.Text
@@ -91,6 +92,7 @@ func UpdateMCQ(c echo.Context) error {
 		})
 	}
 	quizzesDBInteractions.UpdateMCQ(&mcq)
+	updateQuizTotalMark(mcq.Question.TotalMark-oldTotalMark, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "MCQ question updated successfully",
 		"mcq":     mcq,
@@ -118,7 +120,7 @@ func DeleteMCQ(c echo.Context) error {
 	mcq := quizzesDBInteractions.GetMCQByID(utils.ConvertToUInt(c.FormValue("id")))
 	quizzesDBInteractions.DeleteMCQ(&mcq)
 
-	updateQuizTotalMark(-1, c)
+	updateQuizTotalMark(-mcq.Question.TotalMark, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "MCQ question deleted successfully",
 	})

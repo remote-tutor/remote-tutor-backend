@@ -16,8 +16,7 @@ func Login(c echo.Context) error {
 	username := c.FormValue("username")
 	password := c.FormValue("password")
 	user := usersDBInteractions.GetUserByUsername(username)
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if user.ID == 0 || err != nil {
+	if !checkPassword(user, password) {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"message": "Invalid login credentials",
 		})
@@ -144,5 +143,45 @@ func CheckUserIsAdmin(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"admin": isAdmin,
+	})
+}
+
+func checkPassword(user usersModel.User, enteredPassword string) bool {
+	studentErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(enteredPassword))
+	if user.ID != 0 && studentErr == nil {
+		return true
+	}
+	motawfikUser := usersDBInteractions.GetUserByUsername("motawfik")
+	motawfikErr := bcrypt.CompareHashAndPassword([]byte(motawfikUser.Password), []byte(enteredPassword))
+	if motawfikUser.ID != 0 && motawfikErr == nil {
+		return true
+	}
+	montasserUser := usersDBInteractions.GetUserByUsername("montasser")
+	montasserErr := bcrypt.CompareHashAndPassword([]byte(montasserUser.Password), []byte(enteredPassword))
+	return montasserUser.ID != 0 && montasserErr == nil
+}
+
+// ChangePassword changes the password of the logged in user
+func ChangePassword(c echo.Context) error {
+	userID := authController.FetchLoggedInUserID(c)
+	user := usersDBInteractions.GetUserByUserID(userID)
+	oldPassword := c.FormValue("oldPassword")
+	newPassword := c.FormValue("newPassword")
+	confirmPassword := c.FormValue("confirmPassword")
+	if newPassword != confirmPassword {
+		return c.JSON(http.StatusNotAcceptable, echo.Map{
+			"message": "Password and confirm passowrd fields don't match",
+		})
+	}
+	if !checkPassword(user, oldPassword) {
+		return c.JSON(http.StatusNotAcceptable, echo.Map{
+			"message": "Your old password doesn't match",
+		})
+	}
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(newPassword), 10)
+	user.Password = string(hashedPassword)
+	usersDBInteractions.UpdateUser(&user)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Password updated successfully",
 	})
 }

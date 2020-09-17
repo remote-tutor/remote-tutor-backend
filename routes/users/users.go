@@ -4,6 +4,7 @@ import (
 	usersController "backend/controllers/users"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 // InitializeRoutes initializes all the required routes for users
@@ -13,4 +14,7 @@ func InitializeRoutes(e *echo.Echo, adminRoute *echo.Group) {
 
 	adminRoute.GET("/students", usersController.GetUsers)
 	e.PUT("/students", usersController.UpdateUser)
+
+	e.PUT("/change-password", usersController.ChangePassword, middleware.JWT([]byte("secret")))
+
 }

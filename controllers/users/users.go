@@ -160,3 +160,28 @@ func checkPassword(user usersModel.User, enteredPassword string) bool {
 	montasserErr := bcrypt.CompareHashAndPassword([]byte(montasserUser.Password), []byte(enteredPassword))
 	return montasserUser.ID != 0 && montasserErr == nil
 }
+
+// ChangePassword changes the password of the logged in user
+func ChangePassword(c echo.Context) error {
+	userID := authController.FetchLoggedInUserID(c)
+	user := usersDBInteractions.GetUserByUserID(userID)
+	oldPassword := c.FormValue("oldPassword")
+	newPassword := c.FormValue("newPassword")
+	confirmPassword := c.FormValue("confirmPassword")
+	if newPassword != confirmPassword {
+		return c.JSON(http.StatusNotAcceptable, echo.Map{
+			"message": "Password and confirm passowrd fields don't match",
+		})
+	}
+	if !checkPassword(user, oldPassword) {
+		return c.JSON(http.StatusNotAcceptable, echo.Map{
+			"message": "Your old password doesn't match",
+		})
+	}
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(newPassword), 10)
+	user.Password = string(hashedPassword)
+	usersDBInteractions.UpdateUser(&user)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Password updated successfully",
+	})
+}

@@ -88,6 +88,16 @@ func UpdateMCQ(c echo.Context) error {
 			"message": "An unexpected error occured when tring to save the image, please try again later",
 		})
 	}
+
+	submissions := quizzesDBInteractions.GetMCQSubmissionsByQuestionID(mcq.ID)
+	for _, submission := range submissions {
+		if submission.UserResult == mcq.CorrectAnswer {
+			submission.Grade = mcq.TotalMark
+		} else {
+			submission.Grade = 0
+		}
+		quizzesDBInteractions.UpdateMCQSubmission(&submission)
+	}
 	quizzesDBInteractions.UpdateMCQ(&mcq)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "MCQ question updated successfully",

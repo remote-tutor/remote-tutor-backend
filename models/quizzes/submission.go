@@ -35,9 +35,3 @@ func (submission *MCQSubmission) AfterSave(tx *gorm.DB) (err error) {
 	submissionsHook.UpdateQuizGrade(submission.MCQID, submission.UserID, tx)
 	return
 }
-
-// AfterDelete updates the quiz grade when the submission is deleted
-func (submission *MCQSubmission) AfterDelete(tx *gorm.DB) (err error) {
-	submissionsHook.UpdateQuizGrade(submission.MCQID, submission.UserID, tx)
-	return
-}

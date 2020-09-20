@@ -45,5 +45,6 @@ func (mcq *MCQ) AfterSave(tx *gorm.DB) (err error) {
 // AfterDelete updates the quiz total mark every time question is deleted
 func (mcq *MCQ) AfterDelete(tx *gorm.DB) (err error) {
 	quizzesHooks.UpdateQuizTotalMark(mcq.QuizID, tx)
+	quizzesHooks.UpdateQuizGradeForAllUsers(mcq.QuizID, tx)
 	return
 }

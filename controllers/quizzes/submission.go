@@ -28,7 +28,6 @@ func GetSubmissionsByQuizAndUser(c echo.Context) error {
 func CreateMCQSubmission(c echo.Context) error {
 	userID := authController.FetchLoggedInUserID(c)
 	mcqID := utils.ConvertToUInt(c.FormValue("mcqID"))
-	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
 	userResult := utils.ConvertToUInt(c.FormValue("userResult"))
 
 	submission := quizzesModel.Submission{
@@ -41,14 +40,11 @@ func CreateMCQSubmission(c echo.Context) error {
 		MCQID:      mcqID,
 	}
 
-	quizzesDBInteractions.CreateMCQSubmission(&mcqSubmission)
-
 	mcqQuestion := quizzesDBInteractions.GetMCQByID(mcqID)
 	if userResult == mcqQuestion.CorrectAnswer {
-		quizGrade := quizzesDBInteractions.GetGradesByQuizID(userID, quizID)
-		quizGrade.Grade += mcqQuestion.TotalMark
-		quizzesDBInteractions.UpdateGrade(&quizGrade)
+		mcqSubmission.Submission.Grade = mcqQuestion.TotalMark
 	}
+	quizzesDBInteractions.CreateMCQSubmission(&mcqSubmission)
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcqSubmission": mcqSubmission,
@@ -59,23 +55,18 @@ func CreateMCQSubmission(c echo.Context) error {
 func UpdateMCQSubmission(c echo.Context) error {
 	userID := authController.FetchLoggedInUserID(c)
 	mcqID := utils.ConvertToUInt(c.FormValue("mcqID"))
-	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
 	userResult := utils.ConvertToUInt(c.FormValue("userResult"))
 
 	mcqSubmission := quizzesDBInteractions.GetMCQSubmissionByQuestionID(userID, mcqID)
-	previousResult := mcqSubmission.UserResult
-	if userResult != previousResult {
-		mcq := quizzesDBInteractions.GetMCQByID(mcqID)
-		quizGrade := quizzesDBInteractions.GetGradesByQuizID(userID, quizID)
-		if previousResult == mcq.CorrectAnswer {
-			quizGrade.Grade -= mcq.TotalMark
-		} else if userResult == mcq.CorrectAnswer {
-			quizGrade.Grade += mcq.TotalMark
-		}
-		mcqSubmission.UserResult = userResult
-		quizzesDBInteractions.UpdateMCQSubmission(&mcqSubmission)
-		quizzesDBInteractions.UpdateGrade(&quizGrade)
+
+	mcqQuestion := quizzesDBInteractions.GetMCQByID(mcqID)
+	if userResult == mcqQuestion.CorrectAnswer {
+		mcqSubmission.Submission.Grade = mcqQuestion.TotalMark
+	} else {
+		mcqSubmission.Submission.Grade = 0
 	}
+	mcqSubmission.UserResult = userResult
+	quizzesDBInteractions.UpdateMCQSubmission(&mcqSubmission)
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcqSubmission": mcqSubmission,

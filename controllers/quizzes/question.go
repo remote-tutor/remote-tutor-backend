@@ -38,7 +38,6 @@ func CreateMCQ(c echo.Context) error {
 		})
 	}
 	quizzesDBInteractions.UpdateMCQ(&mcq)
-	updateQuizTotalMark(mcq.Question.TotalMark, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcq": mcq,
 	})
@@ -60,7 +59,6 @@ func CreateLongAnswer(c echo.Context) error {
 	}
 	quizzesDBInteractions.CreateLongAnswer(&longAnswer)
 
-	updateQuizTotalMark(question.TotalMark, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"longAnswer": longAnswer,
 	})
@@ -76,7 +74,6 @@ func UpdateMCQ(c echo.Context) error {
 	}
 
 	mcq := quizzesDBInteractions.GetMCQByID(utils.ConvertToUInt(c.FormValue("id")))
-	oldTotalMark := mcq.Question.TotalMark
 	mcq.CorrectAnswer = utils.ConvertToUInt(c.FormValue("correctAnswer"))
 	mcq.Question.TotalMark = question.TotalMark
 	mcq.Question.Text = question.Text
@@ -92,7 +89,6 @@ func UpdateMCQ(c echo.Context) error {
 		})
 	}
 	quizzesDBInteractions.UpdateMCQ(&mcq)
-	updateQuizTotalMark(mcq.Question.TotalMark-oldTotalMark, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "MCQ question updated successfully",
 		"mcq":     mcq,
@@ -102,13 +98,11 @@ func UpdateMCQ(c echo.Context) error {
 //UpdateLongAnswer updates long answer question for a quiz
 func UpdateLongAnswer(c echo.Context) error {
 	longAnswer := quizzesDBInteractions.GetLongAnswerByID(utils.ConvertToUInt(c.FormValue("id")))
-	oldTotalMark := longAnswer.Question.TotalMark
 	longAnswer.CorrectAnswer = c.FormValue("correctAnswer")
 	longAnswer.Question.TotalMark = utils.ConvertToInt(c.FormValue("totalMark"))
 	longAnswer.Question.Text = c.FormValue("text")
 	quizzesDBInteractions.UpdateLongAnswer(&longAnswer)
 
-	updateQuizTotalMark(longAnswer.Question.TotalMark-oldTotalMark, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message":    "LongAnswer question created successfully",
 		"longAnswer": longAnswer,
@@ -120,7 +114,6 @@ func DeleteMCQ(c echo.Context) error {
 	mcq := quizzesDBInteractions.GetMCQByID(utils.ConvertToUInt(c.FormValue("id")))
 	quizzesDBInteractions.DeleteMCQ(&mcq)
 
-	updateQuizTotalMark(-mcq.Question.TotalMark, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "MCQ question deleted successfully",
 	})
@@ -131,7 +124,6 @@ func DeleteLongAnswer(c echo.Context) error {
 	longAnswer := quizzesDBInteractions.GetLongAnswerByID(utils.ConvertToUInt(c.FormValue("id")))
 	quizzesDBInteractions.DeleteLongAnswer(&longAnswer)
 
-	updateQuizTotalMark(-longAnswer.Question.TotalMark, c)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Long Answer question deleted successfully",
 	})
@@ -226,11 +218,4 @@ func createDirectoryIfNotExist(directoryName string) {
 	if _, err := os.Stat(directoryName); os.IsNotExist(err) {
 		os.Mkdir(directoryName, os.FileMode(int(0777)))
 	}
-}
-
-func updateQuizTotalMark(markDifference int, c echo.Context) {
-	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
-	quiz := quizzesDBInteractions.GetQuizByID(quizID)
-	quiz.TotalMark += markDifference
-	quizzesDBInteractions.UpdateQuiz(&quiz)
 }

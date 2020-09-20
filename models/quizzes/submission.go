@@ -1,7 +1,10 @@
 package quizzes
 
 import (
+	submissionsHook "backend/hooks/quizzes"
 	usersModel "backend/models/users"
+
+	"gorm.io/gorm"
 )
 
 // Submission struct to store the Submission data
@@ -25,4 +28,16 @@ type LongAnswerSubmission struct {
 	LongAnswerID uint       `json:"longAnswerID" gorm:"primary_key;autoIncrement:false"`
 	Submission   `json:"submission"`
 	UserResult   string `json:"userResult"`
+}
+
+// AfterSave updates the quiz grade when the user change the submission
+func (submission *MCQSubmission) AfterSave(tx *gorm.DB) (err error) {
+	submissionsHook.UpdateQuizGrade(submission.MCQID, submission.UserID, tx)
+	return
+}
+
+// AfterDelete updates the quiz grade when the submission is deleted
+func (submission *MCQSubmission) AfterDelete(tx *gorm.DB) (err error) {
+	submissionsHook.UpdateQuizGrade(submission.MCQID, submission.UserID, tx)
+	return
 }

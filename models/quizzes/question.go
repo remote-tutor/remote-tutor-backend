@@ -1,5 +1,11 @@
 package quizzes
 
+import (
+	quizzesHooks "backend/hooks/quizzes"
+
+	"gorm.io/gorm"
+)
+
 // Question struct to store the question data
 type Question struct {
 	ID        uint   `json:"ID"`
@@ -22,4 +28,23 @@ type MCQ struct {
 type LongAnswer struct {
 	Question      `json:"question"`
 	CorrectAnswer string `json:"correctAnswer"`
+}
+
+// AfterSave updates the quiz total mark every time question is created or updated
+func (mcq *MCQ) AfterSave(tx *gorm.DB) (err error) {
+	quizzesHooks.UpdateQuizTotalMark(mcq.QuizID, tx)
+	return
+}
+
+// AfterUpdate updates the user's submissions after question is updated
+// func (mcq *MCQ) AfterUpdate(tx *gorm.DB) (err error) {
+// 	quizzesHooks.UpdateQuizTotalMark(mcq.QuizID, tx)
+// 	return
+// }
+
+// AfterDelete updates the quiz total mark every time question is deleted
+func (mcq *MCQ) AfterDelete(tx *gorm.DB) (err error) {
+	quizzesHooks.UpdateQuizTotalMark(mcq.QuizID, tx)
+	quizzesHooks.UpdateQuizGradeForAllUsers(mcq.QuizID, tx)
+	return
 }

@@ -15,10 +15,17 @@ func UpdateMCQSubmission(mcqSubmission *quizzesModel.MCQSubmission) {
 	dbInstance.GetDBConnection().Save(mcqSubmission)
 }
 
-// GetMCQSubmissionByQuestionID retrieves the submission for a specific user for a specific question
-func GetMCQSubmissionByQuestionID(userID uint, mcqID uint) quizzesModel.MCQSubmission {
+// GetMCQSubmissionByQuestionAndUser retrieves the submission for a specific user for a specific question
+func GetMCQSubmissionByQuestionAndUser(userID uint, mcqID uint) quizzesModel.MCQSubmission {
 	var mcqSubmission quizzesModel.MCQSubmission
 	dbInstance.GetDBConnection().Where("user_id = ? AND mcq_id = ?", userID, mcqID).Find(&mcqSubmission)
+	return mcqSubmission
+}
+
+// GetMCQSubmissionsByQuestionID returns all the submissions of a specific question
+func GetMCQSubmissionsByQuestionID(mcqID uint) []quizzesModel.MCQSubmission {
+	var mcqSubmission []quizzesModel.MCQSubmission
+	dbInstance.GetDBConnection().Where("mcq_id = ?", mcqID).Find(&mcqSubmission)
 	return mcqSubmission
 }
 

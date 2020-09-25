@@ -3,6 +3,7 @@ package quizzes
 import (
 	authController "backend/controllers/auth"
 	quizzesDBInteractions "backend/database/quizzes"
+	usersDBInteractions "backend/database/users"
 	quizzesModel "backend/models/quizzes"
 	"backend/utils"
 	"fmt"
@@ -10,7 +11,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/labstack/echo"
 )
@@ -143,11 +143,9 @@ func DeleteLongAnswer(c echo.Context) error {
 func GetQuestionsByQuiz(c echo.Context) error {
 	quizID := utils.ConvertToUInt(c.QueryParam("quizID"))
 	mcqs := quizzesDBInteractions.GetMCQsByQuiz(quizID)
-	quiz := quizzesDBInteractions.GetQuizByID(quizID)
-	isAdmin := authController.FetchLoggedInUserAdminStatus(c)
-	if !isAdmin && time.Now().Before(quiz.EndTime) {
-		utils.ShuffleQuestions(mcqs)
-	}
+	user := usersDBInteractions.GetUserByUserID(authController.FetchLoggedInUserID(c))
+
+	utils.ShuffleQuestions(mcqs, &user)
 	longAnswers := quizzesDBInteractions.GetLongAnswersByQuiz(quizID)
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcqs":        mcqs,

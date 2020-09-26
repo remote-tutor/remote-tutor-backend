@@ -28,3 +28,11 @@ func GetPaymentsByUserAndMonth(userID uint, startDate, endDate time.Time) []paym
 		userID, startDate, endDate).Find(&payments)
 	return payments
 }
+
+// GetPaymentByUserAndWeek returns the payment of the user in a specific week (if found)
+func GetPaymentByUserAndWeek(userID uint, eventDate time.Time) paymentsModel.Payment {
+	var payment paymentsModel.Payment
+	dbInstance.GetDBConnection().Where("user_id = ? AND start_date <= ? AND end_date >= ?",
+		userID, eventDate, eventDate).First(&payment)
+	return payment
+}

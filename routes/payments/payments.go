@@ -10,7 +10,8 @@ import (
 // InitializeRoutes initializes all the required routes to deal with payments
 func InitializeRoutes(e *echo.Echo, adminRouter *echo.Group) {
 	payments := e.Group("/payments", middleware.JWT([]byte("secret")))
-	payments.GET("", paymentsController.GetPaymentsByUserAndMonth)
+	payments.GET("/month", paymentsController.GetPaymentsByUserAndMonth)
+	payments.GET("/week", paymentsController.GetPaymentsByUserAndWeek)
 
 	adminPayments := adminRouter.Group("/payments")
 	adminPayments.POST("", paymentsController.CreatePayment)

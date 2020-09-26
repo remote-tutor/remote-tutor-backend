@@ -5,6 +5,7 @@ import (
 
 	"github.com/labstack/echo"
 
+	authController "backend/controllers/auth"
 	paymentsDBInteractions "backend/database/payments"
 	paymentsModel "backend/models/payments"
 	"backend/utils"
@@ -20,6 +21,22 @@ func GetPaymentsByUserAndMonth(c echo.Context) error {
 	payments := paymentsDBInteractions.GetPaymentsByUserAndMonth(userID, startDate, endDate)
 	return c.JSON(http.StatusOK, echo.Map{
 		"payments": payments,
+	})
+}
+
+// GetPaymentsByUserAndWeek verifies if the user has payment for this week or not
+func GetPaymentsByUserAndWeek(c echo.Context) error {
+	userID := authController.FetchLoggedInUserID(c)
+	eventDate := utils.ConvertToTime(c.QueryParam("eventDate"))
+
+	payment := paymentsDBInteractions.GetPaymentByUserAndWeek(userID, eventDate)
+	if payment.ID == 0 {
+		return c.JSON(http.StatusOK, echo.Map{
+			"status": false,
+		})
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"status": true,
 	})
 }
 

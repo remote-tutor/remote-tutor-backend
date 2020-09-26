@@ -2,6 +2,7 @@ package database
 
 import (
 	announcementsModel "backend/models/announcements"
+	paymentsModel "backend/models/payments"
 	quizzesModel "backend/models/quizzes"
 	usersModel "backend/models/users"
 	"log"
@@ -41,6 +42,8 @@ func MigrateTables() {
 		databaseConnection.AutoMigrate(&quizzesModel.MCQSubmission{})
 		databaseConnection.AutoMigrate(&quizzesModel.LongAnswerSubmission{})
 		databaseConnection.AutoMigrate(&quizzesModel.QuizGrade{})
+
+		databaseConnection.AutoMigrate(&paymentsModel.Payment{})
 	}
 }
 

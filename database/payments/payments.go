@@ -16,6 +16,11 @@ func UpdatePayment(payment *paymentsModel.Payment) {
 	dbInstance.GetDBConnection().Save(payment)
 }
 
+// DeletePayment deletes the payment
+func DeletePayment(payment *paymentsModel.Payment) {
+	dbInstance.GetDBConnection().Unscoped().Delete(payment)
+}
+
 // GetPaymentsByUserAndMonth gets the payment of specific user in a specific month
 func GetPaymentsByUserAndMonth(userID uint, startDate, endDate time.Time) []paymentsModel.Payment {
 	payments := make([]paymentsModel.Payment, 0)

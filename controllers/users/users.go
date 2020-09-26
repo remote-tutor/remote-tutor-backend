@@ -79,16 +79,11 @@ func Register(c echo.Context) error {
 
 // GetUsers retrieves the non activated users to view to the admin
 func GetUsers(c echo.Context) error {
-	queryParams := c.Request().URL.Query()
-	sortDesc := utils.ConvertToBoolArray(queryParams["sortDesc[]"])
-	sortBy := queryParams["sortBy[]"]
-	page := utils.ConvertToInt(queryParams["page"][0])
-	itemsPerPage := utils.ConvertToInt(queryParams["itemsPerPage"][0])
 	searchByValue := c.QueryParam("searchByValue")
 	searchByField := c.QueryParam("searchByField")
 	pending := utils.ConvertToBool(c.QueryParam("pending"))
 
-	users := usersDBInteractions.GetUsers(sortBy, sortDesc, page, itemsPerPage, searchByValue, searchByField, pending)
+	users := usersDBInteractions.GetUsers(c, searchByValue, searchByField, pending)
 	totalUsers := usersDBInteractions.GetTotalNumberOfUsers(searchByValue, searchByField, pending)
 
 	return c.JSON(http.StatusOK, echo.Map{

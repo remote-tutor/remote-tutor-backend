@@ -16,9 +16,7 @@ func GetAnnouncements(c echo.Context) error {
 	title := c.QueryParam("title")
 	topic := c.QueryParam("topic")
 	content := c.QueryParam("content")
-	length := utils.ConvertToInt(c.QueryParam("length"))
-	currentPage := utils.ConvertToInt(c.QueryParam("currentPage"))
-	announcements, numberOfAnnouncements := announcementsDBInteractions.GetAnnouncements(title, topic, content, length, currentPage)
+	announcements, numberOfAnnouncements := announcementsDBInteractions.GetAnnouncements(c, title, topic, content)
 	return c.JSON(http.StatusOK, echo.Map{
 		"announcements": announcements,
 		"total":         numberOfAnnouncements,

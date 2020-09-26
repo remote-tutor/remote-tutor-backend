@@ -2,9 +2,11 @@ package database
 
 import (
 	dbInstance "backend/database"
+	dbPagination "backend/database/scopes"
 	announcementsModel "backend/models/announcements"
 	"fmt"
 
+	"github.com/labstack/echo"
 	"gorm.io/gorm"
 )
 
@@ -14,7 +16,7 @@ func CreateAnnouncement(announcement *announcementsModel.Announcement) {
 }
 
 // GetAnnouncements retrieves the announcements
-func GetAnnouncements(title, topic, content string, length, currentPage int) ([]announcementsModel.Announcement, int64) {
+func GetAnnouncements(c echo.Context, title, topic, content string) ([]announcementsModel.Announcement, int64) {
 	announcements := make([]announcementsModel.Announcement, 0)
 	// to add the searched word inside '%' pairs, we use the Sprintf function
 	// its normal use would be Sprintf("%s", variableName)
@@ -22,8 +24,7 @@ func GetAnnouncements(title, topic, content string, length, currentPage int) ([]
 	query := dbInstance.GetDBConnection().Where("title LIKE ? AND topic LIKE ? AND content LIKE ?",
 		fmt.Sprintf("%%%s%%", title), fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", content))
 	numberOfRecords := countAnnouncements(query)
-	query.Offset(length * (currentPage - 1)).Limit(length).
-		Order("created_at DESC").Find(&announcements)
+	query = query.Scopes(dbPagination.Paginate(c)).Find(&announcements)
 	return announcements, numberOfRecords
 }
 

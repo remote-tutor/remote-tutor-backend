@@ -13,7 +13,13 @@ import (
 
 // GetPaymentsByUserAndMonth gets the payments of specific user in a specific month
 func GetPaymentsByUserAndMonth(c echo.Context) error {
-	userID := utils.ConvertToUInt(c.QueryParam("userID"))
+	admin := authController.FetchLoggedInUserAdminStatus(c)
+	userID := uint(0)
+	if admin {
+		userID = utils.ConvertToUInt(c.QueryParam("userID"))
+	} else {
+		userID = authController.FetchLoggedInUserID(c)
+	}
 	startDate := utils.ConvertToTime(c.QueryParam("startDate"))
 	endDate := utils.ConvertToTime(c.QueryParam("endDate"))
 	endDate = endDate.AddDate(0, 0, 1)

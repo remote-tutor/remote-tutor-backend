@@ -60,9 +60,10 @@ func GetPastQuizzes(c echo.Context) error {
 	} else {
 		year = user.Year
 	}
-	pastQuizzes := quizzesDBInteractions.GetPastQuizzes(year)
+	pastQuizzes, totalQuizzes := quizzesDBInteractions.GetPastQuizzes(c, year)
 	return c.JSON(http.StatusOK, echo.Map{
-		"pastQuizzes": pastQuizzes,
+		"pastQuizzes":  pastQuizzes,
+		"totalQuizzes": totalQuizzes,
 	})
 }
 
@@ -76,9 +77,10 @@ func GetFutureQuizzes(c echo.Context) error {
 	} else {
 		year = user.Year
 	}
-	futureQuizzes := quizzesDBInteractions.GetFutureQuizzes(year)
+	futureQuizzes, totalQuizzes := quizzesDBInteractions.GetFutureQuizzes(c, year)
 	return c.JSON(http.StatusOK, echo.Map{
 		"futureQuizzes": futureQuizzes,
+		"totalQuizzes":  totalQuizzes,
 	})
 }
 
@@ -92,9 +94,10 @@ func GetCurrentQuizzes(c echo.Context) error {
 	} else {
 		year = user.Year
 	}
-	currentQuizzes := quizzesDBInteractions.GetCurrentQuizzes(year)
+	currentQuizzes, totalQuizzes := quizzesDBInteractions.GetCurrentQuizzes(c, year)
 	return c.JSON(http.StatusOK, echo.Map{
 		"currentQuizzes": currentQuizzes,
+		"totalQuizzes":   totalQuizzes,
 	})
 }
 

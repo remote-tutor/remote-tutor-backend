@@ -3,6 +3,7 @@ package routes
 import (
 	authControllers "backend/controllers/auth"
 	announcementRouter "backend/routes/announcements"
+	paymentRouter "backend/routes/payments"
 	quizRouter "backend/routes/quizzes"
 	userRouter "backend/routes/users"
 
@@ -31,6 +32,7 @@ func InitializeRoutes(e *echo.Echo) {
 	userRouter.InitializeRoutes(e, adminRouter)
 	announcementRouter.InitializeRoutes(e, adminRouter)
 	quizRouter.InitializeRoutes(e, adminRouter)
+	paymentRouter.InitializeRoutes(e, adminRouter)
 
 	e.GET("/image/:imagePath/:quizID/:questionID", quizzesController.GetQuestionImage)
 

@@ -9,6 +9,7 @@ import (
 func InitializeRoutes(e *echo.Echo, adminRouter *echo.Group) {
 	assignments := e.Group("/assignments", middleware.JWT([]byte("secret")))
 	assignments.GET("", assignmentsController.GetAssignments)
+	assignments.GET("/assignment", assignmentsController.GetAssignmentByAssignmentID)
 
 	adminAssignments := adminRouter.Group("/assignments")
 	adminAssignments.POST("", assignmentsController.CreateAssignment)

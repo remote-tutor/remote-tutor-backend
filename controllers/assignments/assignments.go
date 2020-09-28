@@ -29,8 +29,8 @@ func GetAssignments(c echo.Context) error {
 	})
 }
 
-// CreateAssignment creates a new assignment with the given data
-func CreateAssignment(c echo.Context) error {
+func CreateOrUpdateAssignment(c echo.Context) error {
+	method := c.Request().Method
 	assignment := new(assignmentsModel.Assignment)
 	if err := c.Bind(assignment); err != nil {
 		return c.JSON(http.StatusNotAcceptable, echo.Map{
@@ -38,20 +38,31 @@ func CreateAssignment(c echo.Context) error {
 		})
 	}
 	assignment.Deadline = utils.ConvertToTime(c.FormValue("deadline"))
-	assignmentsDBInteractions.CreateAssignment(assignment)
+	if method == "POST" {
+		assignmentsDBInteractions.CreateAssignment(assignment)
+	}
 	questionsFilePath, questionsErr := assignmentsFiles.UploadQuestionsFile(c, assignment)
 	modelAnswerFilePath, modelAnswerErr := assignmentsFiles.UploadModelAnswerFile(c, assignment)
 	if questionsErr != nil || modelAnswerErr != nil {
-		assignmentsDBInteractions.DeleteAssignment(assignment)
+		if method == "POST" {
+			assignmentsDBInteractions.DeleteAssignment(assignment)
+		}
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred when trying to upload the files. Please try again later",
 		})
 	}
-	assignment.Questions = questionsFilePath
-	assignment.ModelAnswer = modelAnswerFilePath
+	if questionsFilePath != "" {
+		assignment.Questions = questionsFilePath
+	}
+	if modelAnswerFilePath != "" {
+		assignment.ModelAnswer = modelAnswerFilePath
+	}
+	if method == "PUT" {
+		assignment.CreatedAt = utils.ConvertToTime(c.FormValue("CreatedAt"))
+	}
 	assignmentsDBInteractions.UpdateAssignment(assignment)
 	return c.JSON(http.StatusOK, echo.Map{
-		"message": "Assignment Created Successfully",
+		"message": "Assignment Saved Successfully",
 	})
 }
 
@@ -68,9 +79,7 @@ func GetQuestionsFile(c echo.Context) error {
 	questionsPath := c.QueryParam("file")
 	bytes, err := assignmentsFiles.GetFile(questionsPath)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": "Sorry we cannot download the requested file now, please try again later",
-		})
+		return c.JSON(http.StatusInternalServerError, echo.Map{})
 	}
 	c.Response().Header().Set("Content-Type", http.DetectContentType(bytes))
 	return c.Blob(http.StatusOK, http.DetectContentType(bytes), bytes)

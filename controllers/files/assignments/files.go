@@ -12,12 +12,12 @@ import (
 
 // UploadQuestionsFile uploads the questions file of the assignment
 func UploadQuestionsFile(c echo.Context, assignment *assignmentsModel.Assignment) (string, error) {
-	return uploadAssignmentFiles(c, assignment, "questions")
+	return uploadAssignmentFiles(c, assignment, "questionsFile")
 }
 
 // UploadModelAnswerFile uploads the model answer file of the assignment
 func UploadModelAnswerFile(c echo.Context, assignment *assignmentsModel.Assignment) (string, error) {
-	return uploadAssignmentFiles(c, assignment, "modelAnswer")
+	return uploadAssignmentFiles(c, assignment, "modelAnswerFile")
 }
 
 func uploadAssignmentFiles(c echo.Context, assignment *assignmentsModel.Assignment, formFileName string) (string, error) {
@@ -29,9 +29,14 @@ func uploadAssignmentFiles(c echo.Context, assignment *assignmentsModel.Assignme
 		}
 		return "", err
 	}
-	folderPath := fmt.Sprintf("assignmentsFiles/assignment %d", assignment.ID)
-	createDirectoryIfNotExist(folderPath)
-	fullFileName := fmt.Sprintf("%s/%s %s", folderPath, formFileName, fileName)
+	assignmentFolderPath := fmt.Sprintf("assignmentsFiles/assignment %d", assignment.ID)
+	createDirectoryIfNotExist(assignmentFolderPath)
+
+	subFolderPath := fmt.Sprintf("%s/%s", assignmentFolderPath, formFileName)
+	deleteDirectory(subFolderPath)
+	createDirectoryIfNotExist(subFolderPath)
+
+	fullFileName := fmt.Sprintf("%s/%s", subFolderPath, fileName)
 	err = copyFileToDestination(fullFileName, src)
 	if err != nil {
 		return "", err
@@ -69,6 +74,10 @@ func createDirectoryIfNotExist(directoryName string) {
 	if _, err := os.Stat(directoryName); os.IsNotExist(err) {
 		os.Mkdir(directoryName, os.FileMode(int(0777)))
 	}
+}
+
+func deleteDirectory(directoryName string) {
+	os.RemoveAll(directoryName)
 }
 
 func GetFile(filePath string) ([]byte, error) {

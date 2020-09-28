@@ -13,5 +13,6 @@ func InitializeRoutes(e *echo.Echo, adminRouter *echo.Group) {
 	assignments.GET("/assignment/file", assignmentsController.GetQuestionsFile)
 
 	adminAssignments := adminRouter.Group("/assignments")
-	adminAssignments.POST("", assignmentsController.CreateAssignment)
+	adminAssignments.POST("", assignmentsController.CreateOrUpdateAssignment)
+	adminAssignments.PUT("", assignmentsController.CreateOrUpdateAssignment)
 }

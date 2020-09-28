@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
 	"os"
 )
@@ -68,4 +69,17 @@ func createDirectoryIfNotExist(directoryName string) {
 	if _, err := os.Stat(directoryName); os.IsNotExist(err) {
 		os.Mkdir(directoryName, os.FileMode(int(0777)))
 	}
+}
+
+func GetFile(filePath string) ([]byte, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	bytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+	return bytes, nil
 }

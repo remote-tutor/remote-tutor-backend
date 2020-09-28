@@ -63,3 +63,15 @@ func GetAssignmentByAssignmentID(c echo.Context) error {
 		"assignment": assignment,
 	})
 }
+
+func GetQuestionsFile(c echo.Context) error {
+	questionsPath := c.QueryParam("file")
+	bytes, err := assignmentsFiles.GetFile(questionsPath)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Sorry we cannot download the requested file now, please try again later",
+		})
+	}
+	c.Response().Header().Set("Content-Type", http.DetectContentType(bytes))
+	return c.Blob(http.StatusOK, http.DetectContentType(bytes), bytes)
+}

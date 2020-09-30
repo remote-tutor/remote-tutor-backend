@@ -5,16 +5,20 @@ import (
 	submissionsModel "backend/models/assignments"
 )
 
-func CreateSubmission(submission *submissionsModel.Submission) {
+func CreateSubmission(submission *submissionsModel.AssignmentSubmission) {
 	dbInstance.GetDBConnection().Create(submission)
 }
 
-func UpdateSubmission(submission *submissionsModel.Submission) {
+func UpdateSubmission(submission *submissionsModel.AssignmentSubmission) {
 	dbInstance.GetDBConnection().Save(submission)
 }
 
-func GetSubmissionByID(id uint) submissionsModel.Submission {
-	var submission submissionsModel.Submission
+func GetSubmissionByID(id uint) submissionsModel.AssignmentSubmission {
+	var submission submissionsModel.AssignmentSubmission
 	dbInstance.GetDBConnection().First(&submission, id)
 	return submission
+}
+
+func DeleteSubmission(submission *submissionsModel.AssignmentSubmission) {
+	dbInstance.GetDBConnection().Delete(submission)
 }

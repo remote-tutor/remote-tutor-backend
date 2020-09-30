@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-type Submission struct {
-	UpdatedAt    time.Time
+type AssignmentSubmission struct {
+	UploadedAt   time.Time       `json:"uploadedAt"`
 	UserID       uint            `json:"userID" gorm:"primary_key;autoIncrement:false"`
 	User         usersModel.User `json:"user" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	AssignmentID uint            `json:"assignmentID" gorm:"primary_key;autoIncrement:false"`

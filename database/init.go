@@ -47,6 +47,7 @@ func MigrateTables() {
 		databaseConnection.AutoMigrate(&paymentsModel.Payment{})
 
 		databaseConnection.AutoMigrate(&assignmentsModel.Assignment{})
+		databaseConnection.AutoMigrate(&assignmentsModel.AssignmentSubmission{})
 	}
 }
 

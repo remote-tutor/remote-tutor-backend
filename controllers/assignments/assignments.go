@@ -2,6 +2,7 @@ package assignments
 
 import (
 	authController "backend/controllers/auth"
+	filesUtils "backend/controllers/files"
 	assignmentsFiles "backend/controllers/files/assignments"
 	assignmentsDBInteractions "backend/database/assignments"
 	usersDBInteractions "backend/database/users"
@@ -77,7 +78,7 @@ func GetAssignmentByAssignmentID(c echo.Context) error {
 
 func GetQuestionsFile(c echo.Context) error {
 	questionsPath := c.QueryParam("file")
-	bytes, err := assignmentsFiles.GetFile(questionsPath)
+	bytes, err := filesUtils.GetFile(questionsPath)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{})
 	}

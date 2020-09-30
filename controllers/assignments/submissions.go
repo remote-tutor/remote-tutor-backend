@@ -11,9 +11,10 @@ import (
 	"time"
 )
 
-func GetSubmissionByID(c echo.Context) error {
-	submissionID := utils.ConvertToUInt(c.QueryParam("submissionID"))
-	submission := submissionsDBInteractions.GetSubmissionByID(submissionID)
+func GetSubmissionByUserAndAssignment(c echo.Context) error {
+	assignmentID := utils.ConvertToUInt(c.QueryParam("assignmentID"))
+	userID := authController.FetchLoggedInUserID(c)
+	submission := submissionsDBInteractions.GetSubmissionByUserAndAssignment(userID, assignmentID)
 	return c.JSON(http.StatusOK, echo.Map{
 		"submission": submission,
 	})
@@ -22,14 +23,10 @@ func GetSubmissionByID(c echo.Context) error {
 func CreateOrUpdateSubmission(c echo.Context) error {
 	method := c.Request().Method
 	submission := new(submissionsModel.AssignmentSubmission)
-	if err := c.Bind(submission); err != nil {
-		return c.JSON(http.StatusNotAcceptable, echo.Map{
-			"message": "Error reading assignment data from user",
-		})
-	}
 	submission.UserID = authController.FetchLoggedInUserID(c)
+	submission.AssignmentID = utils.ConvertToUInt(c.FormValue("assignmentID"))
+	submission.UploadedAt = time.Now()
 	if method == "POST" {
-		submission.UploadedAt = time.Now()
 		submissionsDBInteractions.CreateSubmission(submission)
 	}
 	submissionFilePath, submissionErr := submissionsFiles.UploadUserSubmissionFile(c, submission)

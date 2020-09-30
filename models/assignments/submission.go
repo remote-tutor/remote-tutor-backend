@@ -12,6 +12,7 @@ type AssignmentSubmission struct {
 	AssignmentID uint            `json:"assignmentID" gorm:"primary_key;autoIncrement:false"`
 	Assignment   Assignment      `json:"assignment" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Mark         int             `json:"mark"`
+	Graded       bool            `json:"graded" gorm:"default:0"`
 	File         string          `json:"file"`
 	Feedback     string          `json:"feedback"`
 }

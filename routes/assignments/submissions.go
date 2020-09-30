@@ -6,5 +6,8 @@ import (
 )
 
 func InitializeSubmissionsRoutes(assignments *echo.Group, adminAssignments *echo.Group) {
+	assignments.GET("/submission", submissionsController.GetSubmissionByUserAndAssignment)
+
 	assignments.POST("/submissions", submissionsController.CreateOrUpdateSubmission)
+	assignments.PUT("/submissions", submissionsController.CreateOrUpdateSubmission)
 }

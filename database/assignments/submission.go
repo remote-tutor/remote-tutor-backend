@@ -13,9 +13,9 @@ func UpdateSubmission(submission *submissionsModel.AssignmentSubmission) {
 	dbInstance.GetDBConnection().Save(submission)
 }
 
-func GetSubmissionByID(id uint) submissionsModel.AssignmentSubmission {
+func GetSubmissionByUserAndAssignment(userID, assignmentID uint) submissionsModel.AssignmentSubmission {
 	var submission submissionsModel.AssignmentSubmission
-	dbInstance.GetDBConnection().First(&submission, id)
+	dbInstance.GetDBConnection().Where("user_id = ? AND assignment_id = ?", userID, assignmentID).Find(&submission)
 	return submission
 }
 

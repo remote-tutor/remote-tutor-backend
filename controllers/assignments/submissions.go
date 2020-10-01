@@ -28,6 +28,13 @@ func CreateOrUpdateSubmission(c echo.Context) error {
 	submission.UploadedAt = time.Now()
 	if method == "POST" {
 		submissionsDBInteractions.CreateSubmission(submission)
+	} else {
+		originalSubmission := submissionsDBInteractions.GetSubmissionByUserAndAssignment(submission.UserID, submission.AssignmentID)
+		if originalSubmission.Graded {
+			return c.JSON(http.StatusForbidden, echo.Map{
+				"message": "Sorry this assignment has been graded, you can't change the submission",
+			})
+		}
 	}
 	submissionFilePath, submissionErr := submissionsFiles.UploadUserSubmissionFile(c, submission)
 	if submissionErr != nil {
@@ -55,5 +62,19 @@ func GetSubmissionsByAssignmentForAllUsers(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"submissions": submissions,
 		"totalSubmissions": totalSubmissions,
+	})
+}
+
+func UpdateSubmissionByAdmin(c echo.Context) error {
+	userID := utils.ConvertToUInt(c.FormValue("userID"))
+	assignmentID := utils.ConvertToUInt(c.FormValue("assignmentID"))
+	submission := submissionsDBInteractions.GetSubmissionByUserAndAssignment(userID, assignmentID)
+	submission.Graded = true
+	submission.Mark = utils.ConvertToInt(c.FormValue("mark"))
+	submission.Feedback = c.FormValue("feedback")
+	submissionsDBInteractions.UpdateSubmission(&submission)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Submission Updated Successfully",
+		"submission": submission,
 	})
 }

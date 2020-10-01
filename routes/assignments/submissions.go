@@ -6,10 +6,12 @@ import (
 )
 
 func InitializeSubmissionsRoutes(assignments *echo.Group, adminAssignments *echo.Group) {
-	assignments.GET("/submission", submissionsController.GetSubmissionByUserAndAssignment)
+	submissions := assignments.Group("/submissions")
+	submissions.GET("/submission", submissionsController.GetSubmissionByUserAndAssignment)
+	submissions.POST("", submissionsController.CreateOrUpdateSubmission)
+	submissions.PUT("", submissionsController.CreateOrUpdateSubmission)
 
-	assignments.POST("/submissions", submissionsController.CreateOrUpdateSubmission)
-	assignments.PUT("/submissions", submissionsController.CreateOrUpdateSubmission)
-
-	adminAssignments.GET("/submissions", submissionsController.GetSubmissionsByAssignmentForAllUsers)
+	adminSubmissions := adminAssignments.Group("/submissions")
+	adminSubmissions.GET("", submissionsController.GetSubmissionsByAssignmentForAllUsers)
+	adminSubmissions.PUT("", submissionsController.UpdateSubmissionByAdmin)
 }

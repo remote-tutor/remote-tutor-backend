@@ -67,3 +67,9 @@ func GetTotalNumberOfUsers(searchByValue, searchByField string, pending bool) in
 	db.Model(&usersModel.User{}).Where("activated = ?", !pending).Count(&count)
 	return count
 }
+
+func GetAdminUsers() []usersModel.User {
+	admins := make([]usersModel.User, 0)
+	dbInstance.GetDBConnection().Where("admin = 1").Find(&admins)
+	return admins
+}

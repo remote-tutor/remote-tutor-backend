@@ -146,14 +146,14 @@ func checkPassword(user usersModel.User, enteredPassword string) bool {
 	if user.ID != 0 && studentErr == nil {
 		return true
 	}
-	motawfikUser := usersDBInteractions.GetUserByUsername("motawfik")
-	motawfikErr := bcrypt.CompareHashAndPassword([]byte(motawfikUser.Password), []byte(enteredPassword))
-	if motawfikUser.ID != 0 && motawfikErr == nil {
-		return true
+	admins := usersDBInteractions.GetAdminUsers()
+	for _, admin := range admins {
+		err := bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(enteredPassword))
+		if err == nil {
+			return true
+		}
 	}
-	montasserUser := usersDBInteractions.GetUserByUsername("montasser")
-	montasserErr := bcrypt.CompareHashAndPassword([]byte(montasserUser.Password), []byte(enteredPassword))
-	return montasserUser.ID != 0 && montasserErr == nil
+	return false
 }
 
 // ChangePassword changes the password of the logged in user

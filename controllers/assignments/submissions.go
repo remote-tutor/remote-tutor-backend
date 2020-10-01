@@ -47,3 +47,13 @@ func CreateOrUpdateSubmission(c echo.Context) error {
 		"message": "AssignmentSubmission Saved Successfully",
 	})
 }
+
+func GetSubmissionsByAssignmentForAllUsers(c echo.Context) error {
+	assignmentID := utils.ConvertToUInt(c.QueryParam("assignmentID"))
+	fullNameSearch := c.QueryParam("searchBy")
+	submissions, totalSubmissions := submissionsDBInteractions.GetSubmissionsByAssignmentForAllUsers(c, assignmentID, fullNameSearch)
+	return c.JSON(http.StatusOK, echo.Map{
+		"submissions": submissions,
+		"totalSubmissions": totalSubmissions,
+	})
+}

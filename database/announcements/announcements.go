@@ -15,14 +15,14 @@ func CreateAnnouncement(announcement *announcementsModel.Announcement) {
 	dbInstance.GetDBConnection().Create(announcement)
 }
 
-// GetAnnouncements retrieves the announcements
-func GetAnnouncements(c echo.Context, title, topic, content string) ([]announcementsModel.Announcement, int64) {
+// GetAnnouncementsByYear retrieves the announcements
+func GetAnnouncementsByYear(c echo.Context, title, topic, content string, year int) ([]announcementsModel.Announcement, int64) {
 	announcements := make([]announcementsModel.Announcement, 0)
 	// to add the searched word inside '%' pairs, we use the Sprintf function
 	// its normal use would be Sprintf("%s", variableName)
 	// but as we need to escape the '%' character we put a pair of '%' to escape it
-	query := dbInstance.GetDBConnection().Where("title LIKE ? AND topic LIKE ? AND content LIKE ?",
-		fmt.Sprintf("%%%s%%", title), fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", content))
+	query := dbInstance.GetDBConnection().Where("title LIKE ? AND topic LIKE ? AND content LIKE ? AND year = ?",
+		fmt.Sprintf("%%%s%%", title), fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", content), year)
 	numberOfRecords := countAnnouncements(query)
 	query = query.Scopes(dbPagination.Paginate(c)).Find(&announcements)
 	return announcements, numberOfRecords

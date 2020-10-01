@@ -14,5 +14,5 @@ type Assignment struct {
 	Questions   string    `json:"questions"`
 	ModelAnswer string    `json:"modelAnswer"`
 	TotalMark   int       `json:"totalMark" gorm:"default:10"`
-	ModelAnswerPeriod int `json:"modelAnswerPeriod" gorm:"default:1"`
+	ModelAnswerPeriod int `json:"modelAnswerPeriod" gorm:"default:0"`
 }

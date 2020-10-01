@@ -11,12 +11,18 @@ import (
 	"github.com/labstack/echo"
 )
 
-//GetAnnouncements retrieves list of announcements with the client specified length.
-func GetAnnouncements(c echo.Context) error {
+//GetAnnouncementsByYear retrieves list of announcements with the client specified length.
+func GetAnnouncementsByYear(c echo.Context) error {
+	var year int
+	if authController.FetchLoggedInUserAdminStatus(c) {
+		year = utils.ConvertToInt(c.QueryParam("year"))
+	} else {
+		year = authController.FetchLoggedInUserYear(c)
+	}
 	title := c.QueryParam("title")
 	topic := c.QueryParam("topic")
 	content := c.QueryParam("content")
-	announcements, numberOfAnnouncements := announcementsDBInteractions.GetAnnouncements(c, title, topic, content)
+	announcements, numberOfAnnouncements := announcementsDBInteractions.GetAnnouncementsByYear(c, title, topic, content, year)
 	return c.JSON(http.StatusOK, echo.Map{
 		"announcements": announcements,
 		"total":         numberOfAnnouncements,
@@ -30,12 +36,14 @@ func CreateAnnouncement(c echo.Context) error {
 	title := c.FormValue("title")
 	topic := c.FormValue("topic")
 	content := c.FormValue("content")
+	year := utils.ConvertToInt(c.FormValue("year"))
 
 	announcement := anouncementsModel.Announcement{
 		UserID:  userid,
 		Title:   title,
 		Topic:   topic,
 		Content: content,
+		Year: year,
 	}
 
 	announcementsDBInteractions.CreateAnnouncement(&announcement)
@@ -52,11 +60,13 @@ func UpdateAnnouncement(c echo.Context) error {
 	title := c.FormValue("title")
 	topic := c.FormValue("topic")
 	content := c.FormValue("content")
+	year := utils.ConvertToInt(c.FormValue("year"))
 
 	announcement := announcementsDBInteractions.GetAnnouncementByID(announcementID)
 	announcement.Title = title
 	announcement.Topic = topic
 	announcement.Content = content
+	announcement.Year = year
 
 	announcementsDBInteractions.UpdateAnnouncement(&announcement)
 	return c.JSON(http.StatusOK, echo.Map{

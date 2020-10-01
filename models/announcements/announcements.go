@@ -14,4 +14,5 @@ type Announcement struct {
 	Title   string          `json:"title"`
 	Topic   string          `json:"topic"`
 	Content string          `json:"content"`
+	Year    int             `json:"year"`
 }

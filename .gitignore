@@ -4,3 +4,4 @@ main
 deployment
 quizzesImages
 assignmentsFiles
+utils/env.go

@@ -24,14 +24,13 @@ var (
 			Colorful:      true,             // Disable color
 		},
 	)
-	dsn                     = "root:password@tcp(127.0.0.1:3306)/tutoring?charset=utf8mb4&parseTime=True&loc=Africa%2FCairo"
-	databaseConnection, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
-		Logger: newLogger,
-	})
+	databaseConnection *gorm.DB = nil
+	err error
 )
 
 // MigrateTables makes sure that the tables are migrated at the start of the application
 func MigrateTables() {
+	initializeDBConnection()
 	if err == nil {
 		databaseConnection.AutoMigrate(&usersModel.User{})
 		databaseConnection.AutoMigrate(&announcementsModel.Announcement{})
@@ -51,7 +50,21 @@ func MigrateTables() {
 	}
 }
 
+func initializeDBConnection() {
+	dsn := os.ExpandEnv("${DB_USERNAME}:${DB_PASSWORD}@tcp(${DB_HOST}:${DB_PORT})/${DB_NAME}?charset=utf8mb4&parseTime=True&loc=Africa%2FCairo")
+	connection, connectionErr := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: newLogger,
+	})
+	if connectionErr == nil {
+		databaseConnection = connection
+	}
+	err = connectionErr
+}
+
 // GetDBConnection returns the DB connection
 func GetDBConnection() *gorm.DB {
+	if databaseConnection == nil {
+		initializeDBConnection()
+	}
 	return databaseConnection
 }

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	usersModel "backend/models/users"
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -20,7 +21,7 @@ func GenerateToken(user *usersModel.User) (string, error) {
 	claims["exp"] = time.Now().Add(time.Hour * 6).Unix()
 
 	// Generate encoded token and send it as response.
-	t, err := token.SignedString([]byte("secret"))
+	t, err := token.SignedString([]byte(os.Getenv("JWT_TOKEN")))
 	if err != nil {
 		return "", err
 	}

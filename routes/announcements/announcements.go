@@ -2,6 +2,7 @@ package announcements
 
 import (
 	announcementsController "backend/controllers/announcements"
+	"os"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -9,7 +10,7 @@ import (
 
 // InitializeRoutes initializes all the required routes for announcements.
 func InitializeRoutes(e *echo.Echo, adminRouter *echo.Group) {
-	announcements := e.Group("/announcements", middleware.JWT([]byte("secret")))
+	announcements := e.Group("/announcements", middleware.JWT([]byte(os.Getenv("JWT_TOKEN"))))
 	announcements.GET("", announcementsController.GetAnnouncementsByYear)
 
 	adminAnnouncements := adminRouter.Group("/announcements")

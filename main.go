@@ -3,6 +3,7 @@ package main
 import (
 	db "backend/database"
 	"backend/routes"
+	"backend/utils"
 
 	"github.com/labstack/echo"
 )
@@ -10,6 +11,7 @@ import (
 func main() {
 	e := echo.New()
 
+	utils.InitializeEnvironmentVariables()
 	db.MigrateTables()
 	routes.InitializeRoutes(e)
 

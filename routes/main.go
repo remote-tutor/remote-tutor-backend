@@ -7,6 +7,7 @@ import (
 	paymentRouter "backend/routes/payments"
 	quizRouter "backend/routes/quizzes"
 	userRouter "backend/routes/users"
+	"os"
 
 	quizzesController "backend/controllers/quizzes"
 	"net/http"
@@ -27,7 +28,7 @@ func InitializeRoutes(e *echo.Echo) {
 	}))
 	middleware.ErrJWTMissing.Message = "Please login"
 	adminRouter := e.Group("/admin",
-		middleware.JWT([]byte("secret")),
+		middleware.JWT([]byte(os.Getenv("JWT_TOKEN"))),
 		authControllers.CheckAdmin)
 
 	userRouter.InitializeRoutes(e, adminRouter)

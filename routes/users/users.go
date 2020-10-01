@@ -2,6 +2,7 @@ package users
 
 import (
 	usersController "backend/controllers/users"
+	"os"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -15,6 +16,5 @@ func InitializeRoutes(e *echo.Echo, adminRoute *echo.Group) {
 	adminRoute.GET("/students", usersController.GetUsers)
 	e.PUT("/students", usersController.UpdateUser)
 
-	e.PUT("/change-password", usersController.ChangePassword, middleware.JWT([]byte("secret")))
-
+	e.PUT("/change-password", usersController.ChangePassword, middleware.JWT([]byte(os.Getenv("JWT_TOKEN"))))
 }

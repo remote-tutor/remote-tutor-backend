@@ -53,3 +53,12 @@ func UpdateVideo(c echo.Context) error {
 		"message": "Video Updated Successfully",
 	})
 }
+
+func DeleteVideo(c echo.Context) error {
+	id := utils.ConvertToUInt(c.FormValue("id"))
+	video := videosDBInterations.GetVideoByID(id)
+	videosDBInterations.DeleteVideo(&video)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "The video and its parts are deleted successfully",
+	})
+}

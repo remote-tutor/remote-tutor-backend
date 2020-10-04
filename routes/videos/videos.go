@@ -9,4 +9,5 @@ func InitializeVideosRoutes(videos *echo.Group, adminVideos *echo.Group) {
 
 	adminVideos.POST("", videosController.CreateVideo)
 	adminVideos.PUT("", videosController.UpdateVideo)
+	adminVideos.DELETE("", videosController.DeleteVideo)
 }

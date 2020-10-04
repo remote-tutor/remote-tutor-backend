@@ -26,3 +26,7 @@ func GetVideoByID(id uint) videosModel.Video {
 func UpdateVideo(video *videosModel.Video) {
 	dbInstance.GetDBConnection().Save(video)
 }
+
+func DeleteVideo(video *videosModel.Video) {
+	dbInstance.GetDBConnection().Delete(video)
+}

@@ -16,3 +16,13 @@ func GetVideosByMonthAndYear(year int, startOfMonth, endOfMonth time.Time) []vid
 func CreateVideo(video *videosModel.Video) {
 	dbInstance.GetDBConnection().Create(video)
 }
+
+func GetVideoByID(id uint) videosModel.Video {
+	var video videosModel.Video
+	dbInstance.GetDBConnection().First(&video, id)
+	return video
+}
+
+func UpdateVideo(video *videosModel.Video) {
+	dbInstance.GetDBConnection().Save(video)
+}

@@ -40,3 +40,16 @@ func CreateVideo(c echo.Context) error {
 		"message": "Video Created Successfully",
 	})
 }
+
+func UpdateVideo(c echo.Context) error {
+	id := utils.ConvertToUInt(c.FormValue("id"))
+	video := videosDBInterations.GetVideoByID(id)
+	video.AvailableFrom = utils.ConvertToTime(c.FormValue("availableFrom"))
+	video.Year = utils.ConvertToInt(c.FormValue("year"))
+
+	videosDBInterations.UpdateVideo(&video)
+	return c.JSON(http.StatusOK, echo.Map{
+		"video": video,
+		"message": "Video Updated Successfully",
+	})
+}

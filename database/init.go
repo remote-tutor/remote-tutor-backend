@@ -6,6 +6,7 @@ import (
 	paymentsModel "backend/models/payments"
 	quizzesModel "backend/models/quizzes"
 	usersModel "backend/models/users"
+	videosModel "backend/models/videos"
 	"log"
 	"os"
 	"time"
@@ -47,6 +48,9 @@ func MigrateTables() {
 
 		databaseConnection.AutoMigrate(&assignmentsModel.Assignment{})
 		databaseConnection.AutoMigrate(&assignmentsModel.AssignmentSubmission{})
+
+		databaseConnection.AutoMigrate(&videosModel.Video{})
+		databaseConnection.AutoMigrate(&videosModel.VideoPart{})
 	}
 }
 

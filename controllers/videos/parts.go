@@ -9,9 +9,18 @@ import (
 	"net/http"
 )
 
+func GetPartsByVideo(c echo.Context) error {
+	videoID := utils.ConvertToUInt(c.QueryParam("videoID"))
+	parts := partsDBInteractions.GetPartsByVideo(videoID)
+	return c.JSON(http.StatusOK, echo.Map{
+		"parts": parts,
+	})
+}
+
 func CreatePart(c echo.Context) error {
 	videoID := utils.ConvertToUInt(c.FormValue("videoID"))
 	number := utils.ConvertToInt(c.FormValue("number"))
+	fileName := c.FormValue("fileName")
 	fileLocation, err := partsFiles.UploadVideoPart(c, videoID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -20,11 +29,22 @@ func CreatePart(c echo.Context) error {
 	}
 	part := partsModel.VideoPart{
 		VideoID: videoID,
-		Link: fileLocation,
-		Number: number,
+		Link:    fileLocation,
+		Number:  number,
+		Name:    fileName,
 	}
 	partsDBInteractions.CreatePart(&part)
 	return c.JSON(http.StatusOK, echo.Map{
-		"message": "VideoPart Uploaded Successfully",
+		"message": "Video Part Uploaded Successfully",
+	})
+}
+
+func UpdatePart(c echo.Context) error {
+	id := utils.ConvertToUInt(c.FormValue("id"))
+	part := partsDBInteractions.GetPartByID(id)
+	part.Number = utils.ConvertToInt(c.FormValue("number"))
+	partsDBInteractions.UpdatePart(&part)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Video Part Updated Successfully",
 	})
 }

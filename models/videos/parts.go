@@ -8,4 +8,5 @@ type VideoPart struct {
 	VideoID uint   `json:"videoID"`
 	Link    string `json:"link"`
 	Number  int    `json:"number"`
+	Name    string `json:"name"`
 }

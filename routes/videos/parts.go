@@ -5,5 +5,8 @@ import (
 	"github.com/labstack/echo")
 
 func InitializePartsRoutes(videos *echo.Group, adminVideos *echo.Group) {
+	videos.GET("/parts", partsController.GetPartsByVideo)
+
 	adminVideos.POST("/parts", partsController.CreatePart)
+	adminVideos.PUT("/parts", partsController.UpdatePart)
 }

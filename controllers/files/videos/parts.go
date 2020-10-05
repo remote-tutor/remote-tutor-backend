@@ -32,3 +32,15 @@ func DeleteVideoPart(part *videoParts.VideoPart) error {
 	filePath := fmt.Sprintf("%d/%s", part.VideoID, part.Name)
 	return aws.Delete(filePath)
 }
+
+func DeleteVideo(video *videoParts.Video, parts []videoParts.VideoPart) error {
+	var err error
+	for _, part := range parts {
+		err = DeleteVideoPart(&part)
+		if err != nil {
+			return err
+		}
+	}
+	folderPath := fmt.Sprintf("%d", video.ID)
+	return aws.Delete(folderPath)
+}

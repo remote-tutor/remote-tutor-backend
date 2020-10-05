@@ -28,5 +28,5 @@ func UpdateVideo(video *videosModel.Video) {
 }
 
 func DeleteVideo(video *videosModel.Video) {
-	dbInstance.GetDBConnection().Delete(video)
+	dbInstance.GetDBConnection().Unscoped().Delete(video)
 }

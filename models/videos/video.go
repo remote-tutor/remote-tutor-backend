@@ -10,4 +10,5 @@ type Video struct {
 	AvailableFrom time.Time   `json:"availableFrom"`
 	Parts         []VideoPart `json:"parts"`
 	Year          int         `json:"year"`
+	Title         string      `json:"title"`
 }

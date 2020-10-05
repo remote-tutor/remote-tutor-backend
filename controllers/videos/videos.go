@@ -2,6 +2,7 @@ package videos
 
 import (
 	authController "backend/controllers/auth"
+	partsFiles "backend/controllers/files/videos"
 	videosDBInterations "backend/database/videos"
 	videosModel "backend/models/videos"
 	"backend/utils"
@@ -30,9 +31,11 @@ func GetVideosByMonthAndYear(c echo.Context) error {
 func CreateVideo(c echo.Context) error {
 	availableFrom := utils.ConvertToTime(c.FormValue("availableFrom"))
 	year := utils.ConvertToInt(c.FormValue("year"))
+	title := c.FormValue("title")
 	video := videosModel.Video{
 		AvailableFrom: now.With(availableFrom).BeginningOfDay(),
 		Year: year,
+		Title: title,
 	}
 	videosDBInterations.CreateVideo(&video)
 	return c.JSON(http.StatusOK, echo.Map{
@@ -46,6 +49,7 @@ func UpdateVideo(c echo.Context) error {
 	video := videosDBInterations.GetVideoByID(id)
 	video.AvailableFrom = utils.ConvertToTime(c.FormValue("availableFrom"))
 	video.Year = utils.ConvertToInt(c.FormValue("year"))
+	video.Title = c.FormValue("title")
 
 	videosDBInterations.UpdateVideo(&video)
 	return c.JSON(http.StatusOK, echo.Map{
@@ -57,6 +61,19 @@ func UpdateVideo(c echo.Context) error {
 func DeleteVideo(c echo.Context) error {
 	id := utils.ConvertToUInt(c.FormValue("id"))
 	video := videosDBInterations.GetVideoByID(id)
+	typedTitle := c.FormValue("typedTitle")
+	if video.Title != typedTitle {
+		return c.JSON(http.StatusNotAcceptable, echo.Map{
+			"message": "Sorry, you've entered a wrong video title, please check your selection and try again",
+		})
+	}
+	parts := videosDBInterations.GetPartsByVideo(video.ID)
+	err := partsFiles.DeleteVideo(&video, parts)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred while trying to delete the video files, please try again later",
+		})
+	}
 	videosDBInterations.DeleteVideo(&video)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "The video and its parts are deleted successfully",

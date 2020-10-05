@@ -9,4 +9,5 @@ func InitializePartsRoutes(videos *echo.Group, adminVideos *echo.Group) {
 
 	adminVideos.POST("/parts", partsController.CreatePart)
 	adminVideos.PUT("/parts", partsController.UpdatePart)
+	adminVideos.DELETE("/parts", partsController.DeletePart)
 }

@@ -24,3 +24,7 @@ func CreatePart(part *videoParts.VideoPart) {
 func UpdatePart(part *videoParts.VideoPart) {
 	dbInstance.GetDBConnection().Save(part)
 }
+
+func DeletePart(part *videoParts.VideoPart) {
+	dbInstance.GetDBConnection().Unscoped().Delete(part)
+}

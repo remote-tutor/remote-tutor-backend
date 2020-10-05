@@ -48,3 +48,24 @@ func UpdatePart(c echo.Context) error {
 		"message": "Video Part Updated Successfully",
 	})
 }
+
+func DeletePart(c echo.Context) error {
+	id := utils.ConvertToUInt(c.FormValue("id"))
+	typedName := c.FormValue("typedName")
+	part := partsDBInteractions.GetPartByID(id)
+	if typedName != part.Name {
+		return c.JSON(http.StatusNotAcceptable, echo.Map{
+			"message": "Sorry, you've entered a wrong filename, please check your selection and try again",
+		})
+	}
+	err := partsFiles.DeleteVideoPart(&part)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred while trying to delete the video part, please try again later",
+		})
+	}
+	partsDBInteractions.DeletePart(&part)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Vide Part Deleted Successfully",
+	})
+}

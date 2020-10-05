@@ -3,6 +3,7 @@ package videos
 import (
 	"backend/aws"
 	filesUtils "backend/controllers/files"
+	videoParts "backend/models/videos"
 	"bytes"
 	"fmt"
 	"github.com/labstack/echo"
@@ -25,4 +26,9 @@ func UploadVideoPart(c echo.Context, videoID uint) (string, error) {
 		return "", err
 	}
 	return fileLocation, nil
+}
+
+func DeleteVideoPart(part *videoParts.VideoPart) error {
+	filePath := fmt.Sprintf("%d/%s", part.VideoID, part.Name)
+	return aws.Delete(filePath)
 }

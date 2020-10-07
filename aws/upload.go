@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"net/http"
 	"os"
+	"strings"
 )
 
 // to load the region automatically from the config file in ~/.aws/config
@@ -28,6 +29,12 @@ func Upload(buffer *bytes.Buffer, filePath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return output.Location, nil
+	split := strings.Split(output.Location, ".com")
+	cloudfrontLocation := "https://" + os.Getenv("CLOUDFRONT_DOMAIN") + split[1]
+	cloudfrontLocation = strings.ReplaceAll(cloudfrontLocation, " ", "%20")
+	cloudfrontLocation = strings.ReplaceAll(cloudfrontLocation, "+", "-")
+	cloudfrontLocation = strings.ReplaceAll(cloudfrontLocation, "=", "_")
+	cloudfrontLocation = strings.ReplaceAll(cloudfrontLocation, "/", "~")
+	return cloudfrontLocation, nil
 }
 

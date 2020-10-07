@@ -1,6 +1,7 @@
 package videos
 
 import (
+	"backend/aws"
 	partsFiles "backend/controllers/files/videos"
 	partsDBInteractions "backend/database/videos"
 	partsModel "backend/models/videos"
@@ -67,5 +68,19 @@ func DeletePart(c echo.Context) error {
 	partsDBInteractions.DeletePart(&part)
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Vide Part Deleted Successfully",
+	})
+}
+
+func GetPartLink(c echo.Context) error {
+	id := utils.ConvertToUInt(c.FormValue("id"))
+	videoPart := partsDBInteractions.GetPartByID(id)
+	url, err := aws.GenerateSignedURL(videoPart.Link)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred when trying to get the link, please try again latter",
+		})
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"url": url,
 	})
 }

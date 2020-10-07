@@ -12,4 +12,5 @@ func InitializeRoutes(e *echo.Echo, adminRouter *echo.Group) {
 
 	InitializeVideosRoutes(videos, adminVideos)
 	InitializePartsRoutes(videos, adminVideos)
+	InitializeWatchesRoutes(videos, adminVideos)
 }

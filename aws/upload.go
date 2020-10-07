@@ -34,7 +34,6 @@ func Upload(buffer *bytes.Buffer, filePath string) (string, error) {
 	cloudfrontLocation = strings.ReplaceAll(cloudfrontLocation, " ", "%20")
 	cloudfrontLocation = strings.ReplaceAll(cloudfrontLocation, "+", "-")
 	cloudfrontLocation = strings.ReplaceAll(cloudfrontLocation, "=", "_")
-	cloudfrontLocation = strings.ReplaceAll(cloudfrontLocation, "/", "~")
 	return cloudfrontLocation, nil
 }
 

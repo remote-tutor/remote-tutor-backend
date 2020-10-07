@@ -51,6 +51,7 @@ func MigrateTables() {
 
 		databaseConnection.AutoMigrate(&videosModel.Video{})
 		databaseConnection.AutoMigrate(&videosModel.VideoPart{})
+		databaseConnection.AutoMigrate(&videosModel.UserWatch{})
 	}
 }
 

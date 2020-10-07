@@ -16,7 +16,7 @@ func GenerateSignedURL(fullURL string) (string, error) {
 		return "", err
 	}
 	signer := sign.NewURLSigner(os.Getenv("CLOUDFRONT_USER_KEY"), privateKey)
-	signedURL, err := signer.Sign(fullURL, time.Now().Add(10 * time.Second))
+	signedURL, err := signer.Sign(fullURL, time.Now().Add(5 * time.Second))
 	if err != nil {
 		return "", err
 	}

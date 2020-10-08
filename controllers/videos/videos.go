@@ -28,6 +28,14 @@ func GetVideosByMonthAndYear(c echo.Context) error {
 	})
 }
 
+func GetVideoByID(c echo.Context) error {
+	videoID := utils.ConvertToUInt(c.QueryParam("id"))
+	video := videosDBInterations.GetVideoByID(videoID)
+	return c.JSON(http.StatusOK, echo.Map{
+		"video": video,
+	})
+}
+
 func CreateVideo(c echo.Context) error {
 	availableFrom := utils.ConvertToTime(c.FormValue("availableFrom"))
 	year := utils.ConvertToInt(c.FormValue("year"))

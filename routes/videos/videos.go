@@ -6,6 +6,7 @@ import (
 
 func InitializeVideosRoutes(videos *echo.Group, adminVideos *echo.Group) {
 	videos.GET("", videosController.GetVideosByMonthAndYear)
+	videos.GET("/video", videosController.GetVideoByID)
 
 	adminVideos.POST("", videosController.CreateVideo)
 	adminVideos.PUT("", videosController.UpdateVideo)

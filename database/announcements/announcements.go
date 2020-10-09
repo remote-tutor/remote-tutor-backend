@@ -2,6 +2,7 @@ package database
 
 import (
 	dbInstance "backend/database"
+	"backend/database/diagnostics"
 	dbPagination "backend/database/scopes"
 	announcementsModel "backend/models/announcements"
 	"fmt"
@@ -13,6 +14,7 @@ import (
 // CreateAnnouncement inserts a new user to the database
 func CreateAnnouncement(announcement *announcementsModel.Announcement) error {
 	err := dbInstance.GetDBConnection().Create(announcement).Error
+	diagnostics.WriteError(err, "CreateAnnouncement")
 	return err
 }
 
@@ -39,12 +41,14 @@ func GetAnnouncementByID(id uint) announcementsModel.Announcement {
 // UpdateAnnouncement updates the announcement
 func UpdateAnnouncement(announcement *announcementsModel.Announcement) error {
 	err := dbInstance.GetDBConnection().Save(announcement).Error
+	diagnostics.WriteError(err, "UpdateAnnouncement")
 	return err
 }
 
 // DeleteAnnouncement deletes the announcement
 func DeleteAnnouncement(announcement *announcementsModel.Announcement) error {
 	err := dbInstance.GetDBConnection().Unscoped().Delete(announcement).Error
+	diagnostics.WriteError(err, "DeleteAnnouncement")
 	return err
 }
 

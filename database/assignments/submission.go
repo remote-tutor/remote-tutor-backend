@@ -2,6 +2,7 @@ package assignments
 
 import (
 	dbInstance "backend/database"
+	"backend/database/diagnostics"
 	"backend/database/scopes"
 	submissionsModel "backend/models/assignments"
 	"fmt"
@@ -11,11 +12,13 @@ import (
 
 func CreateSubmission(submission *submissionsModel.AssignmentSubmission) error {
 	err := dbInstance.GetDBConnection().Create(submission).Error
+	diagnostics.WriteError(err, "CreateSubmission (assignment)")
 	return err
 }
 
 func UpdateSubmission(submission *submissionsModel.AssignmentSubmission) error {
 	err := dbInstance.GetDBConnection().Save(submission).Error
+	diagnostics.WriteError(err, "UpdateSubmission (assignment)")
 	return err
 }
 
@@ -43,5 +46,6 @@ func countSubmissions(db *gorm.DB) int64 {
 
 func DeleteSubmission(submission *submissionsModel.AssignmentSubmission) error {
 	err := dbInstance.GetDBConnection().Delete(submission).Error
+	diagnostics.WriteError(err, "DeleteSubmission (assignment)")
 	return err
 }

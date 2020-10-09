@@ -2,12 +2,14 @@ package quizzes
 
 import (
 	dbInstance "backend/database"
+	"backend/database/diagnostics"
 	quizzesModel "backend/models/quizzes"
 )
 
 // CreateMCQ inserts a new mcq question to the database
 func CreateMCQ(mcq *quizzesModel.MCQ) error {
 	err := dbInstance.GetDBConnection().Create(mcq).Error
+	diagnostics.WriteError(err, "CreateMCQ")
 	return err
 }
 
@@ -19,6 +21,7 @@ func CreateLongAnswer(longAnswer *quizzesModel.LongAnswer) {
 // UpdateMCQ updates mcq question in the database
 func UpdateMCQ(mcq *quizzesModel.MCQ) error {
 	err := dbInstance.GetDBConnection().Save(mcq).Error
+	diagnostics.WriteError(err, "UpdateMCQ")
 	return err
 }
 
@@ -30,6 +33,7 @@ func UpdateLongAnswer(longAnswer *quizzesModel.LongAnswer) {
 // DeleteMCQ deletes mcq question in the database
 func DeleteMCQ(mcq *quizzesModel.MCQ) error {
 	err := dbInstance.GetDBConnection().Unscoped().Delete(mcq).Error
+	diagnostics.WriteError(err, "DeleteMCQ")
 	return err
 }
 

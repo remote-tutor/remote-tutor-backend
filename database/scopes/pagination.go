@@ -1,31 +1,29 @@
 package scopes
 
 import (
-	"backend/utils"
-
-	"github.com/labstack/echo"
 	"gorm.io/gorm"
 )
 
-// Paginate is a middleware used to paginate every reponse without duplicating the code
-func Paginate(c echo.Context) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		queryParams := c.Request().URL.Query()
-		sortDesc := utils.ConvertToBoolArray(queryParams["sortDesc[]"])
-		sortBy := queryParams["sortBy[]"]
-		page := utils.ConvertToInt(queryParams["page"][0])
-		itemsPerPage := utils.ConvertToInt(queryParams["itemsPerPage"][0])
+type PaginationData struct {
+	SortDesc []bool
+	SortBy []string
+	Page int
+	ItemsPerPage int
+}
 
-		if sortBy != nil {
-			for i := 0; i < len(sortBy); i++ {
-				if sortDesc[i] {
-					db = db.Order(sortBy[i] + " DESC")
+// Paginate is a middleware used to paginate every reponse without duplicating the code
+func Paginate(paginationData *PaginationData) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if paginationData.SortBy != nil {
+			for i := 0; i < len(paginationData.SortBy); i++ {
+				if paginationData.SortDesc[i] {
+					db = db.Order(paginationData.SortBy[i] + " DESC")
 				} else {
-					db = db.Order(sortBy[i])
+					db = db.Order(paginationData.SortBy[i])
 				}
 			}
 		}
-		offset := (page - 1) * itemsPerPage
-		return db.Offset(offset).Limit(itemsPerPage)
+		offset := (paginationData.Page - 1) * paginationData.ItemsPerPage
+		return db.Offset(offset).Limit(paginationData.ItemsPerPage)
 	}
 }

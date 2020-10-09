@@ -3,6 +3,7 @@ package assignments
 import (
 	authController "backend/controllers/auth"
 	submissionsFiles "backend/controllers/files/assignments"
+	paginationController "backend/controllers/pagination"
 	submissionsDBInteractions "backend/database/assignments"
 	submissionsModel "backend/models/assignments"
 	"backend/utils"
@@ -73,7 +74,8 @@ func CreateOrUpdateSubmission(c echo.Context) error {
 func GetSubmissionsByAssignmentForAllUsers(c echo.Context) error {
 	assignmentID := utils.ConvertToUInt(c.QueryParam("assignmentID"))
 	fullNameSearch := c.QueryParam("searchBy")
-	submissions, totalSubmissions := submissionsDBInteractions.GetSubmissionsByAssignmentForAllUsers(c, assignmentID, fullNameSearch)
+	paginationData := paginationController.ExtractPaginationData(c)
+	submissions, totalSubmissions := submissionsDBInteractions.GetSubmissionsByAssignmentForAllUsers(paginationData, assignmentID, fullNameSearch)
 	return c.JSON(http.StatusOK, echo.Map{
 		"submissions": submissions,
 		"totalSubmissions": totalSubmissions,

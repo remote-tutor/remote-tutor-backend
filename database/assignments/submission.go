@@ -3,10 +3,9 @@ package assignments
 import (
 	dbInstance "backend/database"
 	"backend/database/diagnostics"
-	"backend/database/scopes"
+	dbPagination "backend/database/scopes"
 	submissionsModel "backend/models/assignments"
 	"fmt"
-	"github.com/labstack/echo"
 	"gorm.io/gorm"
 )
 
@@ -28,13 +27,13 @@ func GetSubmissionByUserAndAssignment(userID, assignmentID uint) submissionsMode
 	return submission
 }
 
-func GetSubmissionsByAssignmentForAllUsers(c echo.Context, assignmentID uint, fullNameSearch string) ([]submissionsModel.AssignmentSubmission, int64) {
+func GetSubmissionsByAssignmentForAllUsers(paginationData *dbPagination.PaginationData, assignmentID uint, fullNameSearch string) ([]submissionsModel.AssignmentSubmission, int64) {
 	submissions := make([]submissionsModel.AssignmentSubmission, 0)
 	db := dbInstance.GetDBConnection().
 		Where("assignment_id = ? AND full_name LIKE ?", assignmentID, fmt.Sprintf("%%%s%%", fullNameSearch)).
 		Joins("User")
 	totalSubmissions := countSubmissions(db)
-	db.Scopes(scopes.Paginate(c)).Find(&submissions)
+	db.Scopes(dbPagination.Paginate(paginationData)).Find(&submissions)
 	return submissions, totalSubmissions
 }
 

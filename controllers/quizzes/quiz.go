@@ -2,6 +2,7 @@ package quizzes
 
 import (
 	authController "backend/controllers/auth"
+	paginationController "backend/controllers/pagination"
 	quizzesDBInteractions "backend/database/quizzes"
 	usersDBInteractions "backend/database/users"
 	quizzesModel "backend/models/quizzes"
@@ -70,7 +71,8 @@ func GetPastQuizzes(c echo.Context) error {
 	} else {
 		year = user.Year
 	}
-	pastQuizzes, totalQuizzes := quizzesDBInteractions.GetPastQuizzes(c, year)
+	paginationData := paginationController.ExtractPaginationData(c)
+	pastQuizzes, totalQuizzes := quizzesDBInteractions.GetPastQuizzes(paginationData, year)
 	return c.JSON(http.StatusOK, echo.Map{
 		"pastQuizzes":  pastQuizzes,
 		"totalQuizzes": totalQuizzes,
@@ -87,7 +89,8 @@ func GetFutureQuizzes(c echo.Context) error {
 	} else {
 		year = user.Year
 	}
-	futureQuizzes, totalQuizzes := quizzesDBInteractions.GetFutureQuizzes(c, year)
+	paginationData := paginationController.ExtractPaginationData(c)
+	futureQuizzes, totalQuizzes := quizzesDBInteractions.GetFutureQuizzes(paginationData, year)
 	return c.JSON(http.StatusOK, echo.Map{
 		"futureQuizzes": futureQuizzes,
 		"totalQuizzes":  totalQuizzes,
@@ -104,7 +107,8 @@ func GetCurrentQuizzes(c echo.Context) error {
 	} else {
 		year = user.Year
 	}
-	currentQuizzes, totalQuizzes := quizzesDBInteractions.GetCurrentQuizzes(c, year)
+	paginationData := paginationController.ExtractPaginationData(c)
+	currentQuizzes, totalQuizzes := quizzesDBInteractions.GetCurrentQuizzes(paginationData, year)
 	return c.JSON(http.StatusOK, echo.Map{
 		"currentQuizzes": currentQuizzes,
 		"totalQuizzes":   totalQuizzes,

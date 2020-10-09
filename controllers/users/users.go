@@ -2,6 +2,7 @@ package controllers
 
 import (
 	authController "backend/controllers/auth"
+	paginationController "backend/controllers/pagination"
 	usersDBInteractions "backend/database/users"
 	usersModel "backend/models/users"
 	"backend/utils"
@@ -88,7 +89,8 @@ func GetUsers(c echo.Context) error {
 	searchByField := c.QueryParam("searchByField")
 	pending := utils.ConvertToBool(c.QueryParam("pending"))
 
-	users := usersDBInteractions.GetUsers(c, searchByValue, searchByField, pending)
+	paginationData := paginationController.ExtractPaginationData(c)
+	users := usersDBInteractions.GetUsers(paginationData, searchByValue, searchByField, pending)
 	totalUsers := usersDBInteractions.GetTotalNumberOfUsers(searchByValue, searchByField, pending)
 
 	return c.JSON(http.StatusOK, echo.Map{

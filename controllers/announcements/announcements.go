@@ -2,6 +2,7 @@ package controllers
 
 import (
 	authController "backend/controllers/auth"
+	paginationController "backend/controllers/pagination"
 	announcementsDBInteractions "backend/database/announcements"
 	anouncementsModel "backend/models/announcements"
 	"backend/utils"
@@ -22,7 +23,9 @@ func GetAnnouncementsByYear(c echo.Context) error {
 	title := c.QueryParam("title")
 	topic := c.QueryParam("topic")
 	content := c.QueryParam("content")
-	announcements, numberOfAnnouncements := announcementsDBInteractions.GetAnnouncementsByYear(c, title, topic, content, year)
+	paginationData := paginationController.ExtractPaginationData(c)
+	announcements, numberOfAnnouncements := announcementsDBInteractions.
+		GetAnnouncementsByYear(paginationData, title, topic, content, year)
 	return c.JSON(http.StatusOK, echo.Map{
 		"announcements": announcements,
 		"total":         numberOfAnnouncements,
@@ -43,7 +46,7 @@ func CreateAnnouncement(c echo.Context) error {
 		Title:   title,
 		Topic:   topic,
 		Content: content,
-		Year: year,
+		Year:    year,
 	}
 
 	announcement.ID = 8
@@ -91,7 +94,7 @@ func DeleteAnnouncement(c echo.Context) error {
 	announcementID := utils.ConvertToUInt(c.FormValue("id"))
 	announcement := announcementsDBInteractions.GetAnnouncementByID(announcementID)
 	err := announcementsDBInteractions.DeleteAnnouncement(&announcement)
-	if err!= nil {
+	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred (announcement not deleted), please try again",
 		})

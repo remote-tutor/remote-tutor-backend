@@ -6,8 +6,6 @@ import (
 	dbPagination "backend/database/scopes"
 	usersModel "backend/models/users"
 	"fmt"
-
-	"github.com/labstack/echo"
 )
 
 // GetUserByUsername searches the database for the user with the given username to be used in the login action
@@ -48,14 +46,14 @@ func DeleteUser(user *usersModel.User) error {
 }
 
 // GetUsers retrieve the non activated users from the database
-func GetUsers(c echo.Context, searchByValue, searchByField string, pending bool) []usersModel.User {
+func GetUsers(paginationData *dbPagination.PaginationData, searchByValue, searchByField string, pending bool) []usersModel.User {
 	db := dbInstance.GetDBConnection()
 	if searchByField == "username" {
 		db = db.Where("username LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
 	} else if searchByField == "fullName" {
 		db = db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
 	}
-	db = db.Scopes(dbPagination.Paginate(c))
+	db = db.Scopes(dbPagination.Paginate(paginationData))
 	pendingUsers := make([]usersModel.User, 0)
 	db.Where("activated = ?", !pending).Find(&pendingUsers)
 	return pendingUsers

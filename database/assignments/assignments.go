@@ -5,7 +5,6 @@ import (
 	"backend/database/diagnostics"
 	dbPagination "backend/database/scopes"
 	assignmentsModel "backend/models/assignments"
-	"github.com/labstack/echo"
 	"gorm.io/gorm"
 )
 
@@ -17,11 +16,11 @@ func CreateAssignment(assignment *assignmentsModel.Assignment) error {
 }
 
 // GetAssignments gets an array of assignments to display to the user
-func GetAssignments(c echo.Context, year int) ([]assignmentsModel.Assignment, int64) {
+func GetAssignments(paginationData *dbPagination.PaginationData, year int) ([]assignmentsModel.Assignment, int64) {
 	assignments := make([]assignmentsModel.Assignment, 0)
 	db := dbInstance.GetDBConnection().Where("year = ?", year)
 	totalAssignments := countAssignments(db)
-	db.Scopes(dbPagination.Paginate(c)).Find(&assignments)
+	db.Scopes(dbPagination.Paginate(paginationData)).Find(&assignments)
 	return assignments, totalAssignments
 }
 

@@ -4,6 +4,7 @@ import (
 	authController "backend/controllers/auth"
 	filesUtils "backend/controllers/files"
 	assignmentsFiles "backend/controllers/files/assignments"
+	paginationController "backend/controllers/pagination"
 	assignmentsDBInteractions "backend/database/assignments"
 	usersDBInteractions "backend/database/users"
 	assignmentsModel "backend/models/assignments"
@@ -23,7 +24,8 @@ func GetAssignments(c echo.Context) error {
 		user := usersDBInteractions.GetUserByUserID(userID)
 		year = user.Year
 	}
-	assignments, totalAssignments := assignmentsDBInteractions.GetAssignments(c, year)
+	paginationData := paginationController.ExtractPaginationData(c)
+	assignments, totalAssignments := assignmentsDBInteractions.GetAssignments(paginationData, year)
 	return c.JSON(http.StatusOK, echo.Map{
 		"assignments":      assignments,
 		"totalAssignments": totalAssignments,

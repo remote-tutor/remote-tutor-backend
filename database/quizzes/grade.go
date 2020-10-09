@@ -8,7 +8,7 @@ import (
 
 // CreateGrade inserts a new quiz grade to the database
 func CreateGrade(grade *quizzesModel.QuizGrade) error {
-	err := dbInstance.GetDBConnection().Create(grade).Error
+	err := dbInstance.GetDBConnection().FirstOrCreate(grade).Error
 	diagnostics.WriteError(err, "CreateGrade")
 	return err
 }

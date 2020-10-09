@@ -19,7 +19,8 @@ type MCQSubmission struct {
 	MCQ        MCQ  `json:"mcq" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	MCQID      uint `json:"mcqID" gorm:"primary_key;autoIncrement:false"`
 	Submission `json:"submission"`
-	UserResult uint `json:"userResult"`
+	UserResult uint   `json:"userResult"`
+	Choice     Choice `json:"choice" gorm:"foreignKey:UserResult;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 // LongAnswerSubmission struct to store the LongAnswer Submission type data

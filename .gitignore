@@ -5,3 +5,4 @@ deployment
 quizzesImages
 assignmentsFiles
 utils/env.go
+aws/*.pem

@@ -6,18 +6,21 @@ import (
 )
 
 // CreateChoice inserts a new choice to the database
-func CreateChoice(choice *quizzesModel.Choice) {
-	dbInstance.GetDBConnection().Create(choice)
+func CreateChoice(choice *quizzesModel.Choice) error {
+	err := dbInstance.GetDBConnection().Create(choice).Error
+	return err
 }
 
 // UpdateChoice updates the given choice in the database
-func UpdateChoice(choice *quizzesModel.Choice) {
-	dbInstance.GetDBConnection().Save(choice)
+func UpdateChoice(choice *quizzesModel.Choice) error {
+	err := dbInstance.GetDBConnection().Save(choice).Error
+	return err
 }
 
 // DeleteChoice deletes the given choice in the database
-func DeleteChoice(choice *quizzesModel.Choice) {
-	dbInstance.GetDBConnection().Unscoped().Delete(choice)
+func DeleteChoice(choice *quizzesModel.Choice) error {
+	err := dbInstance.GetDBConnection().Unscoped().Delete(choice).Error
+	return err
 }
 
 // GetChoiceByID returns the choice with the specific ID

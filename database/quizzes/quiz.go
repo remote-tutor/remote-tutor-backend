@@ -11,8 +11,9 @@ import (
 )
 
 // CreateQuiz inserts a new quiz to the database
-func CreateQuiz(quiz *quizzesModel.Quiz) {
-	dbInstance.GetDBConnection().Create(quiz)
+func CreateQuiz(quiz *quizzesModel.Quiz) error {
+	err := dbInstance.GetDBConnection().Create(quiz).Error
+	return err
 }
 
 //GetPastQuizzes retrieves list of past quizzes
@@ -51,13 +52,15 @@ func countRequiredQuizzes(db *gorm.DB) int64 {
 }
 
 // DeleteQuiz deletes the specified quiz from the database
-func DeleteQuiz(quiz *quizzesModel.Quiz) {
-	dbInstance.GetDBConnection().Unscoped().Delete(quiz)
+func DeleteQuiz(quiz *quizzesModel.Quiz) error {
+	err := dbInstance.GetDBConnection().Unscoped().Delete(quiz).Error
+	return err
 }
 
 // UpdateQuiz updates the quiz in the database
-func UpdateQuiz(quiz *quizzesModel.Quiz) {
-	dbInstance.GetDBConnection().Save(quiz)
+func UpdateQuiz(quiz *quizzesModel.Quiz) error {
+	err := dbInstance.GetDBConnection().Save(quiz).Error
+	return err
 }
 
 // GetQuizByID retrieves the quiz by the quizID

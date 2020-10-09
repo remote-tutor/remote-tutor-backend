@@ -71,7 +71,12 @@ func Register(c echo.Context) error {
 		PhoneNumber:  phoneNumber,
 		ParentNumber: parentNumber,
 	}
-	usersDBInteractions.CreateUser(&user)
+	err := usersDBInteractions.CreateUser(&user)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (user not created), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "User created successfully",
 	})
@@ -117,12 +122,22 @@ func UpdateUser(c echo.Context) error {
 	} else if status == 0 {
 		user.Activated = true
 	} else if status == -1 {
-		usersDBInteractions.DeleteUser(&user)
+		err := usersDBInteractions.DeleteUser(&user)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"message": "Unexpected error occurred (user not deleted), please try again",
+			})
+		}
 		return c.JSON(http.StatusOK, echo.Map{
 			"message": "User deleted successfully",
 		})
 	}
-	usersDBInteractions.UpdateUser(&user)
+	err := usersDBInteractions.UpdateUser(&user)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (user not updated), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "User updated successfully",
 	})
@@ -175,7 +190,12 @@ func ChangePassword(c echo.Context) error {
 	}
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(newPassword), 10)
 	user.Password = string(hashedPassword)
-	usersDBInteractions.UpdateUser(&user)
+	err := usersDBInteractions.UpdateUser(&user)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (user not updated), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Password updated successfully",
 	})

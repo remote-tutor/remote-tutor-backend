@@ -29,15 +29,25 @@ func CreateMCQ(c echo.Context) error {
 		Question:      question,
 		CorrectAnswer: correctAnswer,
 	}
-	quizzesDBInteractions.CreateMCQ(&mcq)
+	err = quizzesDBInteractions.CreateMCQ(&mcq)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (MCQ not created), please try again",
+		})
+	}
 
 	err = createImageFile(&mcq.Question, mcq.Question.ImagePath)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": "An unexpected error occured when tring to save the image, please try again later",
+			"message": "An unexpected error occurred when trying to save the image, please try again later",
 		})
 	}
-	quizzesDBInteractions.UpdateMCQ(&mcq)
+	err = quizzesDBInteractions.UpdateMCQ(&mcq)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (MCQ not created), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcq": mcq,
 	})
@@ -98,7 +108,12 @@ func UpdateMCQ(c echo.Context) error {
 		}
 		quizzesDBInteractions.UpdateMCQSubmission(&submission)
 	}
-	quizzesDBInteractions.UpdateMCQ(&mcq)
+	err = quizzesDBInteractions.UpdateMCQ(&mcq)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (MCQ not updated), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "MCQ question updated successfully",
 		"mcq":     mcq,
@@ -122,7 +137,12 @@ func UpdateLongAnswer(c echo.Context) error {
 // DeleteMCQ deletes mcq question for a quiz
 func DeleteMCQ(c echo.Context) error {
 	mcq := quizzesDBInteractions.GetMCQByID(utils.ConvertToUInt(c.FormValue("id")))
-	quizzesDBInteractions.DeleteMCQ(&mcq)
+	err := quizzesDBInteractions.DeleteMCQ(&mcq)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (MCQ not deleted), please try again",
+		})
+	}
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "MCQ question deleted successfully",

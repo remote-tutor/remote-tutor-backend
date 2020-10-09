@@ -53,7 +53,12 @@ func CreatePayment(c echo.Context) error {
 	payment.StartDate = utils.ConvertToTime(c.FormValue("startDate"))
 	payment.EndDate = utils.ConvertToTime(c.FormValue("endDate"))
 
-	paymentsDBInteractions.CreatePayment(payment)
+	err := paymentsDBInteractions.CreatePayment(payment)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (payment not created), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{})
 }
 
@@ -62,6 +67,11 @@ func DeletePayment(c echo.Context) error {
 	payment := new(paymentsModel.Payment)
 	payment.ID = utils.ConvertToUInt(c.FormValue("id"))
 
-	paymentsDBInteractions.DeletePayment(payment)
+	err := paymentsDBInteractions.DeletePayment(payment)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (payment not deleted), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{})
 }

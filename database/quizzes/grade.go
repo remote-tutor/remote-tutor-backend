@@ -6,8 +6,9 @@ import (
 )
 
 // CreateGrade inserts a new quiz grade to the database
-func CreateGrade(grade *quizzesModel.QuizGrade) {
-	dbInstance.GetDBConnection().Create(grade)
+func CreateGrade(grade *quizzesModel.QuizGrade) error {
+	err := dbInstance.GetDBConnection().Create(grade).Error
+	return err
 }
 
 // UpdateGrade updates an existing quiz grade in the database

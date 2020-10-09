@@ -9,8 +9,9 @@ import (
 )
 
 // CreateAssignment inserts a new assignment to the database
-func CreateAssignment(assignment *assignmentsModel.Assignment) {
-	dbInstance.GetDBConnection().Create(assignment)
+func CreateAssignment(assignment *assignmentsModel.Assignment) error {
+	err := dbInstance.GetDBConnection().Create(assignment).Error
+	return err
 }
 
 // GetAssignments gets an array of assignments to display to the user
@@ -37,11 +38,13 @@ func GetAssignmentByID(id uint) assignmentsModel.Assignment {
 }
 
 // UpdateAssignment updates the given assignment in the database
-func UpdateAssignment(assignment *assignmentsModel.Assignment) {
-	dbInstance.GetDBConnection().Save(assignment)
+func UpdateAssignment(assignment *assignmentsModel.Assignment) error {
+	err := dbInstance.GetDBConnection().Save(assignment).Error
+	return err
 }
 
 // DeleteAssignment deletes the given assignment from the database
-func DeleteAssignment(assignment *assignmentsModel.Assignment) {
-	dbInstance.GetDBConnection().Unscoped().Delete(assignment)
+func DeleteAssignment(assignment *assignmentsModel.Assignment) error {
+	err := dbInstance.GetDBConnection().Unscoped().Delete(assignment).Error
+	return err
 }

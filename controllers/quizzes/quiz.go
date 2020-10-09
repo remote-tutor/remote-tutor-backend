@@ -26,7 +26,12 @@ func CreateQuiz(c echo.Context) error {
 		EndTime:   endTime,
 	}
 
-	quizzesDBInteractions.CreateQuiz(&quiz)
+	err := quizzesDBInteractions.CreateQuiz(&quiz)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (quiz not created), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Quiz created successfully",
 		"quiz":    quiz,
@@ -43,7 +48,12 @@ func UpdateQuiz(c echo.Context) error {
 	quiz.StartTime = utils.ConvertToTime(c.FormValue("startTime"))
 	quiz.EndTime = utils.ConvertToTime(c.FormValue("endTime"))
 
-	quizzesDBInteractions.UpdateQuiz(&quiz)
+	err := quizzesDBInteractions.UpdateQuiz(&quiz)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (quiz not updated), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Quiz updated successfully",
 		"quiz":    quiz,
@@ -105,7 +115,12 @@ func GetCurrentQuizzes(c echo.Context) error {
 func DeleteQuiz(c echo.Context) error {
 	quizID := utils.ConvertToUInt(c.FormValue("id"))
 	quiz := quizzesDBInteractions.GetQuizByID(quizID)
-	quizzesDBInteractions.DeleteQuiz(&quiz)
+	err := quizzesDBInteractions.DeleteQuiz(&quiz)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (quiz not deleted), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Quiz deleted successfully",
 	})

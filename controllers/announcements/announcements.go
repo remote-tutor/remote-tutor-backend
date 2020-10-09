@@ -46,7 +46,12 @@ func CreateAnnouncement(c echo.Context) error {
 		Year: year,
 	}
 
-	announcementsDBInteractions.CreateAnnouncement(&announcement)
+	err := announcementsDBInteractions.CreateAnnouncement(&announcement)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (announcement not created), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message":      "Announcement created successfully",
 		"announcement": announcement,
@@ -68,7 +73,12 @@ func UpdateAnnouncement(c echo.Context) error {
 	announcement.Content = content
 	announcement.Year = year
 
-	announcementsDBInteractions.UpdateAnnouncement(&announcement)
+	err := announcementsDBInteractions.UpdateAnnouncement(&announcement)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (announcement not updated), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message":      "Announcement updated successfully",
 		"announcement": announcement,
@@ -79,7 +89,12 @@ func UpdateAnnouncement(c echo.Context) error {
 func DeleteAnnouncement(c echo.Context) error {
 	announcementID := utils.ConvertToUInt(c.FormValue("id"))
 	announcement := announcementsDBInteractions.GetAnnouncementByID(announcementID)
-	announcementsDBInteractions.DeleteAnnouncement(&announcement)
+	err := announcementsDBInteractions.DeleteAnnouncement(&announcement)
+	if err!= nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (announcement not deleted), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Announcement deleted successfully",
 	})

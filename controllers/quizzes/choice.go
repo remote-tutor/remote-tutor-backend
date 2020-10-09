@@ -19,7 +19,12 @@ func CreateChoice(c echo.Context) error {
 		Text:  text,
 	}
 
-	choiceDBInteractions.CreateChoice(&choice)
+	err := choiceDBInteractions.CreateChoice(&choice)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (choice not created), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"choice": choice,
 	})
@@ -33,7 +38,12 @@ func UpdateChoice(c echo.Context) error {
 	choice := choiceDBInteractions.GetChoiceByID(id)
 	choice.Text = text
 
-	choiceDBInteractions.UpdateChoice(&choice)
+	err := choiceDBInteractions.UpdateChoice(&choice)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (choice not updated), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"choice": choice,
 	})
@@ -43,6 +53,11 @@ func UpdateChoice(c echo.Context) error {
 func DeleteChoice(c echo.Context) error {
 	id := utils.ConvertToUInt(c.FormValue("id"))
 	choice := choiceDBInteractions.GetChoiceByID(id)
-	choiceDBInteractions.DeleteChoice(&choice)
+	err := choiceDBInteractions.DeleteChoice(&choice)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (choice not deleted), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{})
 }

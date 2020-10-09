@@ -40,13 +40,23 @@ func CreateOrUpdateAssignment(c echo.Context) error {
 	}
 	assignment.Deadline = utils.ConvertToTime(c.FormValue("deadline"))
 	if method == "POST" {
-		assignmentsDBInteractions.CreateAssignment(assignment)
+		err := assignmentsDBInteractions.CreateAssignment(assignment)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"message": "Unexpected error occurred (assignment not created), please try again",
+			})
+		}
 	}
 	questionsFilePath, questionsErr := assignmentsFiles.UploadQuestionsFile(c, assignment)
 	modelAnswerFilePath, modelAnswerErr := assignmentsFiles.UploadModelAnswerFile(c, assignment)
 	if questionsErr != nil || modelAnswerErr != nil {
 		if method == "POST" {
-			assignmentsDBInteractions.DeleteAssignment(assignment)
+			err := assignmentsDBInteractions.DeleteAssignment(assignment)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, echo.Map{
+					"message": "Unexpected error occurred (assignment not deleted), please try again",
+				})
+			}
 		}
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred when trying to upload the files. Please try again later",
@@ -61,7 +71,12 @@ func CreateOrUpdateAssignment(c echo.Context) error {
 	if method == "PUT" {
 		assignment.CreatedAt = utils.ConvertToTime(c.FormValue("CreatedAt"))
 	}
-	assignmentsDBInteractions.UpdateAssignment(assignment)
+	err := assignmentsDBInteractions.UpdateAssignment(assignment)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (assignment not created/updated), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Assignment Saved Successfully",
 	})

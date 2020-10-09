@@ -42,7 +42,13 @@ func CreatePart(c echo.Context) error {
 		Number:  number,
 		Name:    fileName,
 	}
-	partsDBInteractions.CreatePart(&part)
+	err = partsDBInteractions.CreatePart(&part)
+	if err != nil {
+		partsFiles.DeleteVideoPart(&part)
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (part not created), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Video Part Uploaded Successfully",
 	})
@@ -52,7 +58,12 @@ func UpdatePart(c echo.Context) error {
 	id := utils.ConvertToUInt(c.FormValue("id"))
 	part := partsDBInteractions.GetPartByID(id)
 	part.Number = utils.ConvertToInt(c.FormValue("number"))
-	partsDBInteractions.UpdatePart(&part)
+	err := partsDBInteractions.UpdatePart(&part)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (part not updated), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Video Part Updated Successfully",
 	})
@@ -73,7 +84,12 @@ func DeletePart(c echo.Context) error {
 			"message": "Unexpected error occurred while trying to delete the video part, please try again later",
 		})
 	}
-	partsDBInteractions.DeletePart(&part)
+	err = partsDBInteractions.DeletePart(&part)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (part not deleted), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Vide Part Deleted Successfully",
 	})

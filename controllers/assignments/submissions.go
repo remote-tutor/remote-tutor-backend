@@ -27,7 +27,12 @@ func CreateOrUpdateSubmission(c echo.Context) error {
 	submission.AssignmentID = utils.ConvertToUInt(c.FormValue("assignmentID"))
 	submission.UploadedAt = time.Now()
 	if method == "POST" {
-		submissionsDBInteractions.CreateSubmission(submission)
+		err := submissionsDBInteractions.CreateSubmission(submission)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"message": "Unexpected error occurred (submission not created), please try again",
+			})
+		}
 	} else {
 		originalSubmission := submissionsDBInteractions.GetSubmissionByUserAndAssignment(submission.UserID, submission.AssignmentID)
 		if originalSubmission.Graded {
@@ -39,7 +44,12 @@ func CreateOrUpdateSubmission(c echo.Context) error {
 	submissionFilePath, submissionErr := submissionsFiles.UploadUserSubmissionFile(c, submission)
 	if submissionErr != nil {
 		if method == "POST" {
-			submissionsDBInteractions.DeleteSubmission(submission)
+			err := submissionsDBInteractions.DeleteSubmission(submission)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, echo.Map{
+					"message": "Unexpected error occurred (submission not deleted), please try again",
+				})
+			}
 		}
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred when trying to upload the submission. Please try again later",
@@ -49,7 +59,12 @@ func CreateOrUpdateSubmission(c echo.Context) error {
 		submission.File = submissionFilePath
 		submission.UploadedAt = time.Now()
 	}
-	submissionsDBInteractions.UpdateSubmission(submission)
+	err := submissionsDBInteractions.UpdateSubmission(submission)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (submission not created/updated), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "AssignmentSubmission Saved Successfully",
 	})
@@ -72,7 +87,12 @@ func UpdateSubmissionByAdmin(c echo.Context) error {
 	submission.Graded = true
 	submission.Mark = utils.ConvertToInt(c.FormValue("mark"))
 	submission.Feedback = c.FormValue("feedback")
-	submissionsDBInteractions.UpdateSubmission(&submission)
+	err := submissionsDBInteractions.UpdateSubmission(&submission)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (submission not updated/marked), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Submission Updated Successfully",
 		"submission": submission,

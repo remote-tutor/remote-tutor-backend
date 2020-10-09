@@ -11,8 +11,9 @@ import (
 )
 
 // CreateAnnouncement inserts a new user to the database
-func CreateAnnouncement(announcement *announcementsModel.Announcement) {
-	dbInstance.GetDBConnection().Create(announcement)
+func CreateAnnouncement(announcement *announcementsModel.Announcement) error {
+	err := dbInstance.GetDBConnection().Create(announcement).Error
+	return err
 }
 
 // GetAnnouncementsByYear retrieves the announcements
@@ -36,13 +37,15 @@ func GetAnnouncementByID(id uint) announcementsModel.Announcement {
 }
 
 // UpdateAnnouncement updates the announcement
-func UpdateAnnouncement(announcement *announcementsModel.Announcement) {
-	dbInstance.GetDBConnection().Save(announcement)
+func UpdateAnnouncement(announcement *announcementsModel.Announcement) error {
+	err := dbInstance.GetDBConnection().Save(announcement).Error
+	return err
 }
 
 // DeleteAnnouncement deletes the announcement
-func DeleteAnnouncement(announcement *announcementsModel.Announcement) {
-	dbInstance.GetDBConnection().Unscoped().Delete(announcement)
+func DeleteAnnouncement(announcement *announcementsModel.Announcement) error {
+	err := dbInstance.GetDBConnection().Unscoped().Delete(announcement).Error
+	return err
 }
 
 // countAnnouncements counts the number of records in the database by specific search

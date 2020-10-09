@@ -17,14 +17,17 @@ func GetPartByID(id uint) videoParts.VideoPart {
 	return part
 }
 
-func CreatePart(part *videoParts.VideoPart) {
-	dbInstance.GetDBConnection().Create(part)
+func CreatePart(part *videoParts.VideoPart) error {
+	err := dbInstance.GetDBConnection().Create(part).Error
+	return err
 }
 
-func UpdatePart(part *videoParts.VideoPart) {
-	dbInstance.GetDBConnection().Save(part)
+func UpdatePart(part *videoParts.VideoPart) error {
+	err := dbInstance.GetDBConnection().Save(part).Error
+	return err
 }
 
-func DeletePart(part *videoParts.VideoPart) {
-	dbInstance.GetDBConnection().Unscoped().Delete(part)
+func DeletePart(part *videoParts.VideoPart) error {
+	err := dbInstance.GetDBConnection().Unscoped().Delete(part).Error
+	return err
 }

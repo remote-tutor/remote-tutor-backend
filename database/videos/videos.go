@@ -13,8 +13,9 @@ func GetVideosByMonthAndYear(year int, startOfMonth, endOfMonth time.Time) []vid
 	return videos
 }
 
-func CreateVideo(video *videosModel.Video) {
-	dbInstance.GetDBConnection().Create(video)
+func CreateVideo(video *videosModel.Video) error {
+	err := dbInstance.GetDBConnection().Create(video).Error
+	return err
 }
 
 func GetVideoByID(id uint) videosModel.Video {
@@ -23,10 +24,12 @@ func GetVideoByID(id uint) videosModel.Video {
 	return video
 }
 
-func UpdateVideo(video *videosModel.Video) {
-	dbInstance.GetDBConnection().Save(video)
+func UpdateVideo(video *videosModel.Video) error {
+	err := dbInstance.GetDBConnection().Save(video).Error
+	return err
 }
 
-func DeleteVideo(video *videosModel.Video) {
-	dbInstance.GetDBConnection().Unscoped().Delete(video)
+func DeleteVideo(video *videosModel.Video) error {
+	err := dbInstance.GetDBConnection().Unscoped().Delete(video).Error
+	return err
 }

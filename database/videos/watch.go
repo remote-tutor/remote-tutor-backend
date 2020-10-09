@@ -5,8 +5,9 @@ import (
 	watchesModel "backend/models/videos"
 )
 
-func CreateUserWatch(userWatch *watchesModel.UserWatch) {
-	dbInstance.GetDBConnection().Create(userWatch)
+func CreateUserWatch(userWatch *watchesModel.UserWatch) error {
+	err := dbInstance.GetDBConnection().Create(userWatch).Error
+	return err
 }
 
 func GetUserWatchByUserAndPart(userID, partID uint) watchesModel.UserWatch {

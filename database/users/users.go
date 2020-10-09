@@ -26,19 +26,21 @@ func GetUserByUserID(userid uint) usersModel.User {
 }
 
 // CreateUser inserts a new user to the database
-func CreateUser(user *usersModel.User) {
-	db := dbInstance.GetDBConnection()
-	db.Create(user)
+func CreateUser(user *usersModel.User) error {
+	err := dbInstance.GetDBConnection().Create(user).Error
+	return err
 }
 
 // UpdateUser updates the user information
-func UpdateUser(user *usersModel.User) {
-	dbInstance.GetDBConnection().Save(user)
+func UpdateUser(user *usersModel.User) error {
+	err := dbInstance.GetDBConnection().Save(user).Error
+	return err
 }
 
 // DeleteUser deletes the user from the database
-func DeleteUser(user *usersModel.User) {
-	dbInstance.GetDBConnection().Unscoped().Delete(user)
+func DeleteUser(user *usersModel.User) error {
+	err := dbInstance.GetDBConnection().Unscoped().Delete(user).Error
+	return err
 }
 
 // GetUsers retrieve the non activated users from the database

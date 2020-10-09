@@ -6,13 +6,15 @@ import (
 )
 
 // CreateMCQSubmission inserts a new mcq submission into the database
-func CreateMCQSubmission(mcqSubmission *quizzesModel.MCQSubmission) {
-	dbInstance.GetDBConnection().Create(mcqSubmission)
+func CreateMCQSubmission(mcqSubmission *quizzesModel.MCQSubmission) error {
+	err := dbInstance.GetDBConnection().Create(mcqSubmission).Error
+	return err
 }
 
 // UpdateMCQSubmission updates an existing mcq submission in the database
-func UpdateMCQSubmission(mcqSubmission *quizzesModel.MCQSubmission) {
-	dbInstance.GetDBConnection().Save(mcqSubmission)
+func UpdateMCQSubmission(mcqSubmission *quizzesModel.MCQSubmission) error {
+	err := dbInstance.GetDBConnection().Save(mcqSubmission).Error
+	return err
 }
 
 // GetMCQSubmissionByQuestionAndUser retrieves the submission for a specific user for a specific question

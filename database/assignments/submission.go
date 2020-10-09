@@ -9,12 +9,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func CreateSubmission(submission *submissionsModel.AssignmentSubmission) {
-	dbInstance.GetDBConnection().Create(submission)
+func CreateSubmission(submission *submissionsModel.AssignmentSubmission) error {
+	err := dbInstance.GetDBConnection().Create(submission).Error
+	return err
 }
 
-func UpdateSubmission(submission *submissionsModel.AssignmentSubmission) {
-	dbInstance.GetDBConnection().Save(submission)
+func UpdateSubmission(submission *submissionsModel.AssignmentSubmission) error {
+	err := dbInstance.GetDBConnection().Save(submission).Error
+	return err
 }
 
 func GetSubmissionByUserAndAssignment(userID, assignmentID uint) submissionsModel.AssignmentSubmission {
@@ -39,6 +41,7 @@ func countSubmissions(db *gorm.DB) int64 {
 	return totalSubmissions
 }
 
-func DeleteSubmission(submission *submissionsModel.AssignmentSubmission) {
-	dbInstance.GetDBConnection().Delete(submission)
+func DeleteSubmission(submission *submissionsModel.AssignmentSubmission) error {
+	err := dbInstance.GetDBConnection().Delete(submission).Error
+	return err
 }

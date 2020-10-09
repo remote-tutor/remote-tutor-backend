@@ -7,18 +7,21 @@ import (
 )
 
 // CreatePayment inserts a new payment to the database
-func CreatePayment(payment *paymentsModel.Payment) {
-	dbInstance.GetDBConnection().Create(payment)
+func CreatePayment(payment *paymentsModel.Payment) error {
+	err := dbInstance.GetDBConnection().Create(payment).Error
+	return err
 }
 
 // UpdatePayment updates the payment data in the database
-func UpdatePayment(payment *paymentsModel.Payment) {
-	dbInstance.GetDBConnection().Save(payment)
+func UpdatePayment(payment *paymentsModel.Payment) error {
+	err := dbInstance.GetDBConnection().Save(payment).Error
+	return err
 }
 
 // DeletePayment deletes the payment
-func DeletePayment(payment *paymentsModel.Payment) {
-	dbInstance.GetDBConnection().Unscoped().Delete(payment)
+func DeletePayment(payment *paymentsModel.Payment) error {
+	err := dbInstance.GetDBConnection().Unscoped().Delete(payment).Error
+	return err
 }
 
 // GetPaymentsByUserAndMonth gets the payment of specific user in a specific month

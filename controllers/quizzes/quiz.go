@@ -2,6 +2,7 @@ package quizzes
 
 import (
 	authController "backend/controllers/auth"
+	paginationController "backend/controllers/pagination"
 	quizzesDBInteractions "backend/database/quizzes"
 	usersDBInteractions "backend/database/users"
 	quizzesModel "backend/models/quizzes"
@@ -26,7 +27,12 @@ func CreateQuiz(c echo.Context) error {
 		EndTime:   endTime,
 	}
 
-	quizzesDBInteractions.CreateQuiz(&quiz)
+	err := quizzesDBInteractions.CreateQuiz(&quiz)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (quiz not created), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Quiz created successfully",
 		"quiz":    quiz,
@@ -43,7 +49,12 @@ func UpdateQuiz(c echo.Context) error {
 	quiz.StartTime = utils.ConvertToTime(c.FormValue("startTime"))
 	quiz.EndTime = utils.ConvertToTime(c.FormValue("endTime"))
 
-	quizzesDBInteractions.UpdateQuiz(&quiz)
+	err := quizzesDBInteractions.UpdateQuiz(&quiz)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (quiz not updated), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Quiz updated successfully",
 		"quiz":    quiz,
@@ -60,7 +71,8 @@ func GetPastQuizzes(c echo.Context) error {
 	} else {
 		year = user.Year
 	}
-	pastQuizzes, totalQuizzes := quizzesDBInteractions.GetPastQuizzes(c, year)
+	paginationData := paginationController.ExtractPaginationData(c)
+	pastQuizzes, totalQuizzes := quizzesDBInteractions.GetPastQuizzes(paginationData, year)
 	return c.JSON(http.StatusOK, echo.Map{
 		"pastQuizzes":  pastQuizzes,
 		"totalQuizzes": totalQuizzes,
@@ -77,7 +89,8 @@ func GetFutureQuizzes(c echo.Context) error {
 	} else {
 		year = user.Year
 	}
-	futureQuizzes, totalQuizzes := quizzesDBInteractions.GetFutureQuizzes(c, year)
+	paginationData := paginationController.ExtractPaginationData(c)
+	futureQuizzes, totalQuizzes := quizzesDBInteractions.GetFutureQuizzes(paginationData, year)
 	return c.JSON(http.StatusOK, echo.Map{
 		"futureQuizzes": futureQuizzes,
 		"totalQuizzes":  totalQuizzes,
@@ -94,7 +107,8 @@ func GetCurrentQuizzes(c echo.Context) error {
 	} else {
 		year = user.Year
 	}
-	currentQuizzes, totalQuizzes := quizzesDBInteractions.GetCurrentQuizzes(c, year)
+	paginationData := paginationController.ExtractPaginationData(c)
+	currentQuizzes, totalQuizzes := quizzesDBInteractions.GetCurrentQuizzes(paginationData, year)
 	return c.JSON(http.StatusOK, echo.Map{
 		"currentQuizzes": currentQuizzes,
 		"totalQuizzes":   totalQuizzes,
@@ -105,7 +119,12 @@ func GetCurrentQuizzes(c echo.Context) error {
 func DeleteQuiz(c echo.Context) error {
 	quizID := utils.ConvertToUInt(c.FormValue("id"))
 	quiz := quizzesDBInteractions.GetQuizByID(quizID)
-	quizzesDBInteractions.DeleteQuiz(&quiz)
+	err := quizzesDBInteractions.DeleteQuiz(&quiz)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (quiz not deleted), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Quiz deleted successfully",
 	})

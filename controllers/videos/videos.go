@@ -45,7 +45,12 @@ func CreateVideo(c echo.Context) error {
 		Year: year,
 		Title: title,
 	}
-	videosDBInterations.CreateVideo(&video)
+	err := videosDBInterations.CreateVideo(&video)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (video not created), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"video": video,
 		"message": "Video Created Successfully",
@@ -59,7 +64,12 @@ func UpdateVideo(c echo.Context) error {
 	video.Year = utils.ConvertToInt(c.FormValue("year"))
 	video.Title = c.FormValue("title")
 
-	videosDBInterations.UpdateVideo(&video)
+	err := videosDBInterations.UpdateVideo(&video)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (video not updated), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"video": video,
 		"message": "Video Updated Successfully",
@@ -82,7 +92,12 @@ func DeleteVideo(c echo.Context) error {
 			"message": "Unexpected error occurred while trying to delete the video files, please try again later",
 		})
 	}
-	videosDBInterations.DeleteVideo(&video)
+	err = videosDBInterations.DeleteVideo(&video)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (video not deleted), please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "The video and its parts are deleted successfully",
 	})

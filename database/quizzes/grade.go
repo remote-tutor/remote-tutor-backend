@@ -2,12 +2,15 @@ package quizzes
 
 import (
 	dbInstance "backend/database"
+	"backend/database/diagnostics"
 	quizzesModel "backend/models/quizzes"
 )
 
 // CreateGrade inserts a new quiz grade to the database
-func CreateGrade(grade *quizzesModel.QuizGrade) {
-	dbInstance.GetDBConnection().Create(grade)
+func CreateGrade(grade *quizzesModel.QuizGrade) error {
+	err := dbInstance.GetDBConnection().FirstOrCreate(grade).Error
+	diagnostics.WriteError(err, "CreateGrade")
+	return err
 }
 
 // UpdateGrade updates an existing quiz grade in the database

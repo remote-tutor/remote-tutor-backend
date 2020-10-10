@@ -2,21 +2,23 @@ package database
 
 import (
 	dbInstance "backend/database"
+	"backend/database/diagnostics"
 	dbPagination "backend/database/scopes"
 	announcementsModel "backend/models/announcements"
 	"fmt"
 
-	"github.com/labstack/echo"
 	"gorm.io/gorm"
 )
 
 // CreateAnnouncement inserts a new user to the database
-func CreateAnnouncement(announcement *announcementsModel.Announcement) {
-	dbInstance.GetDBConnection().Create(announcement)
+func CreateAnnouncement(announcement *announcementsModel.Announcement) error {
+	err := dbInstance.GetDBConnection().Create(announcement).Error
+	diagnostics.WriteError(err, "CreateAnnouncement")
+	return err
 }
 
 // GetAnnouncementsByYear retrieves the announcements
-func GetAnnouncementsByYear(c echo.Context, title, topic, content string, year int) ([]announcementsModel.Announcement, int64) {
+func GetAnnouncementsByYear(paginationData *dbPagination.PaginationData, title, topic, content string, year int) ([]announcementsModel.Announcement, int64) {
 	announcements := make([]announcementsModel.Announcement, 0)
 	// to add the searched word inside '%' pairs, we use the Sprintf function
 	// its normal use would be Sprintf("%s", variableName)
@@ -24,7 +26,7 @@ func GetAnnouncementsByYear(c echo.Context, title, topic, content string, year i
 	query := dbInstance.GetDBConnection().Where("title LIKE ? AND topic LIKE ? AND content LIKE ? AND year = ?",
 		fmt.Sprintf("%%%s%%", title), fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", content), year)
 	numberOfRecords := countAnnouncements(query)
-	query = query.Scopes(dbPagination.Paginate(c)).Find(&announcements)
+	query = query.Scopes(dbPagination.Paginate(paginationData)).Find(&announcements)
 	return announcements, numberOfRecords
 }
 
@@ -36,13 +38,17 @@ func GetAnnouncementByID(id uint) announcementsModel.Announcement {
 }
 
 // UpdateAnnouncement updates the announcement
-func UpdateAnnouncement(announcement *announcementsModel.Announcement) {
-	dbInstance.GetDBConnection().Save(announcement)
+func UpdateAnnouncement(announcement *announcementsModel.Announcement) error {
+	err := dbInstance.GetDBConnection().Save(announcement).Error
+	diagnostics.WriteError(err, "UpdateAnnouncement")
+	return err
 }
 
 // DeleteAnnouncement deletes the announcement
-func DeleteAnnouncement(announcement *announcementsModel.Announcement) {
-	dbInstance.GetDBConnection().Unscoped().Delete(announcement)
+func DeleteAnnouncement(announcement *announcementsModel.Announcement) error {
+	err := dbInstance.GetDBConnection().Unscoped().Delete(announcement).Error
+	diagnostics.WriteError(err, "DeleteAnnouncement")
+	return err
 }
 
 // countAnnouncements counts the number of records in the database by specific search

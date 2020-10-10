@@ -19,7 +19,12 @@ func CreateQuizGrade(c echo.Context) error {
 		QuizID: quizID,
 		UserID: userID,
 	}
-	quizzesDBInteractions.CreateGrade(&quizGrade)
+	err := quizzesDBInteractions.CreateGrade(&quizGrade)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred, please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"quizGrade": quizGrade,
 	})

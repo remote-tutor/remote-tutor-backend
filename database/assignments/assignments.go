@@ -2,23 +2,25 @@ package assignments
 
 import (
 	dbInstance "backend/database"
+	"backend/database/diagnostics"
 	dbPagination "backend/database/scopes"
 	assignmentsModel "backend/models/assignments"
-	"github.com/labstack/echo"
 	"gorm.io/gorm"
 )
 
 // CreateAssignment inserts a new assignment to the database
-func CreateAssignment(assignment *assignmentsModel.Assignment) {
-	dbInstance.GetDBConnection().Create(assignment)
+func CreateAssignment(assignment *assignmentsModel.Assignment) error {
+	err := dbInstance.GetDBConnection().Create(assignment).Error
+	diagnostics.WriteError(err, "CreateAssignment")
+	return err
 }
 
 // GetAssignments gets an array of assignments to display to the user
-func GetAssignments(c echo.Context, year int) ([]assignmentsModel.Assignment, int64) {
+func GetAssignments(paginationData *dbPagination.PaginationData, year int) ([]assignmentsModel.Assignment, int64) {
 	assignments := make([]assignmentsModel.Assignment, 0)
 	db := dbInstance.GetDBConnection().Where("year = ?", year)
 	totalAssignments := countAssignments(db)
-	db.Scopes(dbPagination.Paginate(c)).Find(&assignments)
+	db.Scopes(dbPagination.Paginate(paginationData)).Find(&assignments)
 	return assignments, totalAssignments
 }
 
@@ -37,11 +39,15 @@ func GetAssignmentByID(id uint) assignmentsModel.Assignment {
 }
 
 // UpdateAssignment updates the given assignment in the database
-func UpdateAssignment(assignment *assignmentsModel.Assignment) {
-	dbInstance.GetDBConnection().Save(assignment)
+func UpdateAssignment(assignment *assignmentsModel.Assignment) error {
+	err := dbInstance.GetDBConnection().Save(assignment).Error
+	diagnostics.WriteError(err, "UpdateAssignment")
+	return err
 }
 
 // DeleteAssignment deletes the given assignment from the database
-func DeleteAssignment(assignment *assignmentsModel.Assignment) {
-	dbInstance.GetDBConnection().Unscoped().Delete(assignment)
+func DeleteAssignment(assignment *assignmentsModel.Assignment) error {
+	err := dbInstance.GetDBConnection().Unscoped().Delete(assignment).Error
+	diagnostics.WriteError(err, "DeleteAssignment")
+	return err
 }

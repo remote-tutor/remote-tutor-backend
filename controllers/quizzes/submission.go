@@ -44,7 +44,12 @@ func CreateMCQSubmission(c echo.Context) error {
 	if userResult == mcqQuestion.CorrectAnswer {
 		mcqSubmission.Submission.Grade = mcqQuestion.TotalMark
 	}
-	quizzesDBInteractions.CreateMCQSubmission(&mcqSubmission)
+	err := quizzesDBInteractions.CreateMCQSubmission(&mcqSubmission)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (submission not saved), please try again",
+		})
+	}
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcqSubmission": mcqSubmission,
@@ -66,7 +71,12 @@ func UpdateMCQSubmission(c echo.Context) error {
 		mcqSubmission.Submission.Grade = 0
 	}
 	mcqSubmission.UserResult = userResult
-	quizzesDBInteractions.UpdateMCQSubmission(&mcqSubmission)
+	err := quizzesDBInteractions.UpdateMCQSubmission(&mcqSubmission)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (submission not saved), please try again",
+		})
+	}
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcqSubmission": mcqSubmission,

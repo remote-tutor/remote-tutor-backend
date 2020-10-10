@@ -2,44 +2,46 @@ package quizzes
 
 import (
 	dbInstance "backend/database"
+	"backend/database/diagnostics"
 	dbPagination "backend/database/scopes"
 	quizzesModel "backend/models/quizzes"
 	"time"
 
-	"github.com/labstack/echo"
 	"gorm.io/gorm"
 )
 
 // CreateQuiz inserts a new quiz to the database
-func CreateQuiz(quiz *quizzesModel.Quiz) {
-	dbInstance.GetDBConnection().Create(quiz)
+func CreateQuiz(quiz *quizzesModel.Quiz) error {
+	err := dbInstance.GetDBConnection().Create(quiz).Error
+	diagnostics.WriteError(err, "CreateQuiz")
+	return err
 }
 
 //GetPastQuizzes retrieves list of past quizzes
-func GetPastQuizzes(c echo.Context, year int) ([]quizzesModel.Quiz, int64) {
+func GetPastQuizzes(paginationData *dbPagination.PaginationData, year int) ([]quizzesModel.Quiz, int64) {
 	pastQuizzes := make([]quizzesModel.Quiz, 0)
 	db := dbInstance.GetDBConnection().Where("year = ? AND end_time < ?", year, time.Now())
 	totalQuizzes := countRequiredQuizzes(db)
-	db.Scopes(dbPagination.Paginate(c)).Find(&pastQuizzes)
+	db.Scopes(dbPagination.Paginate(paginationData)).Find(&pastQuizzes)
 	return pastQuizzes, totalQuizzes
 }
 
 //GetFutureQuizzes retrieves list of future quizzes
-func GetFutureQuizzes(c echo.Context, year int) ([]quizzesModel.Quiz, int64) {
+func GetFutureQuizzes(paginationData *dbPagination.PaginationData, year int) ([]quizzesModel.Quiz, int64) {
 	futureQuizzes := make([]quizzesModel.Quiz, 0)
 	db := dbInstance.GetDBConnection().Where("year = ? AND start_time > ?", year, time.Now())
 	totalQuizzes := countRequiredQuizzes(db)
-	db.Scopes(dbPagination.Paginate(c)).Find(&futureQuizzes)
+	db.Scopes(dbPagination.Paginate(paginationData)).Find(&futureQuizzes)
 	return futureQuizzes, totalQuizzes
 }
 
 //GetCurrentQuizzes retrieves list of current quizzes
-func GetCurrentQuizzes(c echo.Context, year int) ([]quizzesModel.Quiz, int64) {
+func GetCurrentQuizzes(paginationData *dbPagination.PaginationData, year int) ([]quizzesModel.Quiz, int64) {
 	currentQuizzes := make([]quizzesModel.Quiz, 0)
 	currentTime := time.Now()
 	db := dbInstance.GetDBConnection().Where("year = ? AND start_time < ? AND end_time > ?", year, currentTime, currentTime)
 	totalQuizzes := countRequiredQuizzes(db)
-	db.Scopes(dbPagination.Paginate(c)).Find(&currentQuizzes)
+	db.Scopes(dbPagination.Paginate(paginationData)).Find(&currentQuizzes)
 	return currentQuizzes, totalQuizzes
 }
 
@@ -51,13 +53,17 @@ func countRequiredQuizzes(db *gorm.DB) int64 {
 }
 
 // DeleteQuiz deletes the specified quiz from the database
-func DeleteQuiz(quiz *quizzesModel.Quiz) {
-	dbInstance.GetDBConnection().Unscoped().Delete(quiz)
+func DeleteQuiz(quiz *quizzesModel.Quiz) error {
+	err := dbInstance.GetDBConnection().Unscoped().Delete(quiz).Error
+	diagnostics.WriteError(err, "DeleteQuiz")
+	return err
 }
 
 // UpdateQuiz updates the quiz in the database
-func UpdateQuiz(quiz *quizzesModel.Quiz) {
-	dbInstance.GetDBConnection().Save(quiz)
+func UpdateQuiz(quiz *quizzesModel.Quiz) error {
+	err := dbInstance.GetDBConnection().Save(quiz).Error
+	diagnostics.WriteError(err, "UpdateQuiz")
+	return err
 }
 
 // GetQuizByID retrieves the quiz by the quizID

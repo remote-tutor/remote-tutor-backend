@@ -36,7 +36,12 @@ func CreateUserWatch(c echo.Context) error {
 		StartAt: currentTime,
 		ValidTill: validTill,
 	}
-	watchesDBInteractions.CreateUserWatch(&userWatch)
+	err := watchesDBInteractions.CreateUserWatch(&userWatch)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred, please try again",
+		})
+	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"watch": userWatch,
 	})

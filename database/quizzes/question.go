@@ -2,12 +2,15 @@ package quizzes
 
 import (
 	dbInstance "backend/database"
+	"backend/database/diagnostics"
 	quizzesModel "backend/models/quizzes"
 )
 
 // CreateMCQ inserts a new mcq question to the database
-func CreateMCQ(mcq *quizzesModel.MCQ) {
-	dbInstance.GetDBConnection().Create(mcq)
+func CreateMCQ(mcq *quizzesModel.MCQ) error {
+	err := dbInstance.GetDBConnection().Create(mcq).Error
+	diagnostics.WriteError(err, "CreateMCQ")
+	return err
 }
 
 // CreateLongAnswer inserts a new longAnswer question to the database
@@ -16,8 +19,10 @@ func CreateLongAnswer(longAnswer *quizzesModel.LongAnswer) {
 }
 
 // UpdateMCQ updates mcq question in the database
-func UpdateMCQ(mcq *quizzesModel.MCQ) {
-	dbInstance.GetDBConnection().Save(mcq)
+func UpdateMCQ(mcq *quizzesModel.MCQ) error {
+	err := dbInstance.GetDBConnection().Save(mcq).Error
+	diagnostics.WriteError(err, "UpdateMCQ")
+	return err
 }
 
 // UpdateLongAnswer updates long answer question in the database
@@ -26,8 +31,10 @@ func UpdateLongAnswer(longAnswer *quizzesModel.LongAnswer) {
 }
 
 // DeleteMCQ deletes mcq question in the database
-func DeleteMCQ(mcq *quizzesModel.MCQ) {
-	dbInstance.GetDBConnection().Unscoped().Delete(mcq)
+func DeleteMCQ(mcq *quizzesModel.MCQ) error {
+	err := dbInstance.GetDBConnection().Unscoped().Delete(mcq).Error
+	diagnostics.WriteError(err, "DeleteMCQ")
+	return err
 }
 
 // DeleteLongAnswer deletes long answer question in the database

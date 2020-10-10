@@ -2,11 +2,14 @@ package videos
 
 import (
 	dbInstance "backend/database"
+	"backend/database/diagnostics"
 	watchesModel "backend/models/videos"
 )
 
-func CreateUserWatch(userWatch *watchesModel.UserWatch) {
-	dbInstance.GetDBConnection().Create(userWatch)
+func CreateUserWatch(userWatch *watchesModel.UserWatch) error {
+	err := dbInstance.GetDBConnection().Create(userWatch).Error
+	diagnostics.WriteError(err, "CreateUserWatch")
+	return err
 }
 
 func GetUserWatchByUserAndPart(userID, partID uint) watchesModel.UserWatch {

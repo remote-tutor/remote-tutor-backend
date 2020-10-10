@@ -2,11 +2,10 @@ package database
 
 import (
 	dbInstance "backend/database"
+	"backend/database/diagnostics"
 	dbPagination "backend/database/scopes"
 	usersModel "backend/models/users"
 	"fmt"
-
-	"github.com/labstack/echo"
 )
 
 // GetUserByUsername searches the database for the user with the given username to be used in the login action
@@ -26,30 +25,35 @@ func GetUserByUserID(userid uint) usersModel.User {
 }
 
 // CreateUser inserts a new user to the database
-func CreateUser(user *usersModel.User) {
-	db := dbInstance.GetDBConnection()
-	db.Create(user)
+func CreateUser(user *usersModel.User) error {
+	err := dbInstance.GetDBConnection().Create(user).Error
+	diagnostics.WriteError(err, "CreateUser")
+	return err
 }
 
 // UpdateUser updates the user information
-func UpdateUser(user *usersModel.User) {
-	dbInstance.GetDBConnection().Save(user)
+func UpdateUser(user *usersModel.User) error {
+	err := dbInstance.GetDBConnection().Save(user).Error
+	diagnostics.WriteError(err, "UpdateUser")
+	return err
 }
 
 // DeleteUser deletes the user from the database
-func DeleteUser(user *usersModel.User) {
-	dbInstance.GetDBConnection().Unscoped().Delete(user)
+func DeleteUser(user *usersModel.User) error {
+	err := dbInstance.GetDBConnection().Unscoped().Delete(user).Error
+	diagnostics.WriteError(err, "DeleteUser")
+	return err
 }
 
 // GetUsers retrieve the non activated users from the database
-func GetUsers(c echo.Context, searchByValue, searchByField string, pending bool) []usersModel.User {
+func GetUsers(paginationData *dbPagination.PaginationData, searchByValue, searchByField string, pending bool) []usersModel.User {
 	db := dbInstance.GetDBConnection()
 	if searchByField == "username" {
 		db = db.Where("username LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
 	} else if searchByField == "fullName" {
 		db = db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
 	}
-	db = db.Scopes(dbPagination.Paginate(c))
+	db = db.Scopes(dbPagination.Paginate(paginationData))
 	pendingUsers := make([]usersModel.User, 0)
 	db.Where("activated = ?", !pending).Find(&pendingUsers)
 	return pendingUsers

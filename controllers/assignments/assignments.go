@@ -1,31 +1,21 @@
 package assignments
 
 import (
-	authController "backend/controllers/auth"
 	filesUtils "backend/controllers/files"
 	assignmentsFiles "backend/controllers/files/assignments"
 	paginationController "backend/controllers/pagination"
 	assignmentsDBInteractions "backend/database/assignments"
-	usersDBInteractions "backend/database/users"
 	assignmentsModel "backend/models/assignments"
 	"backend/utils"
 	"github.com/labstack/echo"
 	"net/http"
 )
 
-// GetAssignments gets the assignments of the logged in user OR selected year (IF ADMIN)
-func GetAssignments(c echo.Context) error {
-	admin := authController.FetchLoggedInUserAdminStatus(c)
-	var year int
-	if admin {
-		year = utils.ConvertToInt(c.QueryParam("year"))
-	} else {
-		userID := authController.FetchLoggedInUserID(c)
-		user := usersDBInteractions.GetUserByUserID(userID)
-		year = user.Year
-	}
+// GetAssignmentsByClass gets the assignments of the logged in user OR selected year (IF ADMIN)
+func GetAssignmentsByClass(c echo.Context) error {
+	class := c.QueryParam("selectedClass")
 	paginationData := paginationController.ExtractPaginationData(c)
-	assignments, totalAssignments := assignmentsDBInteractions.GetAssignments(paginationData, year)
+	assignments, totalAssignments := assignmentsDBInteractions.GetAssignmentsByClass(paginationData, class)
 	return c.JSON(http.StatusOK, echo.Map{
 		"assignments":      assignments,
 		"totalAssignments": totalAssignments,

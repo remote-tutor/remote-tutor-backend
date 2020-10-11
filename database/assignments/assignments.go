@@ -15,10 +15,10 @@ func CreateAssignment(assignment *assignmentsModel.Assignment) error {
 	return err
 }
 
-// GetAssignments gets an array of assignments to display to the user
-func GetAssignments(paginationData *dbPagination.PaginationData, year int) ([]assignmentsModel.Assignment, int64) {
+// GetAssignmentsByClass gets an array of assignments to display to the user
+func GetAssignmentsByClass(paginationData *dbPagination.PaginationData, class string) ([]assignmentsModel.Assignment, int64) {
 	assignments := make([]assignmentsModel.Assignment, 0)
-	db := dbInstance.GetDBConnection().Where("year = ?", year)
+	db := dbInstance.GetDBConnection().Where("class_hash = ?", class)
 	totalAssignments := countAssignments(db)
 	db.Scopes(dbPagination.Paginate(paginationData)).Find(&assignments)
 	return assignments, totalAssignments

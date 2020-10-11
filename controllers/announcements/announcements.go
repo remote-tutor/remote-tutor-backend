@@ -12,20 +12,15 @@ import (
 	"github.com/labstack/echo"
 )
 
-//GetAnnouncementsByYear retrieves list of announcements with the client specified length.
-func GetAnnouncementsByYear(c echo.Context) error {
-	var year int
-	if authController.FetchLoggedInUserAdminStatus(c) {
-		year = utils.ConvertToInt(c.QueryParam("year"))
-	} else {
-		year = authController.FetchLoggedInUserYear(c)
-	}
+//GetAnnouncementsByClass retrieves list of announcements with the client specified length.
+func GetAnnouncementsByClass(c echo.Context) error {
+	class := c.QueryParam("selectedClass")
 	title := c.QueryParam("title")
 	topic := c.QueryParam("topic")
 	content := c.QueryParam("content")
 	paginationData := paginationController.ExtractPaginationData(c)
 	announcements, numberOfAnnouncements := announcementsDBInteractions.
-		GetAnnouncementsByYear(paginationData, title, topic, content, year)
+		GetAnnouncementsByClass(paginationData, title, topic, content, class)
 	return c.JSON(http.StatusOK, echo.Map{
 		"announcements": announcements,
 		"total":         numberOfAnnouncements,

@@ -1,7 +1,6 @@
 package videos
 
 import (
-	authController "backend/controllers/auth"
 	partsFiles "backend/controllers/files/videos"
 	videosDBInterations "backend/database/videos"
 	videosModel "backend/models/videos"
@@ -11,18 +10,12 @@ import (
 	"net/http"
 )
 
-func GetVideosByMonthAndYear(c echo.Context) error {
-	isAdmin := authController.FetchLoggedInUserAdminStatus(c)
-	var year int
-	if isAdmin {
-		year = utils.ConvertToInt(c.QueryParam("year"))
-	} else {
-		year = authController.FetchLoggedInUserYear(c)
-	}
+func GetVideosByClassAndMonthAndYear(c echo.Context) error {
+	class := c.QueryParam("selectedClass")
 	date := utils.ConvertToTime(c.QueryParam("date"))
 	endOfMonth := now.With(date).EndOfMonth()
 	startOfMonth := now.With(date).BeginningOfMonth()
-	videos := videosDBInterations.GetVideosByMonthAndYear(year, startOfMonth, endOfMonth)
+	videos := videosDBInterations.GetVideosByClassAndMonthAndYear(class, startOfMonth, endOfMonth)
 	return c.JSON(http.StatusOK, echo.Map{
 		"videos": videos,
 	})

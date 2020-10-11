@@ -14,13 +14,13 @@ import (
 // CreateQuiz adds new quiz
 func CreateQuiz(c echo.Context) error {
 	title := c.FormValue("title")
-	year := utils.ConvertToInt(c.FormValue("year"))
+	class := c.FormValue("selectedClass")
 	startTime := utils.ConvertToTime(c.FormValue("startTime"))
 	endTime := utils.ConvertToTime(c.FormValue("endTime"))
 
 	quiz := quizzesModel.Quiz{
 		Title:     title,
-		Year:      year,
+		ClassHash: class,
 		StartTime: startTime,
 		EndTime:   endTime,
 	}
@@ -43,7 +43,7 @@ func UpdateQuiz(c echo.Context) error {
 
 	quiz := quizzesDBInteractions.GetQuizByID(quizID)
 	quiz.Title = c.FormValue("title")
-	quiz.Year = utils.ConvertToInt(c.FormValue("year"))
+	quiz.ClassHash = c.FormValue("selectedClass")
 	quiz.StartTime = utils.ConvertToTime(c.FormValue("startTime"))
 	quiz.EndTime = utils.ConvertToTime(c.FormValue("endTime"))
 

@@ -32,6 +32,7 @@ func CreateOrUpdateAssignment(c echo.Context) error {
 	}
 	assignment.Deadline = utils.ConvertToTime(c.FormValue("deadline"))
 	if method == "POST" {
+		assignment.ClassHash = c.FormValue("selectedClass")
 		err := assignmentsDBInteractions.CreateAssignment(assignment)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, echo.Map{

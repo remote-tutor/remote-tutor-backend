@@ -31,11 +31,11 @@ func GetVideoByID(c echo.Context) error {
 
 func CreateVideo(c echo.Context) error {
 	availableFrom := utils.ConvertToTime(c.FormValue("availableFrom"))
-	year := utils.ConvertToInt(c.FormValue("year"))
+	class := c.FormValue("selectedClass")
 	title := c.FormValue("title")
 	video := videosModel.Video{
 		AvailableFrom: now.With(availableFrom).BeginningOfDay(),
-		Year: year,
+		ClassHash: class,
 		Title: title,
 	}
 	err := videosDBInterations.CreateVideo(&video)

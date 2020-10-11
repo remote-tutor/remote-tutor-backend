@@ -56,8 +56,8 @@ func MigrateTables() {
 
 		databaseConnection.AutoMigrate(&organizationsModel.Organization{})
 		databaseConnection.AutoMigrate(&organizationsModel.Class{})
-		databaseConnection.AutoMigrate(&organizationsModel.UserClass{})
-		databaseConnection.AutoMigrate(&organizationsModel.AdminOrganization{})
+		databaseConnection.AutoMigrate(&organizationsModel.ClassUser{})
+		databaseConnection.AutoMigrate(&organizationsModel.OrganizationAdmin{})
 	}
 }
 

@@ -5,7 +5,8 @@ import (
 	"gorm.io/gorm"
 )
 
-type AdminOrganization struct {
+// OrganizationAdmin holds the admins users for each organization
+type OrganizationAdmin struct {
 	gorm.Model
 	UserID           uint `json:"userID" gorm:"uniqueIndex:idx_admin_organization,sort:asc"`
 	User             usersModel.User

@@ -5,7 +5,8 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserClass struct {
+// ClassUser holds the users in each class (admin or student)
+type ClassUser struct {
 	gorm.Model
 	UserID    uint   `json:"userID" gorm:"uniqueIndex:idx_user_class,sort:asc"`
 	User      usersModel.User

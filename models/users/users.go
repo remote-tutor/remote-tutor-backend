@@ -12,6 +12,7 @@ type User struct {
 	FullName     string `json:"fullName"`
 	Activated    bool   `gorm:"default:0" json:"activated"`
 	Admin        bool   `gorm:"default:0" json:"admin"`
+	Supervisor   bool   `gorm:"default:0" json:"supervisor"`
 	Year         int    `json:"year"`
 	PhoneNumber  string `json:"phoneNumber"`
 	ParentNumber string `json:"parentNumber"`

@@ -11,5 +11,6 @@ func InitializeRoutes(e *echo.Echo, adminRouter *echo.Group) {
 	adminClasses := adminRouter.Group("/classes")
 
 	InitializeUerClassesRoutes(classes, adminClasses)
+	InitializeClassesRoutes(classes, adminClasses)
 }
 

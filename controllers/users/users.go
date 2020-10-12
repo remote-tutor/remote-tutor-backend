@@ -22,11 +22,6 @@ func Login(c echo.Context) error {
 			"message": "Invalid login credentials",
 		})
 	}
-	if !user.Activated {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "Sorry, you haven't been verified yet",
-		})
-	}
 	token, err := authController.GenerateToken(&user)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -47,7 +42,6 @@ func Register(c echo.Context) error {
 	username := c.FormValue("username")
 	password := c.FormValue("password")
 	confirmPassword := c.FormValue("confirmPassword")
-	year := utils.ConvertToInt(c.FormValue("year"))
 	phoneNumber := c.FormValue("phoneNumber")
 	parentNumber := c.FormValue("parentNumber")
 	if password != confirmPassword { // check if the password doesn't match the confirm password
@@ -68,7 +62,6 @@ func Register(c echo.Context) error {
 		Username:     username,
 		Password:     string(hashedPassword),
 		FullName:     fullName,
-		Year:         year,
 		PhoneNumber:  phoneNumber,
 		ParentNumber: parentNumber,
 	}
@@ -115,15 +108,9 @@ func UpdateUser(c echo.Context) error {
 	status := utils.ConvertToInt(c.FormValue("status"))
 	user := usersDBInteractions.GetUserByUserID(userID)
 	user.FullName = fullName
-	user.Year = year
 	user.PhoneNumber = phoneNumber
 	user.ParentNumber = parentNumber
-	if status == 1 {
-		user.Activated = true
-		user.Admin = true
-	} else if status == 0 {
-		user.Activated = true
-	} else if status == -1 {
+	if status == -1 {
 		err := usersDBInteractions.DeleteUser(&user)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, echo.Map{

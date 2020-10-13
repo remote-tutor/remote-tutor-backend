@@ -10,9 +10,9 @@ import (
 	"strings"
 )
 
-// to load the region automatically from the config file in ~/.aws/config
+// to load the region automatically from the environment variable
 // the following line was added at the end of the ~/.profile file
-// export AWS_SDK_LOAD_CONFIG=true
+// export AWS_REGION=eu-central-1
 func Upload(buffer *bytes.Buffer, filePath string) (string, error) {
 	contentType := http.DetectContentType(buffer.Bytes())
 	sess, err := session.NewSession()

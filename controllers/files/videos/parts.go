@@ -8,11 +8,13 @@ import (
 	"fmt"
 	"github.com/labstack/echo"
 	"io"
+	"os"
 )
 
 func UploadVideoPart(c echo.Context, videoID uint) (string, error) {
 	fileName, src, err := filesUtils.ReadFromSource(c, "videoPart")
 	if err != nil {
+		writeError("UploadVideoPart Line 16", err)
 		return "", err
 	}
 	buffer := bytes.NewBuffer(nil)
@@ -23,6 +25,7 @@ func UploadVideoPart(c echo.Context, videoID uint) (string, error) {
 	filePath := fmt.Sprintf("%d/%s", videoID, fileName)
 	fileLocation, err := aws.Upload(buffer, filePath)
 	if err != nil {
+		writeError("UploadVideoPart Line 27", err)
 		return "", err
 	}
 	return fileLocation, nil
@@ -43,4 +46,12 @@ func DeleteVideo(video *videoParts.Video, parts []videoParts.VideoPart) error {
 	}
 	folderPath := fmt.Sprintf("%d", video.ID)
 	return aws.Delete(folderPath)
+}
+
+func writeError(val string, err error) {
+	file, fileErr := os.OpenFile("aws.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if fileErr == nil {
+		file.Write([]byte(val + "\n"))
+		file.Write([]byte("Error:\t" + err.Error() + "\n"))
+	}
 }

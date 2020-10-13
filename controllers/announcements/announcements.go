@@ -49,7 +49,6 @@ func CreateAnnouncement(c echo.Context) error {
 		Year:    year,
 	}
 
-	announcement.ID = 8
 	err := announcementsDBInteractions.CreateAnnouncement(&announcement)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{

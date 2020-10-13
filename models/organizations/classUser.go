@@ -8,8 +8,9 @@ import (
 // ClassUser holds the users in each class (admin or student)
 type ClassUser struct {
 	gorm.Model
-	UserID    uint   `json:"userID" gorm:"uniqueIndex:idx_user_class,sort:asc"`
+	UserID    uint `json:"userID" gorm:"uniqueIndex:idx_user_class,sort:asc"`
 	User      usersModel.User
 	ClassHash string `json:"classHash" gorm:"size:255;uniqueIndex:idx_user_class,sort:asc"`
-	Class     Class `json:"class" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:ClassHash;references:Hash"`
+	Class     Class  `json:"class" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:ClassHash;references:Hash"`
+	Activated bool   `json:"activated" gorm:"default:0"`
 }

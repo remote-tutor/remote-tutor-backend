@@ -28,3 +28,9 @@ func countClasses(db *gorm.DB) int64 {
 	db.Model(&classesModel.Class{}).Count(&totalClasses)
 	return totalClasses
 }
+
+func GetClassByHash(classHash string) classesModel.Class {
+	var class classesModel.Class
+	dbInstance.GetDBConnection().Preload("Organization").Where("hash = ?", classHash).Find(&class)
+	return class
+}

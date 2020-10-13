@@ -24,3 +24,11 @@ func GetAllClasses(c echo.Context) error {
 		"total":   numberOfClasses,
 	})
 }
+
+func GetClassByHash(c echo.Context) error {
+	classHash := c.QueryParam("selectedClass")
+	class := classesDBInteractions.GetClassByHash(classHash)
+	return c.JSON(http.StatusOK, echo.Map{
+		"class": class,
+	})
+}

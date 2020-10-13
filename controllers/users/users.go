@@ -2,10 +2,8 @@ package controllers
 
 import (
 	authController "backend/controllers/auth"
-	paginationController "backend/controllers/pagination"
 	usersDBInteractions "backend/database/users"
 	usersModel "backend/models/users"
-	"backend/utils"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -73,62 +71,6 @@ func Register(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "User created successfully",
-	})
-}
-
-// GetUsers retrieves the non activated users to view to the admin
-func GetUsers(c echo.Context) error {
-	searchByValue := c.QueryParam("searchByValue")
-	searchByField := c.QueryParam("searchByField")
-	pending := utils.ConvertToBool(c.QueryParam("pending"))
-
-	paginationData := paginationController.ExtractPaginationData(c)
-	users := usersDBInteractions.GetUsers(paginationData, searchByValue, searchByField, pending)
-	totalUsers := usersDBInteractions.GetTotalNumberOfUsers(searchByValue, searchByField, pending)
-
-	return c.JSON(http.StatusOK, echo.Map{
-		"students":      users,
-		"totalStudents": totalUsers,
-	})
-}
-
-// UpdateUser updates the user in the database
-func UpdateUser(c echo.Context) error {
-	userID := utils.ConvertToUInt(c.FormValue("userID"))
-	fullName := c.FormValue("fullName")
-	year := utils.ConvertToInt(c.FormValue("year"))
-	phoneNumber := c.FormValue("phoneNumber")
-	parentNumber := c.FormValue("parentNumber")
-	if fullName == "" || year < 1 || year > 3 || len(phoneNumber) != 11 || len(parentNumber) != 11 {
-		return c.JSON(http.StatusUnprocessableEntity, echo.Map{
-			"userID":  userID,
-			"message": "Error while saving the data, make sure you entered a correct name and/or year",
-		})
-	}
-	status := utils.ConvertToInt(c.FormValue("status"))
-	user := usersDBInteractions.GetUserByUserID(userID)
-	user.FullName = fullName
-	user.PhoneNumber = phoneNumber
-	user.ParentNumber = parentNumber
-	if status == -1 {
-		err := usersDBInteractions.DeleteUser(&user)
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, echo.Map{
-				"message": "Unexpected error occurred (user not deleted), please try again",
-			})
-		}
-		return c.JSON(http.StatusOK, echo.Map{
-			"message": "User deleted successfully",
-		})
-	}
-	err := usersDBInteractions.UpdateUser(&user)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": "Unexpected error occurred (user not updated), please try again",
-		})
-	}
-	return c.JSON(http.StatusOK, echo.Map{
-		"message": "User updated successfully",
 	})
 }
 

@@ -77,3 +77,19 @@ func Enroll(c echo.Context) error {
 		"message": "You've enrolled successfully! - wait for admin verification -",
 	})
 }
+
+func CheckIfUserEnrolledToClass(c echo.Context) error {
+	class := c.QueryParam("selectedClass")
+	userID := utils.ConvertToUInt(c.QueryParam("userID"))
+	classUser := classUsersDBInteractions.GetClassUserByUserIDAndClass(userID, class)
+	var enrolled bool
+	if classUser.ID == 0 {
+		enrolled = false
+	} else {
+		enrolled = true
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"classUser": classUser,
+		"enrolled":  enrolled,
+	})
+}

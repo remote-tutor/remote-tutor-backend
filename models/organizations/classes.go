@@ -8,8 +8,8 @@ import (
 type Class struct {
 	gorm.Model
 	Name             string       `json:"name"`
-	Year             int          `json:"year" gorm:"uniqueIndex:idx_organization_year,sort:asc"`
-	OrganizationHash string       `json:"organizationHash" gorm:"size:255;uniqueIndex:idx_organization_year,sort:asc"`
+	Year             int          `json:"year"`
+	OrganizationHash string       `json:"organizationHash" gorm:"size:255"`
 	Organization     Organization `json:"organization" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:OrganizationHash;references:Hash"`
 	Hash             string       `json:"hash" gorm:"size:255;uniqueIndex"`
 }

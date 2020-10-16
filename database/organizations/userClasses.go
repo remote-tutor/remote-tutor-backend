@@ -56,6 +56,12 @@ func GetClassUserByID(id uint) classUsersModel.ClassUser {
 	return classUser
 }
 
+func GetClassUserByUserIDAndClass(userID uint, class string) classUsersModel.ClassUser {
+	var classUser classUsersModel.ClassUser
+	dbInstance.GetDBConnection().Where("user_id = ? AND class_hash = ?", userID, class).Find(&classUser)
+	return classUser
+}
+
 func UpdateClassUser(classUser *classUsersModel.ClassUser) error {
 	err := dbInstance.GetDBConnection().Save(classUser).Error
 	diagnostics.WriteError(err, "UpdateClassUser")

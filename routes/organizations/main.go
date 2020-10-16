@@ -12,6 +12,5 @@ func InitializeRoutes(e *echo.Echo, adminRouter *echo.Group) {
 
 	InitializeUerClassesRoutes(classes, adminClasses)
 	InitializeClassesRoutes(classes, adminClasses)
-	InitializeOrganizationAdminsRoutes(classes, adminClasses)
 }
 

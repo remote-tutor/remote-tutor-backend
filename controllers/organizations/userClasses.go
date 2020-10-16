@@ -36,6 +36,7 @@ func GetStudentsByClass(c echo.Context) error {
 func AcceptStudents(c echo.Context) error {
 	id := utils.ConvertToUInt(c.FormValue("classUserID"))
 	status := utils.ConvertToBool(c.FormValue("status"))
+	admin := utils.ConvertToBool(c.FormValue("admin"))
 	classUser := classUsersDBInteractions.GetClassUserByID(id)
 	if !status {
 		err := classUsersDBInteractions.DeleteClassUser(&classUser)
@@ -47,6 +48,11 @@ func AcceptStudents(c echo.Context) error {
 		return c.JSON(http.StatusOK, echo.Map{
 			"message": "User rejected successfully",
 		})
+	}
+	if admin {
+		classUser.Admin = true
+	} else {
+		classUser.Admin = false
 	}
 	classUser.Activated = true
 	err := classUsersDBInteractions.UpdateClassUser(&classUser)

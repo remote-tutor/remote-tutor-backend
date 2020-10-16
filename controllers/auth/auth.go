@@ -16,7 +16,6 @@ func GenerateToken(user *usersModel.User) (string, error) {
 	// Set claims
 	claims := token.Claims.(jwt.MapClaims)
 	claims["id"] = user.ID
-	claims["admin"] = user.Admin
 	claims["exp"] = time.Now().Add(time.Hour * 6).Unix()
 
 	// Generate encoded token and send it as response.

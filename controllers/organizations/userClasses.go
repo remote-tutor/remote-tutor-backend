@@ -68,7 +68,7 @@ func AcceptStudents(c echo.Context) error {
 
 func Enroll(c echo.Context) error {
 	userID := authController.FetchLoggedInUserID(c)
-	class := c.FormValue("selectedClass")
+	class := c.FormValue("newSelectedClass")
 	classUser := classUsersModel.ClassUser{
 		UserID:    userID,
 		ClassHash: class,

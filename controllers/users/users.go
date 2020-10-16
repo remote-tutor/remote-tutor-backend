@@ -29,7 +29,6 @@ func Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Logged In!!",
 		"token":   token,
-		"admin":   user.Admin,
 		"name":    user.FullName,
 	})
 }
@@ -71,19 +70,6 @@ func Register(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "User created successfully",
-	})
-}
-
-// CheckUserIsAdmin checks whether the user has admin rights or not
-func CheckUserIsAdmin(c echo.Context) error {
-	userid := uint(1)
-	user := usersDBInteractions.GetUserByUserID(userid)
-	isAdmin := false
-	if user.Admin {
-		isAdmin = true
-	}
-	return c.JSON(http.StatusOK, echo.Map{
-		"admin": isAdmin,
 	})
 }
 

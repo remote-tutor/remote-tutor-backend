@@ -2,7 +2,7 @@ package videos
 
 import (
 	authController "backend/controllers/auth"
-	usersDBInteractions "backend/database/users"
+	classUsersDBInteractions "backend/database/organizations"
 	watchesDBInteractions "backend/database/videos"
 	watchesModel "backend/models/videos"
 	"backend/utils"
@@ -22,8 +22,9 @@ func GetWatchByUserAndPart(c echo.Context) error {
 
 func CreateUserWatch(c echo.Context) error {
 	userID := authController.FetchLoggedInUserID(c)
-	user := usersDBInteractions.GetUserByUserID(userID)
-	if user.Admin {
+	class := c.QueryParam("selectedClass")
+	classUser := classUsersDBInteractions.GetClassUserByUserIDAndClass(userID, class)
+	if classUser.Admin {
 		return c.JSON(http.StatusOK, echo.Map{})
 	}
 	partID := utils.ConvertToUInt(c.FormValue("videoPartID"))

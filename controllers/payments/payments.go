@@ -11,8 +11,8 @@ import (
 	"backend/utils"
 )
 
-// GetPaymentsByUserAndMonth gets the payments of specific user in a specific month
-func GetPaymentsByUserAndMonth(c echo.Context) error {
+// GetPaymentsByUserAndMonthAndClass gets the payments of specific user in a specific month
+func GetPaymentsByUserAndMonthAndClass(c echo.Context) error {
 	admin := authController.FetchLoggedInUserAdminStatus(c)
 	userID := uint(0)
 	if admin {
@@ -23,19 +23,19 @@ func GetPaymentsByUserAndMonth(c echo.Context) error {
 	startDate := utils.ConvertToTime(c.QueryParam("startDate"))
 	endDate := utils.ConvertToTime(c.QueryParam("endDate"))
 	endDate = endDate.AddDate(0, 0, 1)
-
-	payments := paymentsDBInteractions.GetPaymentsByUserAndMonth(userID, startDate, endDate)
+	class := c.QueryParam("selectedClass")
+	payments := paymentsDBInteractions.GetPaymentsByUserAndMonthAndClass(userID, startDate, endDate, class)
 	return c.JSON(http.StatusOK, echo.Map{
 		"payments": payments,
 	})
 }
 
-// GetPaymentsByUserAndWeek verifies if the user has payment for this week or not
-func GetPaymentsByUserAndWeek(c echo.Context) error {
+// GetPaymentsByUserAndWeekAndClass verifies if the user has payment for this week or not
+func GetPaymentsByUserAndWeekAndClass(c echo.Context) error {
 	userID := authController.FetchLoggedInUserID(c)
 	eventDate := utils.ConvertToTime(c.QueryParam("eventDate"))
-
-	payment := paymentsDBInteractions.GetPaymentByUserAndWeek(userID, eventDate)
+	class := c.QueryParam("selectedClass")
+	payment := paymentsDBInteractions.GetPaymentByUserAndWeekAndClass(userID, eventDate, class)
 	if payment.ID == 0 {
 		return c.JSON(http.StatusOK, echo.Map{
 			"status": false,
@@ -52,6 +52,7 @@ func CreatePayment(c echo.Context) error {
 	payment.UserID = utils.ConvertToUInt(c.FormValue("userID"))
 	payment.StartDate = utils.ConvertToTime(c.FormValue("startDate"))
 	payment.EndDate = utils.ConvertToTime(c.FormValue("endDate"))
+	payment.ClassHash = c.FormValue("selectedClass")
 
 	err := paymentsDBInteractions.CreatePayment(payment)
 	if err != nil {

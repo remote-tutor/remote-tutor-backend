@@ -2,9 +2,8 @@ package database
 
 import (
 	dbInstance "backend/database"
-	"backend/database/diagnostics"
 	classUsersDBInteractions "backend/database/organizations"
-	dbPagination "backend/database/scopes"
+	"backend/diagnostics"
 	usersModel "backend/models/users"
 )
 

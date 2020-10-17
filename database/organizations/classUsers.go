@@ -2,8 +2,8 @@ package organizations
 
 import (
 	dbInstance "backend/database"
-	"backend/database/diagnostics"
 	dbPagination "backend/database/scopes"
+	"backend/diagnostics"
 	classUsersModel "backend/models/organizations"
 	"fmt"
 	"gorm.io/gorm"
@@ -46,7 +46,7 @@ func GetClassesHashesByUserID(userID uint) []string {
 
 func EnrollUser(classUser *classUsersModel.ClassUser) error {
 	err := dbInstance.GetDBConnection().Create(classUser).Error
-	diagnostics.WriteError(err, "EnrollUser")
+	diagnostics.WriteError(err, "database.log", "EnrollUser")
 	return err
 }
 
@@ -64,12 +64,12 @@ func GetClassUserByUserIDAndClass(userID uint, class string) classUsersModel.Cla
 
 func UpdateClassUser(classUser *classUsersModel.ClassUser) error {
 	err := dbInstance.GetDBConnection().Save(classUser).Error
-	diagnostics.WriteError(err, "UpdateClassUser")
+	diagnostics.WriteError(err, "database.log","UpdateClassUser")
 	return err
 }
 
 func DeleteClassUser(classUser *classUsersModel.ClassUser) error {
 	err := dbInstance.GetDBConnection().Unscoped().Delete(classUser).Error
-	diagnostics.WriteError(err, "DeleteClassUser")
+	diagnostics.WriteError(err, "database.log","DeleteClassUser")
 	return err
 }

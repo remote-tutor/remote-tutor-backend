@@ -1,10 +1,8 @@
 package quizzes
 
 import (
-	authController "backend/controllers/auth"
 	paginationController "backend/controllers/pagination"
 	quizzesDBInteractions "backend/database/quizzes"
-	usersDBInteractions "backend/database/users"
 	quizzesModel "backend/models/quizzes"
 	"backend/utils"
 	"net/http"
@@ -16,13 +14,13 @@ import (
 // CreateQuiz adds new quiz
 func CreateQuiz(c echo.Context) error {
 	title := c.FormValue("title")
-	year := utils.ConvertToInt(c.FormValue("year"))
+	class := c.FormValue("selectedClass")
 	startTime := utils.ConvertToTime(c.FormValue("startTime"))
 	endTime := utils.ConvertToTime(c.FormValue("endTime"))
 
 	quiz := quizzesModel.Quiz{
 		Title:     title,
-		Year:      year,
+		ClassHash: class,
 		StartTime: startTime,
 		EndTime:   endTime,
 	}
@@ -45,7 +43,7 @@ func UpdateQuiz(c echo.Context) error {
 
 	quiz := quizzesDBInteractions.GetQuizByID(quizID)
 	quiz.Title = c.FormValue("title")
-	quiz.Year = utils.ConvertToInt(c.FormValue("year"))
+	quiz.ClassHash = c.FormValue("selectedClass")
 	quiz.StartTime = utils.ConvertToTime(c.FormValue("startTime"))
 	quiz.EndTime = utils.ConvertToTime(c.FormValue("endTime"))
 
@@ -63,16 +61,9 @@ func UpdateQuiz(c echo.Context) error {
 
 //GetPastQuizzes retrieves list of past quizzes for the logged in user
 func GetPastQuizzes(c echo.Context) error {
-	userid := authController.FetchLoggedInUserID(c)
-	user := usersDBInteractions.GetUserByUserID(userid)
-	var year int
-	if user.Admin {
-		year = utils.ConvertToInt(c.QueryParam("year"))
-	} else {
-		year = user.Year
-	}
+	class := c.QueryParam("selectedClass")
 	paginationData := paginationController.ExtractPaginationData(c)
-	pastQuizzes, totalQuizzes := quizzesDBInteractions.GetPastQuizzes(paginationData, year)
+	pastQuizzes, totalQuizzes := quizzesDBInteractions.GetPastQuizzes(paginationData, class)
 	return c.JSON(http.StatusOK, echo.Map{
 		"pastQuizzes":  pastQuizzes,
 		"totalQuizzes": totalQuizzes,
@@ -81,16 +72,9 @@ func GetPastQuizzes(c echo.Context) error {
 
 //GetFutureQuizzes retrieves list of future quizzes for the logged in user
 func GetFutureQuizzes(c echo.Context) error {
-	userid := authController.FetchLoggedInUserID(c)
-	user := usersDBInteractions.GetUserByUserID(userid)
-	var year int
-	if user.Admin {
-		year = utils.ConvertToInt(c.QueryParam("year"))
-	} else {
-		year = user.Year
-	}
+	class := c.QueryParam("selectedClass")
 	paginationData := paginationController.ExtractPaginationData(c)
-	futureQuizzes, totalQuizzes := quizzesDBInteractions.GetFutureQuizzes(paginationData, year)
+	futureQuizzes, totalQuizzes := quizzesDBInteractions.GetFutureQuizzes(paginationData, class)
 	return c.JSON(http.StatusOK, echo.Map{
 		"futureQuizzes": futureQuizzes,
 		"totalQuizzes":  totalQuizzes,
@@ -99,16 +83,9 @@ func GetFutureQuizzes(c echo.Context) error {
 
 //GetCurrentQuizzes retrieves list of current quizzes for the logged in user
 func GetCurrentQuizzes(c echo.Context) error {
-	userid := authController.FetchLoggedInUserID(c)
-	user := usersDBInteractions.GetUserByUserID(userid)
-	var year int
-	if user.Admin {
-		year = utils.ConvertToInt(c.QueryParam("year"))
-	} else {
-		year = user.Year
-	}
+	class := c.QueryParam("selectedClass")
 	paginationData := paginationController.ExtractPaginationData(c)
-	currentQuizzes, totalQuizzes := quizzesDBInteractions.GetCurrentQuizzes(paginationData, year)
+	currentQuizzes, totalQuizzes := quizzesDBInteractions.GetCurrentQuizzes(paginationData, class)
 	return c.JSON(http.StatusOK, echo.Map{
 		"currentQuizzes": currentQuizzes,
 		"totalQuizzes":   totalQuizzes,
@@ -139,19 +116,13 @@ func GetQuizByID(c echo.Context) error {
 	})
 }
 
-// GetQuizzesByMonthAndYear gets the quizzes within amonth period.
-func GetQuizzesByMonthAndYear(c echo.Context) error {
-	isAdmin := authController.FetchLoggedInUserAdminStatus(c)
-	var year int
-	if isAdmin {
-		year = utils.ConvertToInt(c.QueryParam("year"))
-	} else {
-		year = authController.FetchLoggedInUserYear(c)
-	}
+// GetQuizzesByClassMonthAndYear gets the quizzes within a month period.
+func GetQuizzesByClassMonthAndYear(c echo.Context) error {
+	class := c.QueryParam("selectedClass")
 	date := utils.ConvertToTime(c.QueryParam("date"))
 	endOfMonth := now.With(date).EndOfMonth()
 	startOfMonth := now.With(date).BeginningOfMonth()
-	quizzes := quizzesDBInteractions.GetQuizzesByMonthAndYear(year, startOfMonth, endOfMonth)
+	quizzes := quizzesDBInteractions.GetQuizzesByClassAndMonthAndYear(class, startOfMonth, endOfMonth)
 	return c.JSON(http.StatusOK, echo.Map{
 		"quizzes": quizzes,
 	})

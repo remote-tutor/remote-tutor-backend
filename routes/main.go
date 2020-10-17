@@ -4,6 +4,7 @@ import (
 	authControllers "backend/controllers/auth"
 	announcementRouter "backend/routes/announcements"
 	assignmentsRouter "backend/routes/assignments"
+	organizationsRouter "backend/routes/organizations"
 	paymentRouter "backend/routes/payments"
 	quizRouter "backend/routes/quizzes"
 	userRouter "backend/routes/users"
@@ -39,6 +40,7 @@ func InitializeRoutes(e *echo.Echo) {
 	paymentRouter.InitializeRoutes(e, adminRouter)
 	assignmentsRouter.InitializeRoutes(e, adminRouter)
 	videosRouter.InitializeRoutes(e, adminRouter)
+	organizationsRouter.InitializeRoutes(e, adminRouter)
 
 	e.GET("/image/:imagePath/:quizID/:questionID", quizzesController.GetQuestionImage)
 

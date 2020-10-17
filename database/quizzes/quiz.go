@@ -18,28 +18,28 @@ func CreateQuiz(quiz *quizzesModel.Quiz) error {
 }
 
 //GetPastQuizzes retrieves list of past quizzes
-func GetPastQuizzes(paginationData *dbPagination.PaginationData, year int) ([]quizzesModel.Quiz, int64) {
+func GetPastQuizzes(paginationData *dbPagination.PaginationData, class string) ([]quizzesModel.Quiz, int64) {
 	pastQuizzes := make([]quizzesModel.Quiz, 0)
-	db := dbInstance.GetDBConnection().Where("year = ? AND end_time < ?", year, time.Now())
+	db := dbInstance.GetDBConnection().Where("class_hash = ? AND end_time < ?", class, time.Now())
 	totalQuizzes := countRequiredQuizzes(db)
 	db.Scopes(dbPagination.Paginate(paginationData)).Find(&pastQuizzes)
 	return pastQuizzes, totalQuizzes
 }
 
 //GetFutureQuizzes retrieves list of future quizzes
-func GetFutureQuizzes(paginationData *dbPagination.PaginationData, year int) ([]quizzesModel.Quiz, int64) {
+func GetFutureQuizzes(paginationData *dbPagination.PaginationData, class string) ([]quizzesModel.Quiz, int64) {
 	futureQuizzes := make([]quizzesModel.Quiz, 0)
-	db := dbInstance.GetDBConnection().Where("year = ? AND start_time > ?", year, time.Now())
+	db := dbInstance.GetDBConnection().Where("class_hash = ? AND start_time > ?", class, time.Now())
 	totalQuizzes := countRequiredQuizzes(db)
 	db.Scopes(dbPagination.Paginate(paginationData)).Find(&futureQuizzes)
 	return futureQuizzes, totalQuizzes
 }
 
 //GetCurrentQuizzes retrieves list of current quizzes
-func GetCurrentQuizzes(paginationData *dbPagination.PaginationData, year int) ([]quizzesModel.Quiz, int64) {
+func GetCurrentQuizzes(paginationData *dbPagination.PaginationData, class string) ([]quizzesModel.Quiz, int64) {
 	currentQuizzes := make([]quizzesModel.Quiz, 0)
 	currentTime := time.Now()
-	db := dbInstance.GetDBConnection().Where("year = ? AND start_time < ? AND end_time > ?", year, currentTime, currentTime)
+	db := dbInstance.GetDBConnection().Where("class_hash = ? AND start_time < ? AND end_time > ?", class, currentTime, currentTime)
 	totalQuizzes := countRequiredQuizzes(db)
 	db.Scopes(dbPagination.Paginate(paginationData)).Find(&currentQuizzes)
 	return currentQuizzes, totalQuizzes
@@ -73,13 +73,13 @@ func GetQuizByID(id uint) quizzesModel.Quiz {
 	return quiz
 }
 
-// GetQuizzesByMonthAndYear retrieves all the quizzes within a month period.
-func GetQuizzesByMonthAndYear(year int, startOfMonth, endOfMonth time.Time) []quizzesModel.Quiz {
+// GetQuizzesByClassAndMonthAndYear retrieves all the quizzes within a month period.
+func GetQuizzesByClassAndMonthAndYear(class string, startOfMonth, endOfMonth time.Time) []quizzesModel.Quiz {
 	quizzes := make([]quizzesModel.Quiz, 0)
 	currentTime := time.Now()
 	dbInstance.GetDBConnection().
-		Where("year = ? AND start_time >= ? AND end_time <= ? AND end_time < ?",
-			year, startOfMonth, endOfMonth, currentTime).
+		Where("class_hash = ? AND start_time >= ? AND end_time <= ? AND end_time < ?",
+			class, startOfMonth, endOfMonth, currentTime).
 		Order("start_time").
 		Find(&quizzes)
 	return quizzes

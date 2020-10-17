@@ -3,6 +3,7 @@ package database
 import (
 	announcementsModel "backend/models/announcements"
 	assignmentsModel "backend/models/assignments"
+	organizationsModel "backend/models/organizations"
 	paymentsModel "backend/models/payments"
 	quizzesModel "backend/models/quizzes"
 	usersModel "backend/models/users"
@@ -52,6 +53,10 @@ func MigrateTables() {
 		databaseConnection.AutoMigrate(&videosModel.Video{})
 		databaseConnection.AutoMigrate(&videosModel.VideoPart{})
 		databaseConnection.AutoMigrate(&videosModel.UserWatch{})
+
+		databaseConnection.AutoMigrate(&organizationsModel.Organization{})
+		databaseConnection.AutoMigrate(&organizationsModel.Class{})
+		databaseConnection.AutoMigrate(&organizationsModel.ClassUser{})
 	}
 }
 

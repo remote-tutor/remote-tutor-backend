@@ -17,14 +17,14 @@ func CreateAnnouncement(announcement *announcementsModel.Announcement) error {
 	return err
 }
 
-// GetAnnouncementsByYear retrieves the announcements
-func GetAnnouncementsByYear(paginationData *dbPagination.PaginationData, title, topic, content string, year int) ([]announcementsModel.Announcement, int64) {
+// GetAnnouncementsByClass retrieves the announcements
+func GetAnnouncementsByClass(paginationData *dbPagination.PaginationData, title, topic, content, class string) ([]announcementsModel.Announcement, int64) {
 	announcements := make([]announcementsModel.Announcement, 0)
 	// to add the searched word inside '%' pairs, we use the Sprintf function
 	// its normal use would be Sprintf("%s", variableName)
 	// but as we need to escape the '%' character we put a pair of '%' to escape it
-	query := dbInstance.GetDBConnection().Where("title LIKE ? AND topic LIKE ? AND content LIKE ? AND year = ?",
-		fmt.Sprintf("%%%s%%", title), fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", content), year)
+	query := dbInstance.GetDBConnection().Where("title LIKE ? AND topic LIKE ? AND content LIKE ? AND class_hash = ?",
+		fmt.Sprintf("%%%s%%", title), fmt.Sprintf("%%%s%%", topic), fmt.Sprintf("%%%s%%", content), class)
 	numberOfRecords := countAnnouncements(query)
 	query = query.Scopes(dbPagination.Paginate(paginationData)).Find(&announcements)
 	return announcements, numberOfRecords

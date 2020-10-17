@@ -5,7 +5,7 @@ import (
 	"github.com/labstack/echo")
 
 func InitializeVideosRoutes(videos *echo.Group, adminVideos *echo.Group) {
-	videos.GET("", videosController.GetVideosByMonthAndYear)
+	videos.GET("", videosController.GetVideosByClassAndMonthAndYear)
 	videos.GET("/video", videosController.GetVideoByID)
 
 	adminVideos.POST("", videosController.CreateVideo)

@@ -27,18 +27,18 @@ func DeletePayment(payment *paymentsModel.Payment) error {
 	return err
 }
 
-// GetPaymentsByUserAndMonth gets the payment of specific user in a specific month
-func GetPaymentsByUserAndMonth(userID uint, startDate, endDate time.Time) []paymentsModel.Payment {
+// GetPaymentsByUserAndMonthAndClass gets the payment of specific user in a specific month
+func GetPaymentsByUserAndMonthAndClass(userID uint, startDate, endDate time.Time, class string) []paymentsModel.Payment {
 	payments := make([]paymentsModel.Payment, 0)
-	dbInstance.GetDBConnection().Where("user_id = ? AND start_date >= ? AND end_date < ?",
-		userID, startDate, endDate).Find(&payments)
+	dbInstance.GetDBConnection().Where("user_id = ? AND start_date >= ? AND end_date < ? AND class_hash = ?",
+		userID, startDate, endDate, class).Find(&payments)
 	return payments
 }
 
-// GetPaymentByUserAndWeek returns the payment of the user in a specific week (if found)
-func GetPaymentByUserAndWeek(userID uint, eventDate time.Time) paymentsModel.Payment {
+// GetPaymentByUserAndWeekAndClass returns the payment of the user in a specific week (if found)
+func GetPaymentByUserAndWeekAndClass(userID uint, eventDate time.Time, class string) paymentsModel.Payment {
 	var payment paymentsModel.Payment
-	dbInstance.GetDBConnection().Where("user_id = ? AND start_date <= ? AND end_date >= ?",
-		userID, eventDate, eventDate).First(&payment)
+	dbInstance.GetDBConnection().Where("user_id = ? AND start_date <= ? AND end_date >= ? AND class_hash = ?",
+		userID, eventDate, eventDate, class).First(&payment)
 	return payment
 }

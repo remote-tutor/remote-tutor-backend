@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	classUsersDBInteractions "backend/database/organizations"
 	usersModel "backend/models/users"
 	"os"
 	"time"
@@ -16,8 +17,6 @@ func GenerateToken(user *usersModel.User) (string, error) {
 	// Set claims
 	claims := token.Claims.(jwt.MapClaims)
 	claims["id"] = user.ID
-	claims["admin"] = user.Admin
-	claims["year"] = user.Year
 	claims["exp"] = time.Now().Add(time.Hour * 6).Unix()
 
 	// Generate encoded token and send it as response.
@@ -38,16 +37,8 @@ func FetchLoggedInUserID(c echo.Context) uint {
 
 // FetchLoggedInUserAdminStatus retrieves the logged-in user admin status
 func FetchLoggedInUserAdminStatus(c echo.Context) bool {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	admin := claims["admin"].(bool)
-	return admin
-}
-
-// FetchLoggedInUserYear retrieves the logged-in user year
-func FetchLoggedInUserYear(c echo.Context) int {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	year := int(claims["year"].(float64))
-	return year
+	userID := FetchLoggedInUserID(c)
+	class := c.QueryParam("selectedClass")
+	classUser := classUsersDBInteractions.GetClassUserByUserIDAndClass(userID, class)
+	return classUser.Admin
 }

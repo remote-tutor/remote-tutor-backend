@@ -2,10 +2,10 @@ package database
 
 import (
 	dbInstance "backend/database"
+	"backend/database/diagnostics"
+	classUsersDBInteractions "backend/database/organizations"
 	dbPagination "backend/database/scopes"
-	"backend/diagnostics"
 	usersModel "backend/models/users"
-	"fmt"
 )
 
 // GetUserByUsername searches the database for the user with the given username to be used in the login action
@@ -45,35 +45,10 @@ func DeleteUser(user *usersModel.User) error {
 	return err
 }
 
-// GetUsers retrieve the non activated users from the database
-func GetUsers(paginationData *dbPagination.PaginationData, searchByValue, searchByField string, pending bool) []usersModel.User {
-	db := dbInstance.GetDBConnection()
-	if searchByField == "username" {
-		db = db.Where("username LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
-	} else if searchByField == "fullName" {
-		db = db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
-	}
-	db = db.Scopes(dbPagination.Paginate(paginationData))
-	pendingUsers := make([]usersModel.User, 0)
-	db.Where("activated = ?", !pending).Find(&pendingUsers)
-	return pendingUsers
-}
-
-// GetTotalNumberOfUsers returns the number of total pending users in the database
-func GetTotalNumberOfUsers(searchByValue, searchByField string, pending bool) int64 {
-	db := dbInstance.GetDBConnection()
-	if searchByField == "username" {
-		db = db.Where("username LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
-	} else if searchByField == "fullName" {
-		db = db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
-	}
-	var count int64
-	db.Model(&usersModel.User{}).Where("activated = ?", !pending).Count(&count)
-	return count
-}
-
-func GetAdminUsers() []usersModel.User {
+func GetAdminUsers(userID uint) []usersModel.User {
+	userClasses := classUsersDBInteractions.GetClassesHashesByUserID(userID)
 	admins := make([]usersModel.User, 0)
-	dbInstance.GetDBConnection().Where("admin = 1").Find(&admins)
+	dbInstance.GetDBConnection().Joins("JOIN class_users ON users.id = class_users.user_id").
+		Where("admin = 1 AND class_hash IN (?)", userClasses).Find(&admins)
 	return admins
 }

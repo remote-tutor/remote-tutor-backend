@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-func GetVideosByMonthAndYear(year int, startOfMonth, endOfMonth time.Time) []videosModel.Video {
+func GetVideosByClassAndMonthAndYear(class string, startOfMonth, endOfMonth time.Time) []videosModel.Video {
 	videos := make([]videosModel.Video, 0)
-	dbInstance.GetDBConnection().Where("year = ? AND available_from >= ? AND available_from <= ?",
-		year, startOfMonth, endOfMonth).Order("available_from").Find(&videos)
+	dbInstance.GetDBConnection().Where("class_hash = ? AND available_from >= ? AND available_from <= ?",
+		class, startOfMonth, endOfMonth).Order("available_from").Find(&videos)
 	return videos
 }
 

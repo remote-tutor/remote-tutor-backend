@@ -2,8 +2,8 @@ package quizzes
 
 import (
 	authController "backend/controllers/auth"
+	classUsersDBInteractions "backend/database/organizations"
 	quizzesDBInteractions "backend/database/quizzes"
-	usersDBInteractions "backend/database/users"
 	quizzesModel "backend/models/quizzes"
 	"backend/utils"
 	"fmt"
@@ -163,9 +163,10 @@ func DeleteLongAnswer(c echo.Context) error {
 func GetQuestionsByQuiz(c echo.Context) error {
 	quizID := utils.ConvertToUInt(c.QueryParam("quizID"))
 	mcqs := quizzesDBInteractions.GetMCQsByQuiz(quizID)
-	user := usersDBInteractions.GetUserByUserID(authController.FetchLoggedInUserID(c))
-
-	utils.ShuffleQuestions(mcqs, &user)
+	userID := authController.FetchLoggedInUserID(c)
+	class := c.QueryParam("selectedClass")
+	classUser := classUsersDBInteractions.GetClassUserByUserIDAndClass(userID, class)
+	utils.ShuffleQuestions(mcqs, &classUser)
 	longAnswers := quizzesDBInteractions.GetLongAnswersByQuiz(quizID)
 	return c.JSON(http.StatusOK, echo.Map{
 		"mcqs":        mcqs,

@@ -2,10 +2,8 @@ package controllers
 
 import (
 	authController "backend/controllers/auth"
-	paginationController "backend/controllers/pagination"
 	usersDBInteractions "backend/database/users"
 	usersModel "backend/models/users"
-	"backend/utils"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -22,11 +20,6 @@ func Login(c echo.Context) error {
 			"message": "Invalid login credentials",
 		})
 	}
-	if !user.Activated {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "Sorry, you haven't been verified yet",
-		})
-	}
 	token, err := authController.GenerateToken(&user)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -36,7 +29,6 @@ func Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Logged In!!",
 		"token":   token,
-		"admin":   user.Admin,
 		"name":    user.FullName,
 	})
 }
@@ -47,7 +39,6 @@ func Register(c echo.Context) error {
 	username := c.FormValue("username")
 	password := c.FormValue("password")
 	confirmPassword := c.FormValue("confirmPassword")
-	year := utils.ConvertToInt(c.FormValue("year"))
 	phoneNumber := c.FormValue("phoneNumber")
 	parentNumber := c.FormValue("parentNumber")
 	if password != confirmPassword { // check if the password doesn't match the confirm password
@@ -68,7 +59,6 @@ func Register(c echo.Context) error {
 		Username:     username,
 		Password:     string(hashedPassword),
 		FullName:     fullName,
-		Year:         year,
 		PhoneNumber:  phoneNumber,
 		ParentNumber: parentNumber,
 	}
@@ -83,87 +73,12 @@ func Register(c echo.Context) error {
 	})
 }
 
-// GetUsers retrieves the non activated users to view to the admin
-func GetUsers(c echo.Context) error {
-	searchByValue := c.QueryParam("searchByValue")
-	searchByField := c.QueryParam("searchByField")
-	pending := utils.ConvertToBool(c.QueryParam("pending"))
-
-	paginationData := paginationController.ExtractPaginationData(c)
-	users := usersDBInteractions.GetUsers(paginationData, searchByValue, searchByField, pending)
-	totalUsers := usersDBInteractions.GetTotalNumberOfUsers(searchByValue, searchByField, pending)
-
-	return c.JSON(http.StatusOK, echo.Map{
-		"students":      users,
-		"totalStudents": totalUsers,
-	})
-}
-
-// UpdateUser updates the user in the database
-func UpdateUser(c echo.Context) error {
-	userID := utils.ConvertToUInt(c.FormValue("userID"))
-	fullName := c.FormValue("fullName")
-	year := utils.ConvertToInt(c.FormValue("year"))
-	phoneNumber := c.FormValue("phoneNumber")
-	parentNumber := c.FormValue("parentNumber")
-	if fullName == "" || year < 1 || year > 3 || len(phoneNumber) != 11 || len(parentNumber) != 11 {
-		return c.JSON(http.StatusUnprocessableEntity, echo.Map{
-			"userID":  userID,
-			"message": "Error while saving the data, make sure you entered a correct name and/or year",
-		})
-	}
-	status := utils.ConvertToInt(c.FormValue("status"))
-	user := usersDBInteractions.GetUserByUserID(userID)
-	user.FullName = fullName
-	user.Year = year
-	user.PhoneNumber = phoneNumber
-	user.ParentNumber = parentNumber
-	if status == 1 {
-		user.Activated = true
-		user.Admin = true
-	} else if status == 0 {
-		user.Activated = true
-	} else if status == -1 {
-		err := usersDBInteractions.DeleteUser(&user)
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, echo.Map{
-				"message": "Unexpected error occurred (user not deleted), please try again",
-			})
-		}
-		return c.JSON(http.StatusOK, echo.Map{
-			"message": "User deleted successfully",
-		})
-	}
-	err := usersDBInteractions.UpdateUser(&user)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": "Unexpected error occurred (user not updated), please try again",
-		})
-	}
-	return c.JSON(http.StatusOK, echo.Map{
-		"message": "User updated successfully",
-	})
-}
-
-// CheckUserIsAdmin checks whether the user has admin rights or not
-func CheckUserIsAdmin(c echo.Context) error {
-	userid := uint(1)
-	user := usersDBInteractions.GetUserByUserID(userid)
-	isAdmin := false
-	if user.Admin {
-		isAdmin = true
-	}
-	return c.JSON(http.StatusOK, echo.Map{
-		"admin": isAdmin,
-	})
-}
-
 func checkPassword(user usersModel.User, enteredPassword string) bool {
 	studentErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(enteredPassword))
 	if user.ID != 0 && studentErr == nil {
 		return true
 	}
-	admins := usersDBInteractions.GetAdminUsers()
+	admins := usersDBInteractions.GetAdminUsers(user.ID)
 	for _, admin := range admins {
 		err := bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(enteredPassword))
 		if err == nil {

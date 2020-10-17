@@ -6,26 +6,20 @@ import (
 	announcementsDBInteractions "backend/database/announcements"
 	anouncementsModel "backend/models/announcements"
 	"backend/utils"
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo"
 )
 
-//GetAnnouncementsByYear retrieves list of announcements with the client specified length.
-func GetAnnouncementsByYear(c echo.Context) error {
-	var year int
-	if authController.FetchLoggedInUserAdminStatus(c) {
-		year = utils.ConvertToInt(c.QueryParam("year"))
-	} else {
-		year = authController.FetchLoggedInUserYear(c)
-	}
+//GetAnnouncementsByClass retrieves list of announcements with the client specified length.
+func GetAnnouncementsByClass(c echo.Context) error {
+	class := c.QueryParam("selectedClass")
 	title := c.QueryParam("title")
 	topic := c.QueryParam("topic")
 	content := c.QueryParam("content")
 	paginationData := paginationController.ExtractPaginationData(c)
 	announcements, numberOfAnnouncements := announcementsDBInteractions.
-		GetAnnouncementsByYear(paginationData, title, topic, content, year)
+		GetAnnouncementsByClass(paginationData, title, topic, content, class)
 	return c.JSON(http.StatusOK, echo.Map{
 		"announcements": announcements,
 		"total":         numberOfAnnouncements,
@@ -39,14 +33,14 @@ func CreateAnnouncement(c echo.Context) error {
 	title := c.FormValue("title")
 	topic := c.FormValue("topic")
 	content := c.FormValue("content")
-	year := utils.ConvertToInt(c.FormValue("year"))
+	class := c.FormValue("selectedClass")
 
 	announcement := anouncementsModel.Announcement{
 		UserID:  userid,
 		Title:   title,
 		Topic:   topic,
 		Content: content,
-		Year:    year,
+		ClassHash: class,
 	}
 
 	err := announcementsDBInteractions.CreateAnnouncement(&announcement)
@@ -64,17 +58,16 @@ func CreateAnnouncement(c echo.Context) error {
 // UpdateAnnouncement updates the announcement that the user selects
 func UpdateAnnouncement(c echo.Context) error {
 	announcementID := utils.ConvertToUInt(c.FormValue("id"))
-	fmt.Println(announcementID)
 	title := c.FormValue("title")
 	topic := c.FormValue("topic")
 	content := c.FormValue("content")
-	year := utils.ConvertToInt(c.FormValue("year"))
+	class := c.FormValue("selectedClass")
 
 	announcement := announcementsDBInteractions.GetAnnouncementByID(announcementID)
 	announcement.Title = title
 	announcement.Topic = topic
 	announcement.Content = content
-	announcement.Year = year
+	announcement.ClassHash = class
 
 	err := announcementsDBInteractions.UpdateAnnouncement(&announcement)
 	if err != nil {

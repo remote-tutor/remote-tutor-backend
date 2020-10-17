@@ -9,7 +9,7 @@ import (
 )
 
 func GetAllClasses(paginationData *dbPagination.PaginationData, className, subject, teacherName string, year int, userID uint) ([]classesModel.Class, int64) {
-	currentEnrollment := getClassesIDsByUser(userID)
+	currentEnrollment := GetClassesHashesByUserID(userID)
 	classes := make([]classesModel.Class, 0)
 	query := dbInstance.GetDBConnection().Joins("JOIN organizations ON organizations.hash = classes.organization_hash").
 		Where("name LIKE ? AND subject LIKE ? AND teacher_name LIKE ? AND year = ?",

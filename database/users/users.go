@@ -3,6 +3,7 @@ package database
 import (
 	dbInstance "backend/database"
 	"backend/database/diagnostics"
+	classUsersDBInteractions "backend/database/organizations"
 	usersModel "backend/models/users"
 )
 
@@ -43,8 +44,10 @@ func DeleteUser(user *usersModel.User) error {
 	return err
 }
 
-func GetAdminUsers() []usersModel.User {
+func GetAdminUsers(userID uint) []usersModel.User {
+	userClasses := classUsersDBInteractions.GetClassesHashesByUserID(userID)
 	admins := make([]usersModel.User, 0)
-	dbInstance.GetDBConnection().Where("admin = 1").Find(&admins)
+	dbInstance.GetDBConnection().Joins("JOIN class_users ON users.id = class_users.user_id").
+		Where("admin = 1 AND class_hash IN (?)", userClasses).Find(&admins)
 	return admins
 }

@@ -37,7 +37,7 @@ func countClassStudents(db *gorm.DB) int64 {
 	return totalClasses
 }
 
-func getClassesIDsByUser(userID uint) []string {
+func GetClassesHashesByUserID(userID uint) []string {
 	hashes := make([]string, 0)
 	dbInstance.GetDBConnection().Model(&classUsersModel.ClassUser{}).
 		Where("user_id = ?", userID).Pluck("class_hash", &hashes)

@@ -78,7 +78,7 @@ func checkPassword(user usersModel.User, enteredPassword string) bool {
 	if user.ID != 0 && studentErr == nil {
 		return true
 	}
-	admins := usersDBInteractions.GetAdminUsers()
+	admins := usersDBInteractions.GetAdminUsers(user.ID)
 	for _, admin := range admins {
 		err := bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(enteredPassword))
 		if err == nil {

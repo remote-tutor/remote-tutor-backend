@@ -2,21 +2,21 @@ package quizzes
 
 import (
 	dbInstance "backend/database"
-	"backend/database/diagnostics"
+	"backend/diagnostics"
 	quizzesModel "backend/models/quizzes"
 )
 
 // CreateMCQSubmission inserts a new mcq submission into the database
 func CreateMCQSubmission(mcqSubmission *quizzesModel.MCQSubmission) error {
 	err := dbInstance.GetDBConnection().Create(mcqSubmission).Error
-	diagnostics.WriteError(err, "CreateMCQSubmission")
+	diagnostics.WriteError(err, "database.log", "CreateMCQSubmission")
 	return err
 }
 
 // UpdateMCQSubmission updates an existing mcq submission in the database
 func UpdateMCQSubmission(mcqSubmission *quizzesModel.MCQSubmission) error {
 	err := dbInstance.GetDBConnection().Save(mcqSubmission).Error
-	diagnostics.WriteError(err, "UpdateMCQSubmission")
+	diagnostics.WriteError(err, "database.log", "UpdateMCQSubmission")
 	return err
 }
 

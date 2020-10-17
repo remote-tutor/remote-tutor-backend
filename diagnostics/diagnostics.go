@@ -1,13 +1,15 @@
 package diagnostics
 
 import (
+	"fmt"
 	"os"
 	"time"
 )
 
-func WriteError(dbError error, methodName string) {
+func WriteError(dbError error, fileName, methodName string) {
 	if dbError != nil {
-		file, err := os.OpenFile("diagnostics.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		filePath := fmt.Sprintf("diagnostics/%s", fileName)
+		file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return
 		}

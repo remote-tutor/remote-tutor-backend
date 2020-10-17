@@ -6,4 +6,4 @@ quizzesImages
 assignmentsFiles
 utils/env.go
 aws/*.pem
-diagnostics.log
+diagnostics/*.log

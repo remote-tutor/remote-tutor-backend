@@ -2,8 +2,8 @@ package quizzes
 
 import (
 	dbInstance "backend/database"
-	"backend/database/diagnostics"
 	dbPagination "backend/database/scopes"
+	"backend/diagnostics"
 	quizzesModel "backend/models/quizzes"
 	"time"
 
@@ -13,7 +13,7 @@ import (
 // CreateQuiz inserts a new quiz to the database
 func CreateQuiz(quiz *quizzesModel.Quiz) error {
 	err := dbInstance.GetDBConnection().Create(quiz).Error
-	diagnostics.WriteError(err, "CreateQuiz")
+	diagnostics.WriteError(err, "database.log", "CreateQuiz")
 	return err
 }
 
@@ -55,14 +55,14 @@ func countRequiredQuizzes(db *gorm.DB) int64 {
 // DeleteQuiz deletes the specified quiz from the database
 func DeleteQuiz(quiz *quizzesModel.Quiz) error {
 	err := dbInstance.GetDBConnection().Unscoped().Delete(quiz).Error
-	diagnostics.WriteError(err, "DeleteQuiz")
+	diagnostics.WriteError(err, "database.log", "DeleteQuiz")
 	return err
 }
 
 // UpdateQuiz updates the quiz in the database
 func UpdateQuiz(quiz *quizzesModel.Quiz) error {
 	err := dbInstance.GetDBConnection().Save(quiz).Error
-	diagnostics.WriteError(err, "UpdateQuiz")
+	diagnostics.WriteError(err, "database.log", "UpdateQuiz")
 	return err
 }
 

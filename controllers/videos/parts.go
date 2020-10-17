@@ -2,6 +2,7 @@ package videos
 
 import (
 	"backend/aws"
+	controllers "backend/controllers/auth"
 	partsFiles "backend/controllers/files/videos"
 	partsDBInteractions "backend/database/videos"
 	partsModel "backend/models/videos"
@@ -14,11 +15,14 @@ import (
 func GetPartsByVideo(c echo.Context) error {
 	videoID := utils.ConvertToUInt(c.QueryParam("videoID"))
 	video := partsDBInteractions.GetVideoByID(videoID)
-	if time.Now().Before(video.AvailableFrom) {
-		return c.JSON(http.StatusForbidden, echo.Map{
-			"message": "You cannot access the video parts before the time it'll be available in",
-			"route": "Videos",
-		})
+	isAdmin := controllers.FetchLoggedInUserAdminStatus(c)
+	if !isAdmin {
+		if time.Now().Before(video.AvailableFrom) {
+			return c.JSON(http.StatusForbidden, echo.Map{
+				"message": "You cannot access the video parts before the time it'll be available in",
+				"route": "Videos",
+			})
+		}
 	}
 	parts := partsDBInteractions.GetPartsByVideo(videoID)
 	return c.JSON(http.StatusOK, echo.Map{

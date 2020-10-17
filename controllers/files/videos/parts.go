@@ -3,6 +3,7 @@ package videos
 import (
 	"backend/aws"
 	filesUtils "backend/controllers/files"
+	"backend/diagnostics"
 	videoParts "backend/models/videos"
 	"bytes"
 	"fmt"
@@ -23,6 +24,7 @@ func UploadVideoPart(c echo.Context, videoID uint) (string, error) {
 	filePath := fmt.Sprintf("%d/%s", videoID, fileName)
 	fileLocation, err := aws.Upload(buffer, filePath)
 	if err != nil {
+		diagnostics.WriteError(err, "aws.log", "UploadVideoPart")
 		return "", err
 	}
 	return fileLocation, nil

@@ -76,3 +76,13 @@ func DeletePayment(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, echo.Map{})
 }
+
+func GiveAccessToAllStudents(c echo.Context) error {
+	startDate := utils.ConvertToTime(c.FormValue("startDate"))
+	endDate := utils.ConvertToTime(c.FormValue("endDate"))
+	class := c.FormValue("selectedClass")
+	paymentsDBInteractions.GiveAccessToAllStudents(startDate, endDate, class)
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Access has been given to all students",
+	})
+}

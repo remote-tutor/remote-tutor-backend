@@ -16,5 +16,6 @@ func InitializeRoutes(e *echo.Echo, adminRouter *echo.Group) {
 
 	adminPayments := adminRouter.Group("/payments")
 	adminPayments.POST("", paymentsController.CreatePayment)
+	adminPayments.POST("/all", paymentsController.GiveAccessToAllStudents)
 	adminPayments.DELETE("", paymentsController.DeletePayment)
 }

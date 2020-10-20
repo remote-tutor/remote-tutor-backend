@@ -42,3 +42,27 @@ func GetPaymentByUserAndWeekAndClass(userID uint, eventDate time.Time, class str
 		userID, eventDate, eventDate, class).First(&payment)
 	return payment
 }
+
+func GiveAccessToAllStudents(startDate, endDate time.Time, class string) {
+	// get all students' IDs who have payment in the given week
+	usersWithPayments := make([]uint, 0)
+	dbInstance.GetDBConnection().Where("start_date <= ? AND end_date >= ? AND class_hash = ?",
+		startDate, endDate, class).Table("payments").Pluck("user_id", &usersWithPayments)
+	// get all students' IDs who DOESN'T have payment in the given week
+	usersWithNoPayments := make([]uint, 0)
+	query := dbInstance.GetDBConnection()
+	if len(usersWithPayments) > 0 {
+		query = query.Where("user_id NOT IN (?) AND admin = 0", usersWithPayments)
+	}
+	query.Table("class_users").Pluck("user_id", &usersWithNoPayments)
+	payments := make([]paymentsModel.Payment, len(usersWithNoPayments))
+	for i := 0; i < len(payments); i++ {
+		payments[i].StartDate = startDate
+		payments[i].EndDate = endDate
+		payments[i].ClassHash = class
+		payments[i].UserID = usersWithNoPayments[i]
+	}
+	if len(payments) > 0 {
+		dbInstance.GetDBConnection().Create(&payments)
+	}
+}

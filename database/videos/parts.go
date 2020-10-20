@@ -2,7 +2,7 @@ package videos
 
 import (
 	dbInstance "backend/database"
-	"backend/diagnostics"
+	partsDiagnostics "backend/diagnostics/database/videos"
 	videoParts "backend/models/videos"
 )
 
@@ -20,18 +20,18 @@ func GetPartByID(id uint) videoParts.VideoPart {
 
 func CreatePart(part *videoParts.VideoPart) error {
 	err := dbInstance.GetDBConnection().Create(part).Error
-	diagnostics.WriteError(err, "database.log", "CreatePart")
+	partsDiagnostics.WriteVideoPartErr(err, "Create", part)
 	return err
 }
 
 func UpdatePart(part *videoParts.VideoPart) error {
 	err := dbInstance.GetDBConnection().Save(part).Error
-	diagnostics.WriteError(err, "database.log", "UpdatePart")
+	partsDiagnostics.WriteVideoPartErr(err, "Update", part)
 	return err
 }
 
 func DeletePart(part *videoParts.VideoPart) error {
 	err := dbInstance.GetDBConnection().Unscoped().Delete(part).Error
-	diagnostics.WriteError(err, "database.log", "DeletePart")
+	partsDiagnostics.WriteVideoPartErr(err, "Delete", part)
 	return err
 }

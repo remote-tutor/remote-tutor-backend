@@ -2,7 +2,7 @@ package payments
 
 import (
 	dbInstance "backend/database"
-	"backend/diagnostics"
+	paymentsDiagnostics "backend/diagnostics/database/payments"
 	paymentsModel "backend/models/payments"
 	"time"
 )
@@ -10,20 +10,21 @@ import (
 // CreatePayment inserts a new payment to the database
 func CreatePayment(payment *paymentsModel.Payment) error {
 	err := dbInstance.GetDBConnection().Create(payment).Error
-	diagnostics.WriteError(err, "database.log", "CreatePayment")
+	paymentsDiagnostics.WritePaymentErr(err, "Create", payment)
 	return err
 }
 
 // UpdatePayment updates the payment data in the database
 func UpdatePayment(payment *paymentsModel.Payment) error {
 	err := dbInstance.GetDBConnection().Save(payment).Error
+	paymentsDiagnostics.WritePaymentErr(err, "Update", payment)
 	return err
 }
 
 // DeletePayment deletes the payment
 func DeletePayment(payment *paymentsModel.Payment) error {
 	err := dbInstance.GetDBConnection().Unscoped().Delete(payment).Error
-	diagnostics.WriteError(err, "database.log", "DeletePayment")
+	paymentsDiagnostics.WritePaymentErr(err, "Delete", payment)
 	return err
 }
 

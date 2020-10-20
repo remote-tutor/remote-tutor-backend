@@ -2,13 +2,13 @@ package videos
 
 import (
 	dbInstance "backend/database"
-	"backend/diagnostics"
+	videosDiagnostics "backend/diagnostics/database/videos"
 	watchesModel "backend/models/videos"
 )
 
 func CreateUserWatch(userWatch *watchesModel.UserWatch) error {
 	err := dbInstance.GetDBConnection().Create(userWatch).Error
-	diagnostics.WriteError(err, "database.log", "CreateUserWatch")
+	videosDiagnostics.WriteWatchErr(err, "Create", userWatch)
 	return err
 }
 

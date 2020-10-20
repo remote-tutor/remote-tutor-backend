@@ -1,6 +1,7 @@
 package utils
 
 import (
+	utilsDiagnostics "backend/diagnostics/utils"
 	"strconv"
 	"time"
 )
@@ -9,6 +10,7 @@ import (
 func ConvertToBool(value string) bool {
 	boolValue, err := strconv.ParseBool(value)
 	if err != nil {
+		utilsDiagnostics.ConvertToBoolErr(err, value)
 		return false
 	}
 	return boolValue
@@ -28,6 +30,7 @@ func ConvertToBoolArray(value []string) []bool {
 func ConvertToInt(value string) int {
 	intValue, err := strconv.Atoi(value)
 	if err != nil {
+		utilsDiagnostics.ConvertToIntErr(err, value)
 		return 0
 	}
 	return intValue
@@ -37,6 +40,7 @@ func ConvertToInt(value string) int {
 func ConvertToUInt(value string) uint {
 	uintValue, err := strconv.ParseUint(value, 10, 32)
 	if err != nil {
+		utilsDiagnostics.ConvertToUIntErr(err, value)
 		return 0
 	}
 	return uint(uintValue)

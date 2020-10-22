@@ -106,7 +106,7 @@ func UpdateMCQ(c echo.Context) error {
 		} else {
 			submission.Grade = 0
 		}
-		quizzesDBInteractions.UpdateMCQSubmission(&submission)
+		quizzesDBInteractions.CreateOrUpdateMCQSubmission(&submission)
 	}
 	err = quizzesDBInteractions.UpdateMCQ(&mcq)
 	if err != nil {

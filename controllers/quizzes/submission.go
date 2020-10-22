@@ -24,8 +24,8 @@ func GetSubmissionsByQuizAndUser(c echo.Context) error {
 	})
 }
 
-// CreateMCQSubmission creates a new submission for an mcq question.
-func CreateMCQSubmission(c echo.Context) error {
+// CreateOrUpdateMCQSubmission updates a previous submission for an mcq question.
+func CreateOrUpdateMCQSubmission(c echo.Context) error {
 	userID := authController.FetchLoggedInUserID(c)
 	mcqID := utils.ConvertToUInt(c.FormValue("mcqID"))
 	userResult := utils.ConvertToUInt(c.FormValue("userResult"))
@@ -33,7 +33,6 @@ func CreateMCQSubmission(c echo.Context) error {
 	submission := quizzesModel.Submission{
 		UserID: userID,
 	}
-
 	mcqSubmission := quizzesModel.MCQSubmission{
 		Submission: submission,
 		UserResult: userResult,
@@ -43,35 +42,10 @@ func CreateMCQSubmission(c echo.Context) error {
 	mcqQuestion := quizzesDBInteractions.GetMCQByID(mcqID)
 	if userResult == mcqQuestion.CorrectAnswer {
 		mcqSubmission.Submission.Grade = mcqQuestion.TotalMark
-	}
-	err := quizzesDBInteractions.CreateMCQSubmission(&mcqSubmission)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": "Unexpected error occurred (submission not saved), please try again",
-		})
-	}
-
-	return c.JSON(http.StatusOK, echo.Map{
-		"mcqSubmission": mcqSubmission,
-	})
-}
-
-// UpdateMCQSubmission updates a previous submission for an mcq question.
-func UpdateMCQSubmission(c echo.Context) error {
-	userID := authController.FetchLoggedInUserID(c)
-	mcqID := utils.ConvertToUInt(c.FormValue("mcqID"))
-	userResult := utils.ConvertToUInt(c.FormValue("userResult"))
-
-	mcqSubmission := quizzesDBInteractions.GetMCQSubmissionByQuestionAndUser(userID, mcqID)
-
-	mcqQuestion := quizzesDBInteractions.GetMCQByID(mcqID)
-	if userResult == mcqQuestion.CorrectAnswer {
-		mcqSubmission.Submission.Grade = mcqQuestion.TotalMark
 	} else {
 		mcqSubmission.Submission.Grade = 0
 	}
-	mcqSubmission.UserResult = userResult
-	err := quizzesDBInteractions.UpdateMCQSubmission(&mcqSubmission)
+	err := quizzesDBInteractions.CreateOrUpdateMCQSubmission(&mcqSubmission)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred (submission not saved), please try again",

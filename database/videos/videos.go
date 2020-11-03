@@ -2,7 +2,7 @@ package videos
 
 import (
 	dbInstance "backend/database"
-	"backend/diagnostics"
+	videosDiagnostics "backend/diagnostics/database/videos"
 	videosModel "backend/models/videos"
 	"time"
 )
@@ -16,7 +16,7 @@ func GetVideosByClassAndMonthAndYear(class string, startOfMonth, endOfMonth time
 
 func CreateVideo(video *videosModel.Video) error {
 	err := dbInstance.GetDBConnection().Create(video).Error
-	diagnostics.WriteError(err, "database.log", "CreateVideo")
+	videosDiagnostics.WriteVideoErr(err, "Create", video)
 	return err
 }
 
@@ -28,12 +28,12 @@ func GetVideoByID(id uint) videosModel.Video {
 
 func UpdateVideo(video *videosModel.Video) error {
 	err := dbInstance.GetDBConnection().Save(video).Error
-	diagnostics.WriteError(err, "database.log", "UpdateVideo")
+	videosDiagnostics.WriteVideoErr(err, "Update", video)
 	return err
 }
 
 func DeleteVideo(video *videosModel.Video) error {
 	err := dbInstance.GetDBConnection().Unscoped().Delete(video).Error
-	diagnostics.WriteError(err, "database.log", "DeleteVideo")
+	videosDiagnostics.WriteVideoErr(err, "Delete", video)
 	return err
 }

@@ -2,14 +2,14 @@ package quizzes
 
 import (
 	dbInstance "backend/database"
-	"backend/diagnostics"
+	gradesDiagnostics "backend/diagnostics/database/quizzes"
 	quizzesModel "backend/models/quizzes"
 )
 
 // CreateGrade inserts a new quiz grade to the database
 func CreateGrade(grade *quizzesModel.QuizGrade) error {
 	err := dbInstance.GetDBConnection().FirstOrCreate(grade).Error
-	diagnostics.WriteError(err, "database.log", "CreateGrade")
+	gradesDiagnostics.WriteGradeErr(err, "Create", grade)
 	return err
 }
 

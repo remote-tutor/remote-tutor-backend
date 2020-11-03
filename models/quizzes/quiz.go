@@ -17,4 +17,5 @@ type Quiz struct {
 	TotalMark int                `json:"totalMark"`
 	ClassHash string             `json:"classHash" gorm:"size:255"`
 	Class     classesModel.Class `json:"class" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:ClassHash;references:Hash"`
+	Test      bool               `json:"test" gorm:"default:0"`
 }

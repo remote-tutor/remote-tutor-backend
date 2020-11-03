@@ -3,7 +3,7 @@ package assignments
 import (
 	dbInstance "backend/database"
 	dbPagination "backend/database/scopes"
-	"backend/diagnostics"
+	assignmentsDiagnostics "backend/diagnostics/database/assignments"
 	assignmentsModel "backend/models/assignments"
 	"gorm.io/gorm"
 )
@@ -11,7 +11,7 @@ import (
 // CreateAssignment inserts a new assignment to the database
 func CreateAssignment(assignment *assignmentsModel.Assignment) error {
 	err := dbInstance.GetDBConnection().Create(assignment).Error
-	diagnostics.WriteError(err, "database.log", "CreateAssignment")
+	assignmentsDiagnostics.WriteAssignmentErr(err, "Create", assignment)
 	return err
 }
 
@@ -41,13 +41,13 @@ func GetAssignmentByID(id uint) assignmentsModel.Assignment {
 // UpdateAssignment updates the given assignment in the database
 func UpdateAssignment(assignment *assignmentsModel.Assignment) error {
 	err := dbInstance.GetDBConnection().Save(assignment).Error
-	diagnostics.WriteError(err, "database.log", "UpdateAssignment")
+	assignmentsDiagnostics.WriteAssignmentErr(err, "Update", assignment)
 	return err
 }
 
 // DeleteAssignment deletes the given assignment from the database
 func DeleteAssignment(assignment *assignmentsModel.Assignment) error {
 	err := dbInstance.GetDBConnection().Unscoped().Delete(assignment).Error
-	diagnostics.WriteError(err, "database.log", "DeleteAssignment")
+	assignmentsDiagnostics.WriteAssignmentErr(err, "Delete", assignment)
 	return err
 }

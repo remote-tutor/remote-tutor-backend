@@ -3,7 +3,7 @@ package database
 import (
 	dbInstance "backend/database"
 	classUsersDBInteractions "backend/database/organizations"
-	"backend/diagnostics"
+	"backend/diagnostics/database/users"
 	usersModel "backend/models/users"
 )
 
@@ -26,21 +26,21 @@ func GetUserByUserID(userid uint) usersModel.User {
 // CreateUser inserts a new user to the database
 func CreateUser(user *usersModel.User) error {
 	err := dbInstance.GetDBConnection().Create(user).Error
-	diagnostics.WriteError(err, "database.log", "CreateUser")
+	users.WriteUserErr(err, "Create", user)
 	return err
 }
 
 // UpdateUser updates the user information
 func UpdateUser(user *usersModel.User) error {
 	err := dbInstance.GetDBConnection().Save(user).Error
-	diagnostics.WriteError(err, "database.log", "UpdateUser")
+	users.WriteUserErr(err, "Update", user)
 	return err
 }
 
 // DeleteUser deletes the user from the database
 func DeleteUser(user *usersModel.User) error {
 	err := dbInstance.GetDBConnection().Unscoped().Delete(user).Error
-	diagnostics.WriteError(err, "database.log", "DeleteUser")
+	users.WriteUserErr(err, "Delete", user)
 	return err
 }
 

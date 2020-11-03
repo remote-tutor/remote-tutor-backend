@@ -29,6 +29,7 @@ func InitializeRoutes(e *echo.Echo) {
 		},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))
+	e.Use(middleware.Logger())
 	middleware.ErrJWTMissing.Message = "Please login"
 	adminRouter := e.Group("/admin",
 		middleware.JWT([]byte(os.Getenv("JWT_TOKEN"))),

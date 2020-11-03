@@ -2,21 +2,19 @@ package quizzes
 
 import (
 	dbInstance "backend/database"
-	"backend/diagnostics"
+	submissionDiagnostics "backend/diagnostics/database/quizzes"
 	quizzesModel "backend/models/quizzes"
+	"gorm.io/gorm/clause"
 )
 
-// CreateMCQSubmission inserts a new mcq submission into the database
-func CreateMCQSubmission(mcqSubmission *quizzesModel.MCQSubmission) error {
-	err := dbInstance.GetDBConnection().Create(mcqSubmission).Error
-	diagnostics.WriteError(err, "database.log", "CreateMCQSubmission")
-	return err
-}
 
-// UpdateMCQSubmission updates an existing mcq submission in the database
-func UpdateMCQSubmission(mcqSubmission *quizzesModel.MCQSubmission) error {
-	err := dbInstance.GetDBConnection().Save(mcqSubmission).Error
-	diagnostics.WriteError(err, "database.log", "UpdateMCQSubmission")
+// CreateOrUpdateMCQSubmission creates OR (updates on conflict) mcq submission in the database
+func CreateOrUpdateMCQSubmission(mcqSubmission *quizzesModel.MCQSubmission) error {
+	err := dbInstance.GetDBConnection().Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "user_id"}, {Name: "mcq_id"}},
+		DoUpdates: clause.AssignmentColumns([]string{"user_result", "grade", "updated_at"}),
+	}).Create(mcqSubmission).Error
+	submissionDiagnostics.WriteSubmissionErr(err, "CreateOrUpdate", mcqSubmission)
 	return err
 }
 

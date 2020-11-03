@@ -3,15 +3,18 @@ package quizzes
 import (
 	submissionsHook "backend/hooks/quizzes"
 	usersModel "backend/models/users"
+	"time"
 
 	"gorm.io/gorm"
 )
 
 // Submission struct to store the Submission data
 type Submission struct {
-	Grade  int             `json:"grade"`
-	User   usersModel.User `json:"user" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	UserID uint            `json:"userID" gorm:"primary_key;autoIncrement:false"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Grade     int             `json:"grade"`
+	User      usersModel.User `json:"user" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	UserID    uint            `json:"userID" gorm:"primary_key;autoIncrement:false"`
 }
 
 // MCQSubmission struct to store the MCQ Submission type data

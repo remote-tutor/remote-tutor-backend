@@ -78,7 +78,7 @@ func GetQuizzesByClassAndMonthAndYear(class string, startOfMonth, endOfMonth tim
 	quizzes := make([]quizzesModel.Quiz, 0)
 	currentTime := time.Now()
 	dbInstance.GetDBConnection().
-		Where("class_hash = ? AND start_time >= ? AND end_time <= ? AND end_time < ? AND test = 0",
+		Where("class_hash = ? AND start_time BETWEEN ? AND ? AND end_time < ? AND test = 0",
 			class, startOfMonth, endOfMonth, currentTime).
 		Order("start_time").
 		Find(&quizzes)

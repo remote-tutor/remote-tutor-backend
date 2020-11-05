@@ -9,7 +9,7 @@ type Organization struct {
 	gorm.Model
 	TeacherName   string `json:"teacherName"`
 	Subject       string `json:"subject"`
-	Hash          string `json:"hash" gorm:"size:255;uniqueIndex"`
+	Hash          string `json:"hash" gorm:"size:25;uniqueIndex"`
 }
 
 // this function generates the hash then update the Organization created

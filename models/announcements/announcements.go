@@ -16,6 +16,6 @@ type Announcement struct {
 	Topic     string             `json:"topic"`
 	Content   string             `json:"content"`
 	Year      int                `json:"year"`
-	ClassHash string             `json:"classHash" gorm:"size:255"`
+	ClassHash string             `json:"classHash" gorm:"size:25"`
 	Class     classesModel.Class `json:"class" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:ClassHash;references:Hash"`
 }

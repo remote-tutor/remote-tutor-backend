@@ -16,6 +16,6 @@ type Assignment struct {
 	ModelAnswer       string             `json:"modelAnswer"`
 	TotalMark         int                `json:"totalMark" gorm:"default:10"`
 	ModelAnswerPeriod int                `json:"modelAnswerPeriod" gorm:"default:0"`
-	ClassHash         string             `json:"classHash" gorm:"size:255"`
+	ClassHash         string             `json:"classHash" gorm:"size:25"`
 	Class             classesModel.Class `json:"class" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:ClassHash;references:Hash"`
 }

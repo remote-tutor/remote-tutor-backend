@@ -15,7 +15,7 @@ type Quiz struct {
 	StartTime time.Time          `json:"startTime"`
 	EndTime   time.Time          `json:"endTime"`
 	TotalMark int                `json:"totalMark"`
-	ClassHash string             `json:"classHash" gorm:"size:255"`
+	ClassHash string             `json:"classHash" gorm:"size:25"`
 	Class     classesModel.Class `json:"class" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:ClassHash;references:Hash"`
 	Test      bool               `json:"test" gorm:"default:0"`
 }

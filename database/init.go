@@ -34,29 +34,25 @@ var (
 func MigrateTables() {
 	initializeDBConnection()
 	if err == nil {
-		databaseConnection.AutoMigrate(&usersModel.User{})
-		databaseConnection.AutoMigrate(&announcementsModel.Announcement{})
-
-		databaseConnection.AutoMigrate(&quizzesModel.Quiz{})
-		databaseConnection.AutoMigrate(&quizzesModel.MCQ{})
-		databaseConnection.AutoMigrate(&quizzesModel.LongAnswer{})
-		databaseConnection.AutoMigrate(&quizzesModel.Choice{})
-		databaseConnection.AutoMigrate(&quizzesModel.MCQSubmission{})
-		databaseConnection.AutoMigrate(&quizzesModel.LongAnswerSubmission{})
-		databaseConnection.AutoMigrate(&quizzesModel.QuizGrade{})
-
-		databaseConnection.AutoMigrate(&paymentsModel.Payment{})
-
-		databaseConnection.AutoMigrate(&assignmentsModel.Assignment{})
-		databaseConnection.AutoMigrate(&assignmentsModel.AssignmentSubmission{})
-
-		databaseConnection.AutoMigrate(&videosModel.Video{})
-		databaseConnection.AutoMigrate(&videosModel.VideoPart{})
-		databaseConnection.AutoMigrate(&videosModel.UserWatch{})
-
-		databaseConnection.AutoMigrate(&organizationsModel.Organization{})
-		databaseConnection.AutoMigrate(&organizationsModel.Class{})
-		databaseConnection.AutoMigrate(&organizationsModel.ClassUser{})
+		databaseConnection.AutoMigrate(&usersModel.User{},
+			&announcementsModel.Announcement{},
+			&quizzesModel.Quiz{},
+			&quizzesModel.MCQ{},
+			&quizzesModel.LongAnswer{},
+			&quizzesModel.Choice{},
+			&quizzesModel.MCQSubmission{},
+			&quizzesModel.LongAnswerSubmission{},
+			&quizzesModel.QuizGrade{},
+			&paymentsModel.Payment{},
+			&assignmentsModel.Assignment{},
+			&assignmentsModel.AssignmentSubmission{},
+			&videosModel.Video{},
+			&videosModel.VideoPart{},
+			&videosModel.UserWatch{},
+			&organizationsModel.Organization{},
+			&organizationsModel.Class{},
+			&organizationsModel.ClassUser{},
+			)
 	}
 }
 

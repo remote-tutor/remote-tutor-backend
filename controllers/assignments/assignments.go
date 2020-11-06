@@ -5,7 +5,7 @@ import (
 	assignmentsFiles "backend/controllers/files/assignments"
 	paginationController "backend/controllers/pagination"
 	assignmentsDBInteractions "backend/database/assignments"
-	assignmentsModel "backend/models/assignments"
+	classesDBInteractions "backend/database/organizations"
 	"backend/utils"
 	"github.com/labstack/echo"
 	"net/http"
@@ -24,27 +24,26 @@ func GetAssignmentsByClass(c echo.Context) error {
 
 func CreateOrUpdateAssignment(c echo.Context) error {
 	method := c.Request().Method
-	assignment := new(assignmentsModel.Assignment)
-	if err := c.Bind(assignment); err != nil {
-		return c.JSON(http.StatusNotAcceptable, echo.Map{
-			"message": "Error reading assignment data from user",
-		})
-	}
+	id := utils.ConvertToUInt(c.FormValue("id"))
+	assignment := assignmentsDBInteractions.GetAssignmentByID(id)
+	assignment.Title = c.FormValue("title")
+	assignment.TotalMark = utils.ConvertToInt(c.FormValue("totalMark"))
 	assignment.Deadline = utils.ConvertToTime(c.FormValue("deadline"))
 	if method == "POST" {
 		assignment.ClassHash = c.FormValue("selectedClass")
-		err := assignmentsDBInteractions.CreateAssignment(assignment)
+		err := assignmentsDBInteractions.CreateAssignment(&assignment)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, echo.Map{
 				"message": "Unexpected error occurred (assignment not created), please try again",
 			})
 		}
 	}
-	questionsFilePath, questionsErr := assignmentsFiles.UploadQuestionsFile(c, assignment)
-	modelAnswerFilePath, modelAnswerErr := assignmentsFiles.UploadModelAnswerFile(c, assignment)
+	class := classesDBInteractions.GetClassByHash(assignment.ClassHash)
+	questionsFilePath, questionsErr := assignmentsFiles.UploadQuestionsFile(c, &assignment, &class)
+	modelAnswerFilePath, modelAnswerErr := assignmentsFiles.UploadModelAnswerFile(c, &assignment, &class)
 	if questionsErr != nil || modelAnswerErr != nil {
 		if method == "POST" {
-			err := assignmentsDBInteractions.DeleteAssignment(assignment)
+			err := assignmentsDBInteractions.DeleteAssignment(&assignment)
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, echo.Map{
 					"message": "Unexpected error occurred (assignment not deleted), please try again",
@@ -61,10 +60,7 @@ func CreateOrUpdateAssignment(c echo.Context) error {
 	if modelAnswerFilePath != "" {
 		assignment.ModelAnswer = modelAnswerFilePath
 	}
-	if method == "PUT" {
-		assignment.CreatedAt = utils.ConvertToTime(c.FormValue("CreatedAt"))
-	}
-	err := assignmentsDBInteractions.UpdateAssignment(assignment)
+	err := assignmentsDBInteractions.UpdateAssignment(&assignment)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred (assignment not created/updated), please try again",

@@ -7,9 +7,11 @@ import (
 
 type Organization struct {
 	gorm.Model
-	TeacherName   string `json:"teacherName"`
-	Subject       string `json:"subject"`
-	Hash          string `json:"hash" gorm:"size:25;uniqueIndex"`
+	TeacherName      string `json:"teacherName"`
+	Subject          string `json:"subject"`
+	S3BucketName     string `json:"s3BucketName"`
+	CloudfrontDomain string `json:"cloudfrontDomain"`
+	Hash             string `json:"hash" gorm:"size:25;uniqueIndex"`
 }
 
 // this function generates the hash then update the Organization created

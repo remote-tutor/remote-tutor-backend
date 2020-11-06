@@ -2,6 +2,7 @@ package videos
 
 import (
 	partsFiles "backend/controllers/files/videos"
+	classesDBInteractions "backend/database/organizations"
 	videosDBInterations "backend/database/videos"
 	videosModel "backend/models/videos"
 	"backend/utils"
@@ -79,7 +80,8 @@ func DeleteVideo(c echo.Context) error {
 		})
 	}
 	parts := videosDBInterations.GetPartsByVideo(video.ID)
-	err := partsFiles.DeleteVideo(&video, parts)
+	class := classesDBInteractions.GetClassByHash(video.ClassHash)
+	err := partsFiles.DeleteVideo(&video, parts, &class)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred while trying to delete the video files, please try again later",

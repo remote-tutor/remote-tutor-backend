@@ -1,13 +1,17 @@
 package assignments
 
 import (
+	"backend/aws"
 	filesUtils "backend/controllers/files"
-	assignmentsModel "backend/models/assignments"
+	awsDiagnostics "backend/diagnostics/aws"
+	classesModel "backend/models/organizations"
+	"bytes"
 	"fmt"
 	"github.com/labstack/echo"
+	"io"
 )
 
-func UploadUserSubmissionFile(c echo.Context, submission *assignmentsModel.AssignmentSubmission) (string, error) {
+func UploadUserSubmissionFile(c echo.Context, userID uint, assignmentHash string, class *classesModel.Class) (string, error) {
 	// read file from source
 	fileName, src, err := filesUtils.ReadFromSource(c, "submissionFile")
 	if err != nil {
@@ -16,17 +20,27 @@ func UploadUserSubmissionFile(c echo.Context, submission *assignmentsModel.Assig
 		}
 		return "", err
 	}
-	submissionsSubFolder := fmt.Sprintf("assignmentsFiles/assignment %d/submissions", submission.AssignmentID)
-	filesUtils.CreateDirectoryIfNotExist(submissionsSubFolder)
-	userSubmissionSubFolder := fmt.Sprintf("%s/user %d", submissionsSubFolder, submission.UserID)
-	filesUtils.DeleteDirectory(userSubmissionSubFolder)
-	filesUtils.CreateDirectoryIfNotExist(userSubmissionSubFolder)
-	fullFileName := fmt.Sprintf("%s/%s", userSubmissionSubFolder, fileName)
-	err = filesUtils.CopyFileToDestination(fullFileName, src)
+	filePath := fmt.Sprintf("%s/assignments/%s/submissions/%d/%s",
+		class.Hash, assignmentHash, userID, fileName)
+	buffer := bytes.NewBuffer(nil)
+	_, err = io.Copy(buffer, src)
 	if err != nil {
 		return "", err
 	}
-	return fullFileName, nil
+	err = deleteSubmissionFiles(class.Hash, class.Organization.S3BucketName, assignmentHash, userID)
+	if err != nil {
+		return "", err
+	}
+	fileLocation, err := aws.Upload(buffer, filePath, class.Organization.S3BucketName, class.Organization.CloudfrontDomain)
+	if err != nil {
+		awsDiagnostics.WriteAWSPartErr(err, "Upload Video Part")
+		return "", err
+	}
+	return fileLocation, nil
 }
 
-
+func deleteSubmissionFiles(classHash, s3BucketName, assignmentHash string, userID uint) error {
+	folderPath := fmt.Sprintf("%s/assignments/%s/submissions/%d",
+		classHash, assignmentHash, userID)
+	return aws.DeleteFolder(folderPath, s3BucketName)
+}

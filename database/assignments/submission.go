@@ -5,6 +5,7 @@ import (
 	dbPagination "backend/database/scopes"
 	submissionsDiagnostics "backend/diagnostics/database/assignments"
 	submissionsModel "backend/models/assignments"
+	classesModel "backend/models/organizations"
 	"fmt"
 	"gorm.io/gorm"
 )
@@ -21,9 +22,12 @@ func UpdateSubmission(submission *submissionsModel.AssignmentSubmission) error {
 	return err
 }
 
-func GetSubmissionByUserAndAssignment(userID, assignmentID uint) submissionsModel.AssignmentSubmission {
+func GetSubmissionByUserAndAssignment(userID uint, assignmentHash string) submissionsModel.AssignmentSubmission {
+	subQuery := dbInstance.GetDBConnection().Select("id").
+		Where("assignments.hash = ?", assignmentHash).Table("assignments")
 	var submission submissionsModel.AssignmentSubmission
-	dbInstance.GetDBConnection().Where("user_id = ? AND assignment_id = ?", userID, assignmentID).Find(&submission)
+	dbInstance.GetDBConnection().Where("user_id = ? AND assignment_id = (?)",
+		userID, subQuery).Find(&submission)
 	return submission
 }
 
@@ -47,4 +51,12 @@ func DeleteSubmission(submission *submissionsModel.AssignmentSubmission) error {
 	err := dbInstance.GetDBConnection().Delete(submission).Error
 	submissionsDiagnostics.WriteSubmissionErr(err, "Delete", submission)
 	return err
+}
+
+func GetClassByAssignmentHash(assignmentHash string) classesModel.Class {
+	var class classesModel.Class
+	subQuery := dbInstance.GetDBConnection().Select("class_hash").
+		Where("assignments.hash = ?", assignmentHash).Table("assignments")
+	dbInstance.GetDBConnection().Where("classes.hash = (?)", subQuery).Preload("Organization").Find(&class)
+	return class
 }

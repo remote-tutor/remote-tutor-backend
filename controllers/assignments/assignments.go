@@ -80,6 +80,15 @@ func GetAssignmentByAssignmentID(c echo.Context) error {
 	})
 }
 
+// GetAssignmentByAssignmentHash gets the assignment object by the passed hash
+func GetAssignmentByAssignmentHash(c echo.Context) error {
+	assignmentHash := c.FormValue("assignmentHash")
+	assignment := assignmentsDBInteractions.GetAssignmentByHash(assignmentHash)
+	return c.JSON(http.StatusOK, echo.Map{
+		"assignment": assignment,
+	})
+}
+
 func GetQuestionsFile(c echo.Context) error {
 	questionsPath := c.QueryParam("file")
 	bytes, err := filesUtils.GetFile(questionsPath)

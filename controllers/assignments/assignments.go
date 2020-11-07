@@ -1,7 +1,7 @@
 package assignments
 
 import (
-	filesUtils "backend/controllers/files"
+	"backend/aws"
 	assignmentsFiles "backend/controllers/files/assignments"
 	paginationController "backend/controllers/pagination"
 	assignmentsDBInteractions "backend/database/assignments"
@@ -90,11 +90,14 @@ func GetAssignmentByAssignmentHash(c echo.Context) error {
 }
 
 func GetQuestionsFile(c echo.Context) error {
-	questionsPath := c.QueryParam("file")
-	bytes, err := filesUtils.GetFile(questionsPath)
+	originalUrl := c.QueryParam("originalUrl")
+	url, err := aws.GenerateSignedURL(originalUrl)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{})
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred when trying to get the link, please try again latter",
+		})
 	}
-	c.Response().Header().Set("Content-Type", http.DetectContentType(bytes))
-	return c.Blob(http.StatusOK, http.DetectContentType(bytes), bytes)
+	return c.JSON(http.StatusOK, echo.Map{
+		"url": url,
+	})
 }

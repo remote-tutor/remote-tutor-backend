@@ -11,7 +11,7 @@ func InitializeQuizRoutes(quizzes *echo.Group, adminQuizzes *echo.Group) {
 	quizzes.GET("/past", quizzesController.GetPastQuizzes)
 	quizzes.GET("/future", quizzesController.GetFutureQuizzes)
 	quizzes.GET("/current", quizzesController.GetCurrentQuizzes)
-	quizzes.GET("/quiz", quizzesController.GetQuizByID)
+	quizzes.GET("/quiz", quizzesController.GetQuizByHash)
 	quizzes.GET("/month", quizzesController.GetQuizzesByClassMonthAndYear)
 
 	adminQuizzes.POST("", quizzesController.CreateQuiz)

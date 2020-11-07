@@ -14,8 +14,8 @@ import (
 )
 
 func GetPartsByVideo(c echo.Context) error {
-	videoID := utils.ConvertToUInt(c.QueryParam("videoID"))
-	video := partsDBInteractions.GetVideoByID(videoID)
+	videoHash := c.QueryParam("videoHash")
+	video := partsDBInteractions.GetVideoByHash(videoHash)
 	isAdmin := controllers.FetchLoggedInUserAdminStatus(c)
 	if !isAdmin {
 		if time.Now().Before(video.AvailableFrom) {
@@ -25,7 +25,7 @@ func GetPartsByVideo(c echo.Context) error {
 			})
 		}
 	}
-	parts := partsDBInteractions.GetPartsByVideo(videoID)
+	parts := partsDBInteractions.GetPartsByVideo(video.ID)
 	return c.JSON(http.StatusOK, echo.Map{
 		"parts": parts,
 	})

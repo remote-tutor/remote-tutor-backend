@@ -11,7 +11,7 @@ import (
 )
 
 func GenerateSignedURL(fullURL string) (string, error) {
-	privateKey, err := getPrivateKey("aws/pk-APKAJD7IMVQH4KL6QTAQ.pem")
+	privateKey, err := getPrivateKey("aws/private_key.pem")
 	if err != nil {
 		return "", err
 	}

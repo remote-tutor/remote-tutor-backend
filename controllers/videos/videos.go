@@ -22,9 +22,9 @@ func GetVideosByClassAndMonthAndYear(c echo.Context) error {
 	})
 }
 
-func GetVideoByID(c echo.Context) error {
-	videoID := utils.ConvertToUInt(c.QueryParam("id"))
-	video := videosDBInterations.GetVideoByID(videoID)
+func GetVideoByHash(c echo.Context) error {
+	videoHash := c.QueryParam("videoHash")
+	video := videosDBInterations.GetVideoByHash(videoHash)
 	return c.JSON(http.StatusOK, echo.Map{
 		"video": video,
 	})

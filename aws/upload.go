@@ -5,7 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"net/http"
+	"github.com/gabriel-vasile/mimetype"
 	"strings"
 )
 
@@ -14,7 +14,7 @@ import (
 // export AWS_REGION=eu-central-1
 // while this line was added to the script at the server (Environment="AWS_REGION=eu-central-1")
 func Upload(buffer *bytes.Buffer, filePath, s3BucketName, cloudfrontDomain string) (string, error) {
-	contentType := http.DetectContentType(buffer.Bytes())
+	mime := mimetype.Detect(buffer.Bytes())
 	sess, err := session.NewSession()
 	if err != nil {
 		return "", err
@@ -24,7 +24,7 @@ func Upload(buffer *bytes.Buffer, filePath, s3BucketName, cloudfrontDomain strin
 		Bucket:      aws.String(s3BucketName),
 		Key:         aws.String(filePath),
 		Body:        buffer,
-		ContentType: aws.String(contentType),
+		ContentType: aws.String(mime.String()),
 	})
 	if err != nil {
 		return "", err

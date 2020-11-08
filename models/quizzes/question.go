@@ -3,6 +3,7 @@ package quizzes
 import (
 	quizzesHooks "backend/hooks/quizzes"
 	hashUtils "backend/utils/hash"
+	"os"
 
 	"gorm.io/gorm"
 )
@@ -40,7 +41,7 @@ func (mcq *MCQ) AfterSave(tx *gorm.DB) (err error) {
 
 // this function generates the hash then update the Class created
 func (mcq *MCQ) AfterCreate(tx *gorm.DB) (err error) {
-	hash := hashUtils.GenerateHash([]uint{mcq.ID})
+	hash := hashUtils.GenerateHash([]uint{mcq.ID}, os.Getenv("QUESTIONS_SALT"))
 	tx.Model(mcq).UpdateColumn("hash", hash)
 	return
 }

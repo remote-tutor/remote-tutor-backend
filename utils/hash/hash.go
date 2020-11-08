@@ -2,14 +2,13 @@ package hash
 
 import (
 	"github.com/speps/go-hashids"
-	"os"
 )
 
 // GenerateHash generates hash from the ID using `hashids` package
-func GenerateHash(IDs []uint) string {
+func GenerateHash(IDs []uint, salt string) string {
 	hd := hashids.NewData()
-	hd.Salt = os.Getenv("HASH_SALT") // adds the salt
-	hd.MinLength = 15                // gives the length required for the output
+	hd.Salt = salt    // adds the salt
+	hd.MinLength = 15 // gives the length required for the output
 	h, _ := hashids.NewWithData(hd)
 	e, _ := h.Encode(convertFromUIntToIntArray(IDs))
 	return e

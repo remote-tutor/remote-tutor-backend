@@ -4,6 +4,7 @@ import (
 	classesModel "backend/models/organizations"
 	hashUtils "backend/utils/hash"
 	"gorm.io/gorm"
+	"os"
 	"time"
 )
 
@@ -20,7 +21,7 @@ type Video struct {
 
 // this function generates the hash then update the Class created
 func (video *Video) AfterCreate(tx *gorm.DB) (err error) {
-	hash := hashUtils.GenerateHash([]uint{video.ID})
+	hash := hashUtils.GenerateHash([]uint{video.ID}, os.Getenv("VIDEOS_SALT"))
 	tx.Model(video).UpdateColumn("hash", hash)
 	return
 }

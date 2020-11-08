@@ -3,6 +3,7 @@ package quizzes
 import (
 	classesModel "backend/models/organizations"
 	hashUtils "backend/utils/hash"
+	"os"
 	"time"
 
 	"gorm.io/gorm"
@@ -24,7 +25,7 @@ type Quiz struct {
 
 // this function generates the hash then update the Quiz created
 func (quiz *Quiz) AfterCreate(tx *gorm.DB) (err error) {
-	hash := hashUtils.GenerateHash([]uint{quiz.ID})
+	hash := hashUtils.GenerateHash([]uint{quiz.ID}, os.Getenv("QUIZZES_SALT"))
 	tx.Model(quiz).UpdateColumn("hash", hash)
 	return
 }

@@ -3,6 +3,7 @@ package organizations
 import (
 	hashUtils "backend/utils/hash"
 	"gorm.io/gorm"
+	"os"
 )
 
 type Class struct {
@@ -16,7 +17,7 @@ type Class struct {
 
 // this function generates the hash then update the Class created
 func (class *Class) AfterCreate(tx *gorm.DB) (err error) {
-	hash := hashUtils.GenerateHash([]uint{class.ID})
+	hash := hashUtils.GenerateHash([]uint{class.ID}, os.Getenv("ORGANIZATIONS_SALT"))
 	tx.Model(class).UpdateColumn("hash", hash)
 	return
 }

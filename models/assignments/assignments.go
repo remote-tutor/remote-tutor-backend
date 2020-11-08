@@ -4,6 +4,7 @@ import (
 	classesModel "backend/models/organizations"
 	hashUtils "backend/utils/hash"
 	"gorm.io/gorm"
+	"os"
 	"time"
 )
 
@@ -24,7 +25,7 @@ type Assignment struct {
 
 // this function generates the hash then update the Class created
 func (assignment *Assignment) AfterCreate(tx *gorm.DB) (err error) {
-	hash := hashUtils.GenerateHash([]uint{assignment.ID})
+	hash := hashUtils.GenerateHash([]uint{assignment.ID}, os.Getenv("ASSIGNMENTS_SALT"))
 	tx.Model(assignment).UpdateColumn("hash", hash)
 	return
 }

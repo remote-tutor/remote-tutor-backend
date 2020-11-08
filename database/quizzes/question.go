@@ -44,7 +44,7 @@ func DeleteLongAnswer(longAnswer *quizzesModel.LongAnswer) {
 
 func GetMCQByID(id uint) quizzesModel.MCQ {
 	var mcq quizzesModel.MCQ
-	dbInstance.GetDBConnection().First(&mcq, id)
+	dbInstance.GetDBConnection().Preload("Quiz").First(&mcq, id)
 	return mcq
 }
 

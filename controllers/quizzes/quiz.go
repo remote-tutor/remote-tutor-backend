@@ -1,7 +1,9 @@
 package quizzes
 
 import (
+	quizzesFiles "backend/controllers/files/quizzes"
 	paginationController "backend/controllers/pagination"
+	classesDBInteractions "backend/database/organizations"
 	quizzesDBInteractions "backend/database/quizzes"
 	quizzesModel "backend/models/quizzes"
 	"backend/utils"
@@ -96,7 +98,14 @@ func GetCurrentQuizzes(c echo.Context) error {
 func DeleteQuiz(c echo.Context) error {
 	quizID := utils.ConvertToUInt(c.FormValue("id"))
 	quiz := quizzesDBInteractions.GetQuizByID(quizID)
-	err := quizzesDBInteractions.DeleteQuiz(&quiz)
+	class := classesDBInteractions.GetClassByHash(quiz.ClassHash)
+	err := quizzesFiles.DeleteQuizFiles(&quiz, &class)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (quiz not deleted), please try again",
+		})
+	}
+	err = quizzesDBInteractions.DeleteQuiz(&quiz)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred (quiz not deleted), please try again",

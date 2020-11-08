@@ -11,7 +11,6 @@ import (
 	videosRouter "backend/routes/videos"
 	"os"
 
-	quizzesController "backend/controllers/quizzes"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -42,8 +41,6 @@ func InitializeRoutes(e *echo.Echo) {
 	assignmentsRouter.InitializeRoutes(e, adminRouter)
 	videosRouter.InitializeRoutes(e, adminRouter)
 	organizationsRouter.InitializeRoutes(e, adminRouter)
-
-	e.GET("/image/:imagePath/:quizID/:questionID", quizzesController.GetQuestionImage)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "From APache")

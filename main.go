@@ -10,10 +10,10 @@ import (
 )
 
 func main() {
-	if os.Getenv("APP_ENV") == "production" {
-		deployment.Deployment()
-	} else {
+	if os.Getenv("APP_ENV") == "development" {
 		development()
+	} else {
+		deployment.Deployment()
 	}
 }
 

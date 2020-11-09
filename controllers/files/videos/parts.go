@@ -23,7 +23,7 @@ func UploadVideoPart(c echo.Context, video *videoParts.Video, class *classesMode
 		return "", err
 	}
 	filePath := fmt.Sprintf("%s/videos/%s/%s", video.ClassHash, video.Hash, fileName)
-	fileLocation, err := aws.Upload(buffer, filePath, class.Organization.S3BucketName, class.Organization.CloudfrontDomain)
+	fileLocation, err := aws.Upload(buffer, filePath, &class.Organization)
 	if err != nil {
 		awsDiagnostics.WriteAWSPartErr(err, "Upload Video Part")
 		return "", err

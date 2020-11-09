@@ -42,7 +42,7 @@ func uploadAssignmentFiles(c echo.Context, assignment *assignmentsModel.Assignme
 	}
 	filePath := fmt.Sprintf("%s/assignments/%s/%s/%s",
 		assignment.ClassHash, assignment.Hash, formFileName, fileName)
-	fileLocation, err := aws.Upload(buffer, filePath, class.Organization.S3BucketName, class.Organization.CloudfrontDomain)
+	fileLocation, err := aws.Upload(buffer, filePath, &class.Organization)
 	if err != nil {
 		awsDiagnostics.WriteAWSPartErr(err, "Upload Video Part")
 		return "", err

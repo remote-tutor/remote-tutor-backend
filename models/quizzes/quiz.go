@@ -13,7 +13,6 @@ import (
 type Quiz struct {
 	gorm.Model
 	Title     string             `json:"title"`
-	Year      int                `json:"year"`
 	StartTime time.Time          `json:"startTime"`
 	EndTime   time.Time          `json:"endTime"`
 	TotalMark int                `json:"totalMark"`

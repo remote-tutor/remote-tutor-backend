@@ -31,7 +31,7 @@ func UploadUserSubmissionFile(c echo.Context, userID uint, assignmentHash string
 	if err != nil {
 		return "", err
 	}
-	fileLocation, err := aws.Upload(buffer, filePath, class.Organization.S3BucketName, class.Organization.CloudfrontDomain)
+	fileLocation, err := aws.Upload(buffer, filePath, &class.Organization)
 	if err != nil {
 		awsDiagnostics.WriteAWSPartErr(err, "Upload Video Part")
 		return "", err

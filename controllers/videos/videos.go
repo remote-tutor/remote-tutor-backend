@@ -55,7 +55,6 @@ func UpdateVideo(c echo.Context) error {
 	id := utils.ConvertToUInt(c.FormValue("id"))
 	video := videosDBInterations.GetVideoByID(id)
 	video.AvailableFrom = utils.ConvertToTime(c.FormValue("availableFrom"))
-	video.Year = utils.ConvertToInt(c.FormValue("year"))
 	video.Title = c.FormValue("title")
 
 	err := videosDBInterations.UpdateVideo(&video)

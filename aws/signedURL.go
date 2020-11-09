@@ -1,6 +1,7 @@
 package aws
 
 import (
+	awsDiagnostics "backend/diagnostics/aws"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
@@ -11,13 +12,15 @@ import (
 )
 
 func GenerateSignedURL(fullURL string) (string, error) {
-	privateKey, err := getPrivateKey("aws/private_key.pem")
+	privateKey, err := getPrivateKey(os.Getenv("SIGNED_URL_PRIVATE_KEY"))
 	if err != nil {
+		awsDiagnostics.WriteAWSSignedURLErr(err, "Generate Signed URL (reading private key)")
 		return "", err
 	}
 	signer := sign.NewURLSigner(os.Getenv("CLOUDFRONT_USER_KEY"), privateKey)
 	signedURL, err := signer.Sign(fullURL, time.Now().Add(5 * time.Second))
 	if err != nil {
+		awsDiagnostics.WriteAWSSignedURLErr(err, "Generate Signed URL (generating signed URL)")
 		return "", err
 	}
 	return signedURL, nil

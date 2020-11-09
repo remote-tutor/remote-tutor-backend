@@ -36,9 +36,9 @@ func UploadQuestionImage(c *echo.Context, mcq *questionsModel.MCQ, class *classe
 	randomInt := rand.Intn(1000)
 	filePath := fmt.Sprintf("%s/quizzes/%s/%s-%d%s", class.Hash, mcq.Quiz.Hash, mcq.Hash, randomInt, mime.Extension())
 
-	fileLocation, err := aws.Upload(buffer, filePath, class.Organization.S3BucketName, class.Organization.CloudfrontDomain)
+	fileLocation, err := aws.Upload(buffer, filePath, &class.Organization)
 	if err != nil {
-		awsDiagnostics.WriteAWSPartErr(err, "Upload Question Image")
+		awsDiagnostics.WriteAWSUploadError(err, "Upload Question Image")
 		return "", err
 	}
 	return fileLocation, nil

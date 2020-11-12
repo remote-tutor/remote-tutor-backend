@@ -41,6 +41,7 @@ func CreatePart(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Sorry, we're unable to upload the part right now, please try again later",
+			"err": err,
 		})
 	}
 	part := partsModel.VideoPart{

@@ -17,7 +17,6 @@ func ReadFromSource(c echo.Context, formFileName string) (string, multipart.File
 	if err != nil {
 		return "", nil, err
 	}
-	defer src.Close()
 	return file.Filename, src, nil
 }
 

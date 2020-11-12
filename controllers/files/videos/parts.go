@@ -15,11 +15,14 @@ import (
 func UploadVideoPart(c echo.Context, video *videoParts.Video, class *classesModel.Class) (string, error) {
 	fileName, src, err := filesUtils.ReadFromSource(c, "videoPart")
 	if err != nil {
+		awsDiagnostics.WriteAWSPartErr(err, "Upload Video Part (ReadFromSource)")
 		return "", err
 	}
+	defer src.Close()
 	buffer := bytes.NewBuffer(nil)
 	_, err = io.Copy(buffer, src)
 	if err != nil {
+		awsDiagnostics.WriteAWSPartErr(err, "Upload Video Part (Copy)")
 		return "", err
 	}
 	filePath := fmt.Sprintf("%s/videos/%s/%s", video.ClassHash, video.Hash, fileName)

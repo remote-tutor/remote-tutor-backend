@@ -108,7 +108,8 @@ func DeletePart(c echo.Context) error {
 func GetPartLink(c echo.Context) error {
 	id := utils.ConvertToUInt(c.FormValue("id"))
 	videoPart := partsDBInteractions.GetPartByID(id)
-	url, err := aws.GenerateSignedURL(videoPart.Link)
+	sourceIP := c.RealIP()
+	url, err := aws.GenerateSignedURL(videoPart.Link, sourceIP)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred when trying to get the link, please try again latter",

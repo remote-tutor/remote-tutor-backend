@@ -91,7 +91,8 @@ func GetAssignmentByAssignmentHash(c echo.Context) error {
 
 func GetQuestionsFile(c echo.Context) error {
 	originalUrl := c.QueryParam("originalUrl")
-	url, err := aws.GenerateSignedURL(originalUrl)
+	sourceIP := c.RealIP()
+	url, err := aws.GenerateSignedURL(originalUrl, sourceIP)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred when trying to get the link, please try again latter",

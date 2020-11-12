@@ -31,6 +31,7 @@ func uploadAssignmentFiles(c echo.Context, assignment *assignmentsModel.Assignme
 		}
 		return "", err
 	}
+	defer src.Close()
 	buffer := bytes.NewBuffer(nil)
 	_, err = io.Copy(buffer, src)
 	if err != nil {
@@ -44,7 +45,7 @@ func uploadAssignmentFiles(c echo.Context, assignment *assignmentsModel.Assignme
 		assignment.ClassHash, assignment.Hash, formFileName, fileName)
 	fileLocation, err := aws.Upload(buffer, filePath, &class.Organization)
 	if err != nil {
-		awsDiagnostics.WriteAWSPartErr(err, "Upload Video Part")
+		awsDiagnostics.WriteAWSUploadError(err, "Upload Assignment File")
 		return "", err
 	}
 	return fileLocation, nil

@@ -23,6 +23,7 @@ func UploadQuestionImage(c *echo.Context, mcq *questionsModel.MCQ, class *classe
 		}
 		return "", err
 	}
+	defer src.Close()
 	err = DeleteQuestionImage(mcq, class) // delete the old image before uploading new one
 	if err != nil {
 		return "", err

@@ -20,6 +20,7 @@ func UploadUserSubmissionFile(c echo.Context, userID uint, assignmentHash string
 		}
 		return "", err
 	}
+	defer src.Close()
 	filePath := fmt.Sprintf("%s/assignments/%s/submissions/%d/%s",
 		class.Hash, assignmentHash, userID, fileName)
 	buffer := bytes.NewBuffer(nil)
@@ -33,7 +34,7 @@ func UploadUserSubmissionFile(c echo.Context, userID uint, assignmentHash string
 	}
 	fileLocation, err := aws.Upload(buffer, filePath, &class.Organization)
 	if err != nil {
-		awsDiagnostics.WriteAWSPartErr(err, "Upload Video Part")
+		awsDiagnostics.WriteAWSUploadError(err, "Upload Submission")
 		return "", err
 	}
 	return fileLocation, nil

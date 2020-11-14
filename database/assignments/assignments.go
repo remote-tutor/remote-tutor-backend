@@ -38,6 +38,13 @@ func GetAssignmentByID(id uint) assignmentsModel.Assignment {
 	return assignment
 }
 
+// GetAssignmentByID returns the assignment with the specific hash
+func GetAssignmentByHash(hash string) assignmentsModel.Assignment {
+	var assignment assignmentsModel.Assignment
+	dbInstance.GetDBConnection().Where("hash = ?", hash).First(&assignment)
+	return assignment
+}
+
 // UpdateAssignment updates the given assignment in the database
 func UpdateAssignment(assignment *assignmentsModel.Assignment) error {
 	err := dbInstance.GetDBConnection().Save(assignment).Error

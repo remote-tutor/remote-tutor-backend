@@ -2,6 +2,7 @@ package videos
 
 import (
 	partsFiles "backend/controllers/files/videos"
+	classesDBInteractions "backend/database/organizations"
 	videosDBInterations "backend/database/videos"
 	videosModel "backend/models/videos"
 	"backend/utils"
@@ -21,9 +22,9 @@ func GetVideosByClassAndMonthAndYear(c echo.Context) error {
 	})
 }
 
-func GetVideoByID(c echo.Context) error {
-	videoID := utils.ConvertToUInt(c.QueryParam("id"))
-	video := videosDBInterations.GetVideoByID(videoID)
+func GetVideoByHash(c echo.Context) error {
+	videoHash := c.QueryParam("videoHash")
+	video := videosDBInterations.GetVideoByHash(videoHash)
 	return c.JSON(http.StatusOK, echo.Map{
 		"video": video,
 	})
@@ -54,7 +55,6 @@ func UpdateVideo(c echo.Context) error {
 	id := utils.ConvertToUInt(c.FormValue("id"))
 	video := videosDBInterations.GetVideoByID(id)
 	video.AvailableFrom = utils.ConvertToTime(c.FormValue("availableFrom"))
-	video.Year = utils.ConvertToInt(c.FormValue("year"))
 	video.Title = c.FormValue("title")
 
 	err := videosDBInterations.UpdateVideo(&video)
@@ -79,7 +79,8 @@ func DeleteVideo(c echo.Context) error {
 		})
 	}
 	parts := videosDBInterations.GetPartsByVideo(video.ID)
-	err := partsFiles.DeleteVideo(&video, parts)
+	class := classesDBInteractions.GetClassByHash(video.ClassHash)
+	err := partsFiles.DeleteVideo(&video, parts, &class)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred while trying to delete the video files, please try again later",

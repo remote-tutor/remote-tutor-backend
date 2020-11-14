@@ -2,46 +2,39 @@ package quizzes
 
 import (
 	authController "backend/controllers/auth"
+	questionsFiles "backend/controllers/files/quizzes"
 	classUsersDBInteractions "backend/database/organizations"
 	quizzesDBInteractions "backend/database/quizzes"
 	quizzesModel "backend/models/quizzes"
 	"backend/utils"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"strings"
-
 	"github.com/labstack/echo"
+	"net/http"
 )
 
 //CreateMCQ creates a new mcq question for a quiz
 func CreateMCQ(c echo.Context) error {
-	question, err := constructQuestion(c)
-	if err != nil {
-		return c.JSON(http.StatusUnsupportedMediaType, echo.Map{
-			"message": "Error uploading the image, please try again later",
-		})
-	}
-
-	correctAnswer := utils.ConvertToUInt(c.FormValue("correctAnswer"))
+	question := constructQuestion(c)
 	mcq := quizzesModel.MCQ{
 		Question:      question,
-		CorrectAnswer: correctAnswer,
 	}
-	err = quizzesDBInteractions.CreateMCQ(&mcq)
+	err := quizzesDBInteractions.CreateMCQ(&mcq)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred (MCQ not created), please try again",
 		})
 	}
 
-	err = createImageFile(&mcq.Question, mcq.Question.ImagePath)
+	quiz := quizzesDBInteractions.GetQuizByID(mcq.QuizID)
+	mcq.Quiz = quiz
+	class := classUsersDBInteractions.GetClassByHash(quiz.ClassHash)
+	imageFilePath, err := questionsFiles.UploadQuestionImage(&c, &mcq, &class)
 	if err != nil {
+		quizzesDBInteractions.DeleteMCQ(&mcq)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "An unexpected error occurred when trying to save the image, please try again later",
 		})
 	}
+	mcq.ImagePath = imageFilePath
 	err = quizzesDBInteractions.UpdateMCQ(&mcq)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -55,12 +48,7 @@ func CreateMCQ(c echo.Context) error {
 
 //CreateLongAnswer creates a new long answer question for a quiz
 func CreateLongAnswer(c echo.Context) error {
-	question, err := constructQuestion(c)
-	if err != nil {
-		return c.JSON(http.StatusUnsupportedMediaType, echo.Map{
-			"message": "Error uploading the image, please try again later",
-		})
-	}
+	question := constructQuestion(c)
 
 	correctAnswer := c.FormValue("correctAnswer")
 	longAnswer := quizzesModel.LongAnswer{
@@ -76,28 +64,20 @@ func CreateLongAnswer(c echo.Context) error {
 
 //UpdateMCQ updates mcq question for a quiz
 func UpdateMCQ(c echo.Context) error {
-	question, err := constructQuestion(c)
-	if err != nil {
-		return c.JSON(http.StatusUnsupportedMediaType, echo.Map{
-			"message": "Error uploading the image, please try again later",
-		})
-	}
+	question := constructQuestion(c)
 
 	mcq := quizzesDBInteractions.GetMCQByID(utils.ConvertToUInt(c.FormValue("id")))
 	mcq.CorrectAnswer = utils.ConvertToUInt(c.FormValue("correctAnswer"))
 	mcq.Question.TotalMark = question.TotalMark
 	mcq.Question.Text = question.Text
-	if question.ImagePath != "" {
-		mcq.Question.ImagePath = question.ImagePath
-		mcq.Question.Image = question.Image
-	}
-
-	err = createImageFile(&mcq.Question, question.ImagePath)
+	class := classUsersDBInteractions.GetClassByHash(mcq.Quiz.ClassHash)
+	imageFilePath, err := questionsFiles.UploadQuestionImage(&c, &mcq, &class)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": "An unexpected error occured when tring to save the image, please try again later",
+			"message": "An unexpected error occurred when trying to save the image, please try again later",
 		})
 	}
+	mcq.ImagePath = imageFilePath
 
 	submissions := quizzesDBInteractions.GetMCQSubmissionsByQuestionID(mcq.ID)
 	for _, submission := range submissions {
@@ -137,7 +117,14 @@ func UpdateLongAnswer(c echo.Context) error {
 // DeleteMCQ deletes mcq question for a quiz
 func DeleteMCQ(c echo.Context) error {
 	mcq := quizzesDBInteractions.GetMCQByID(utils.ConvertToUInt(c.FormValue("id")))
-	err := quizzesDBInteractions.DeleteMCQ(&mcq)
+	class := classUsersDBInteractions.GetClassByHash(mcq.Quiz.ClassHash)
+	err := questionsFiles.DeleteQuestionImage(&mcq, &class)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (MCQ not deleted), please try again",
+		})
+	}
+	err = quizzesDBInteractions.DeleteMCQ(&mcq)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred (MCQ not deleted), please try again",
@@ -174,25 +161,7 @@ func GetQuestionsByQuiz(c echo.Context) error {
 	})
 }
 
-// GetQuestionImage gets the image of the specified question
-func GetQuestionImage(c echo.Context) error {
-	imagePath := c.Param("imagePath")
-	quizID := c.Param("quizID")
-	questionID := c.Param("questionID")
-	fullPath := imagePath + "/" + quizID + "/" + questionID
-	if _, err := os.Stat(fullPath); err == nil {
-		bytes, err := ioutil.ReadFile(fullPath)
-		if err == nil {
-			c.Response().Header().Set("Content-Type", "image/*")
-			return c.Blob(http.StatusOK, "image/*", bytes)
-		}
-	}
-	return c.JSON(http.StatusInternalServerError, echo.Map{
-		"message": "Error while retrieving the file",
-	})
-}
-
-func constructQuestion(c echo.Context) (quizzesModel.Question, error) {
+func constructQuestion(c echo.Context) quizzesModel.Question {
 	text := c.FormValue("text")
 	totalMark := utils.ConvertToInt(c.FormValue("totalMark"))
 	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
@@ -201,50 +170,5 @@ func constructQuestion(c echo.Context) (quizzesModel.Question, error) {
 		TotalMark: totalMark,
 		QuizID:    quizID,
 	}
-
-	image, err := c.FormFile("image")
-	if err != nil {
-		if err.Error() == "http: no such file" {
-			return question, nil
-		}
-		return question, err
-	}
-	src, err := image.Open()
-	if err != nil {
-		return question, err
-	}
-	defer src.Close()
-	bytes, err := ioutil.ReadAll(src)
-	if err != nil {
-		return question, err
-	}
-	question.Image = bytes
-	question.ImagePath = image.Filename[strings.LastIndex(image.Filename, ".")+1:]
-
-	return question, nil
-}
-
-func createImageFile(question *quizzesModel.Question, newPath string) error {
-	if newPath == "" {
-		return nil
-	}
-	createDirectoryIfNotExist(fmt.Sprintf("quizzesImages/quiz %d", question.QuizID))
-
-	question.ImagePath = fmt.Sprintf("quizzesImages/quiz %d/question %d.%s",
-		question.QuizID, question.ID, question.ImagePath)
-	dst, err := os.Create(question.ImagePath)
-	if err != nil {
-		return err
-	}
-	defer dst.Close()
-	if _, err = dst.Write(question.Image); err != nil {
-		return err
-	}
-	return nil
-}
-
-func createDirectoryIfNotExist(directoryName string) {
-	if _, err := os.Stat(directoryName); os.IsNotExist(err) {
-		os.Mkdir(directoryName, os.FileMode(int(0777)))
-	}
+	return question
 }

@@ -26,6 +26,12 @@ func GetVideoByID(id uint) videosModel.Video {
 	return video
 }
 
+func GetVideoByHash(hash string) videosModel.Video {
+	var video videosModel.Video
+	dbInstance.GetDBConnection().Where("hash = ?", hash).First(&video)
+	return video
+}
+
 func UpdateVideo(video *videosModel.Video) error {
 	err := dbInstance.GetDBConnection().Save(video).Error
 	videosDiagnostics.WriteVideoErr(err, "Update", video)

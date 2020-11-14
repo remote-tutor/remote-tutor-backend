@@ -4,6 +4,7 @@ import (
 	"backend/aws"
 	controllers "backend/controllers/auth"
 	partsFiles "backend/controllers/files/videos"
+	classesDBInteractions "backend/database/organizations"
 	partsDBInteractions "backend/database/videos"
 	partsModel "backend/models/videos"
 	"backend/utils"
@@ -13,8 +14,8 @@ import (
 )
 
 func GetPartsByVideo(c echo.Context) error {
-	videoID := utils.ConvertToUInt(c.QueryParam("videoID"))
-	video := partsDBInteractions.GetVideoByID(videoID)
+	videoHash := c.QueryParam("videoHash")
+	video := partsDBInteractions.GetVideoByHash(videoHash)
 	isAdmin := controllers.FetchLoggedInUserAdminStatus(c)
 	if !isAdmin {
 		if time.Now().Before(video.AvailableFrom) {
@@ -24,7 +25,7 @@ func GetPartsByVideo(c echo.Context) error {
 			})
 		}
 	}
-	parts := partsDBInteractions.GetPartsByVideo(videoID)
+	parts := partsDBInteractions.GetPartsByVideo(video.ID)
 	return c.JSON(http.StatusOK, echo.Map{
 		"parts": parts,
 	})
@@ -34,10 +35,13 @@ func CreatePart(c echo.Context) error {
 	videoID := utils.ConvertToUInt(c.FormValue("videoID"))
 	number := utils.ConvertToInt(c.FormValue("number"))
 	fileName := c.FormValue("fileName")
-	fileLocation, err := partsFiles.UploadVideoPart(c, videoID)
+	video := partsDBInteractions.GetVideoByID(videoID)
+	class := classesDBInteractions.GetClassByHash(video.ClassHash)
+	fileLocation, err := partsFiles.UploadVideoPart(c, &video, &class)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Sorry, we're unable to upload the part right now, please try again later",
+			"err": err,
 		})
 	}
 	part := partsModel.VideoPart{
@@ -48,7 +52,7 @@ func CreatePart(c echo.Context) error {
 	}
 	err = partsDBInteractions.CreatePart(&part)
 	if err != nil {
-		partsFiles.DeleteVideoPart(&part)
+		partsFiles.DeleteVideoPart(&part, &video, &class)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred (part not created), please try again",
 		})
@@ -82,7 +86,9 @@ func DeletePart(c echo.Context) error {
 			"message": "Sorry, you've entered a wrong filename, please check your selection and try again",
 		})
 	}
-	err := partsFiles.DeleteVideoPart(&part)
+	video := partsDBInteractions.GetVideoByID(part.VideoID)
+	class := classesDBInteractions.GetClassByHash(video.ClassHash)
+	err := partsFiles.DeleteVideoPart(&part, &video, &class)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred while trying to delete the video part, please try again later",
@@ -102,7 +108,8 @@ func DeletePart(c echo.Context) error {
 func GetPartLink(c echo.Context) error {
 	id := utils.ConvertToUInt(c.FormValue("id"))
 	videoPart := partsDBInteractions.GetPartByID(id)
-	url, err := aws.GenerateSignedURL(videoPart.Link)
+	sourceIP := c.RealIP()
+	url, err := aws.GenerateSignedURL(videoPart.Link, sourceIP)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Unexpected error occurred when trying to get the link, please try again latter",

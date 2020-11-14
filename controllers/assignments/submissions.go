@@ -13,9 +13,9 @@ import (
 )
 
 func GetSubmissionByUserAndAssignment(c echo.Context) error {
-	assignmentID := utils.ConvertToUInt(c.QueryParam("assignmentID"))
+	assignmentHash := c.QueryParam("assignmentHash")
 	userID := authController.FetchLoggedInUserID(c)
-	submission := submissionsDBInteractions.GetSubmissionByUserAndAssignment(userID, assignmentID)
+	submission := submissionsDBInteractions.GetSubmissionByUserAndAssignment(userID, assignmentHash)
 	return c.JSON(http.StatusOK, echo.Map{
 		"submission": submission,
 	})
@@ -27,6 +27,7 @@ func CreateOrUpdateSubmission(c echo.Context) error {
 	submission.UserID = authController.FetchLoggedInUserID(c)
 	submission.AssignmentID = utils.ConvertToUInt(c.FormValue("assignmentID"))
 	submission.UploadedAt = time.Now()
+	assignmentHash := c.FormValue("assignmentHash")
 	if method == "POST" {
 		err := submissionsDBInteractions.CreateSubmission(submission)
 		if err != nil {
@@ -35,14 +36,16 @@ func CreateOrUpdateSubmission(c echo.Context) error {
 			})
 		}
 	} else {
-		originalSubmission := submissionsDBInteractions.GetSubmissionByUserAndAssignment(submission.UserID, submission.AssignmentID)
+		originalSubmission := submissionsDBInteractions.GetSubmissionByUserAndAssignment(submission.UserID, assignmentHash)
 		if originalSubmission.Graded {
 			return c.JSON(http.StatusForbidden, echo.Map{
 				"message": "Sorry this assignment has been graded, you can't change the submission",
 			})
 		}
 	}
-	submissionFilePath, submissionErr := submissionsFiles.UploadUserSubmissionFile(c, submission)
+	class := submissionsDBInteractions.GetClassByAssignmentHash(assignmentHash)
+	submissionFilePath, submissionErr := submissionsFiles.
+		UploadUserSubmissionFile(c, submission.UserID, assignmentHash, &class)
 	if submissionErr != nil {
 		if method == "POST" {
 			err := submissionsDBInteractions.DeleteSubmission(submission)
@@ -84,8 +87,8 @@ func GetSubmissionsByAssignmentForAllUsers(c echo.Context) error {
 
 func UpdateSubmissionByAdmin(c echo.Context) error {
 	userID := utils.ConvertToUInt(c.FormValue("userID"))
-	assignmentID := utils.ConvertToUInt(c.FormValue("assignmentID"))
-	submission := submissionsDBInteractions.GetSubmissionByUserAndAssignment(userID, assignmentID)
+	assignmentHash := c.FormValue("assignmentHash")
+	submission := submissionsDBInteractions.GetSubmissionByUserAndAssignment(userID, assignmentHash)
 	submission.Graded = true
 	submission.Mark = utils.ConvertToInt(c.FormValue("mark"))
 	submission.Feedback = c.FormValue("feedback")

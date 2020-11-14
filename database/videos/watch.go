@@ -7,7 +7,7 @@ import (
 )
 
 func CreateUserWatch(userWatch *watchesModel.UserWatch) error {
-	err := dbInstance.GetDBConnection().Create(userWatch).Error
+	err := dbInstance.GetDBConnection().FirstOrCreate(userWatch).Error
 	videosDiagnostics.WriteWatchErr(err, "Create", userWatch)
 	return err
 }

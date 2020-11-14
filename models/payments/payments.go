@@ -16,6 +16,6 @@ type Payment struct {
 	User      usersModel.User    `json:"user"`
 	StartDate time.Time          `json:"startDate"`
 	EndDate   time.Time          `json:"endDate"`
-	ClassHash string             `json:"classHash" gorm:"size:255"`
+	ClassHash string             `json:"classHash" gorm:"size:25"`
 	Class     classesModel.Class `json:"class" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:ClassHash;references:Hash"`
 }

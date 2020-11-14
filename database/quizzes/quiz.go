@@ -73,6 +73,13 @@ func GetQuizByID(id uint) quizzesModel.Quiz {
 	return quiz
 }
 
+// GetQuizByID retrieves the quiz by the hash
+func GetQuizByHash(hash string) quizzesModel.Quiz {
+	var quiz quizzesModel.Quiz
+	dbInstance.GetDBConnection().Where("hash = ?", hash).First(&quiz)
+	return quiz
+}
+
 // GetQuizzesByClassAndMonthAndYear retrieves all the quizzes within a month period.
 func GetQuizzesByClassAndMonthAndYear(class string, startOfMonth, endOfMonth time.Time) []quizzesModel.Quiz {
 	quizzes := make([]quizzesModel.Quiz, 0)

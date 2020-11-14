@@ -19,12 +19,14 @@ func CreateQuiz(c echo.Context) error {
 	class := c.FormValue("selectedClass")
 	startTime := utils.ConvertToTime(c.FormValue("startTime"))
 	endTime := utils.ConvertToTime(c.FormValue("endTime"))
+	studentTime := utils.ConvertToInt(c.FormValue("studentTime"))
 
 	quiz := quizzesModel.Quiz{
-		Title:     title,
-		ClassHash: class,
-		StartTime: startTime,
-		EndTime:   endTime,
+		Title:       title,
+		ClassHash:   class,
+		StartTime:   startTime,
+		EndTime:     endTime,
+		StudentTime: studentTime,
 	}
 
 	err := quizzesDBInteractions.CreateQuiz(&quiz)
@@ -39,7 +41,7 @@ func CreateQuiz(c echo.Context) error {
 	})
 }
 
-// UpdateQuiz updtes an existing quiz
+// UpdateQuiz updates an existing quiz
 func UpdateQuiz(c echo.Context) error {
 	quizID := utils.ConvertToUInt(c.FormValue("id"))
 
@@ -48,6 +50,7 @@ func UpdateQuiz(c echo.Context) error {
 	quiz.ClassHash = c.FormValue("selectedClass")
 	quiz.StartTime = utils.ConvertToTime(c.FormValue("startTime"))
 	quiz.EndTime = utils.ConvertToTime(c.FormValue("endTime"))
+	quiz.StudentTime = utils.ConvertToInt(c.FormValue("studentTime"))
 
 	err := quizzesDBInteractions.UpdateQuiz(&quiz)
 	if err != nil {

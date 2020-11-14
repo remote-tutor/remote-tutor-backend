@@ -38,7 +38,7 @@ func GenerateSignedURL(fullURL, sourceIP string) (string, error) {
 					// Optional IP source address range
 					IPAddress: &sign.IPAddress{SourceIP: sourceIP},
 					// Required date the URL will expire after
-					DateLessThan: &sign.AWSEpochTime{Time: time.Now().Add(30 * time.Minute)},
+					DateLessThan: &sign.AWSEpochTime{Time: time.Now().Add(45 * time.Second)},
 				},
 			},
 		},

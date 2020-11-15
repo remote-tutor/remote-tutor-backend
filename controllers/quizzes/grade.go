@@ -6,6 +6,7 @@ import (
 	quizzesModel "backend/models/quizzes"
 	"backend/utils"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo"
 )
@@ -14,10 +15,13 @@ import (
 func CreateQuizGrade(c echo.Context) error {
 	userID := authController.FetchLoggedInUserID(c)
 	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
+	quiz := quizzesDBInteractions.GetQuizByID(quizID)
 	quizGrade := quizzesModel.QuizGrade{
-		Grade:  0,
-		QuizID: quizID,
-		UserID: userID,
+		Grade:     0,
+		QuizID:    quizID,
+		UserID:    userID,
+		StartAt:   time.Now(),
+		ValidTill: time.Now().Add(time.Duration(quiz.StudentTime) * time.Minute),
 	}
 	err := quizzesDBInteractions.CreateGrade(&quizGrade)
 	if err != nil {
@@ -26,7 +30,18 @@ func CreateQuizGrade(c echo.Context) error {
 		})
 	}
 	return c.JSON(http.StatusOK, echo.Map{
-		"quizGrade": quizGrade,
+		"validTill": quizGrade.ValidTill,
+	})
+}
+
+func GetStudentRemainingTime(c echo.Context) error {
+	userID := authController.FetchLoggedInUserID(c)
+	quizID := utils.ConvertToUInt(c.QueryParam("quizID"))
+
+	remainingTime, recordFound := quizzesDBInteractions.GetStudentRemainingTime(userID, quizID)
+	return c.JSON(http.StatusOK, echo.Map{
+		"studentTime": remainingTime,
+		"recordFound": recordFound,
 	})
 }
 

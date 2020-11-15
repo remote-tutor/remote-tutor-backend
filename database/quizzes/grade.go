@@ -4,6 +4,9 @@ import (
 	dbInstance "backend/database"
 	gradesDiagnostics "backend/diagnostics/database/quizzes"
 	quizzesModel "backend/models/quizzes"
+	"errors"
+	"gorm.io/gorm"
+	"time"
 )
 
 // CreateGrade inserts a new quiz grade to the database
@@ -23,6 +26,14 @@ func GetGradesByQuizID(userID uint, quizID uint) quizzesModel.QuizGrade {
 	var quizGrade quizzesModel.QuizGrade
 	dbInstance.GetDBConnection().Where("user_id = ? AND quiz_id = ?", userID, quizID).Preload("User").FirstOrInit(&quizGrade)
 	return quizGrade
+}
+
+// GetStudentRemainingTime fetches the remaining time for a quiz by given student
+func GetStudentRemainingTime(userID, quizID uint) (time.Time, bool) {
+	var quizGrade quizzesModel.QuizGrade
+	err := dbInstance.GetDBConnection().Where("user_id = ? AND quiz_id = ?", userID, quizID).First(&quizGrade).Error
+	recordFound := errors.Is(err, gorm.ErrRecordNotFound)
+	return quizGrade.ValidTill, recordFound
 }
 
 // GetGradesByQuizForAllUsers retrieves all class grades for a specific quiz

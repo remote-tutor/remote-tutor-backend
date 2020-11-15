@@ -11,6 +11,7 @@ import (
 type Video struct {
 	gorm.Model
 	AvailableFrom time.Time          `json:"availableFrom"`
+	AvailableTo   time.Time          `json:"availableTo"`
 	Parts         []VideoPart        `json:"parts"`
 	Title         string             `json:"title"`
 	Hash          string             `json:"hash" gorm:"size:25"`

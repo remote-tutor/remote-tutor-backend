@@ -32,8 +32,8 @@ func GetGradesByQuizID(userID uint, quizID uint) quizzesModel.QuizGrade {
 func GetStudentRemainingTime(userID, quizID uint) (time.Time, bool) {
 	var quizGrade quizzesModel.QuizGrade
 	err := dbInstance.GetDBConnection().Where("user_id = ? AND quiz_id = ?", userID, quizID).First(&quizGrade).Error
-	recordFound := errors.Is(err, gorm.ErrRecordNotFound)
-	return quizGrade.ValidTill, recordFound
+	recordNotFound := errors.Is(err, gorm.ErrRecordNotFound)
+	return quizGrade.ValidTill, !recordNotFound
 }
 
 // GetGradesByQuizForAllUsers retrieves all class grades for a specific quiz

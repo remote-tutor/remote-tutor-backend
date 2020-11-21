@@ -9,6 +9,7 @@ import (
 	"github.com/jinzhu/now"
 	"github.com/labstack/echo"
 	"net/http"
+	"time"
 )
 
 func GetVideosByClassAndMonthAndYear(c echo.Context) error {
@@ -32,12 +33,21 @@ func GetVideoByHash(c echo.Context) error {
 
 func CreateVideo(c echo.Context) error {
 	availableFrom := utils.ConvertToTime(c.FormValue("availableFrom"))
+	availableTo := utils.ConvertToTime(c.FormValue("availableTo"))
 	class := c.FormValue("selectedClass")
 	title := c.FormValue("title")
+	studentHours := utils.ConvertToUInt(c.FormValue("studentTime"))
+	if studentHours <= 0 {
+		return c.JSON(http.StatusNotAcceptable, echo.Map{
+			"message": "Make sure that you've entered a correct time for each part",
+		})
+	}
 	video := videosModel.Video{
 		AvailableFrom: now.With(availableFrom).BeginningOfDay(),
+		AvailableTo: now.With(availableTo).EndOfDay().Add(-time.Second),
 		ClassHash: class,
 		Title: title,
+		StudentHours: studentHours,
 	}
 	err := videosDBInterations.CreateVideo(&video)
 	if err != nil {
@@ -54,8 +64,18 @@ func CreateVideo(c echo.Context) error {
 func UpdateVideo(c echo.Context) error {
 	id := utils.ConvertToUInt(c.FormValue("id"))
 	video := videosDBInterations.GetVideoByID(id)
-	video.AvailableFrom = utils.ConvertToTime(c.FormValue("availableFrom"))
+	availableFrom := utils.ConvertToTime(c.FormValue("availableFrom"))
+	availableTo := utils.ConvertToTime(c.FormValue("availableTo"))
+	video.AvailableFrom = now.With(availableFrom).BeginningOfDay()
+	video.AvailableTo = now.With(availableTo).EndOfDay().Add(-time.Second)
 	video.Title = c.FormValue("title")
+	studentHours := utils.ConvertToUInt(c.FormValue("studentTime"))
+	if studentHours <= 0 {
+		return c.JSON(http.StatusNotAcceptable, echo.Map{
+			"message": "Make sure that you've entered a correct time for each part",
+		})
+	}
+	video.StudentHours = studentHours
 
 	err := videosDBInterations.UpdateVideo(&video)
 	if err != nil {

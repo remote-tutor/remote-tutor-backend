@@ -26,6 +26,14 @@ func GetVideoByID(id uint) videosModel.Video {
 	return video
 }
 
+func GetVideoByPartID(id uint) videosModel.Video {
+	var video videosModel.Video
+	subQuery := dbInstance.GetDBConnection().Select("video_id").
+		Where("id = ?", id).Table("video_parts")
+	dbInstance.GetDBConnection().Where("id = (?)", subQuery).First(&video)
+	return video
+}
+
 func GetVideoByHash(hash string) videosModel.Video {
 	var video videosModel.Video
 	dbInstance.GetDBConnection().Where("hash = ?", hash).First(&video)

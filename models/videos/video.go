@@ -14,6 +14,7 @@ type Video struct {
 	AvailableTo   time.Time          `json:"availableTo"`
 	Parts         []VideoPart        `json:"parts"`
 	Title         string             `json:"title"`
+	StudentHours  uint               `json:"studentHours"`
 	Hash          string             `json:"hash" gorm:"size:25"`
 	ClassHash     string             `json:"classHash" gorm:"size:25"`
 	Class         classesModel.Class `json:"class" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:ClassHash;references:Hash"`

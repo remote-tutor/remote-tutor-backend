@@ -16,12 +16,13 @@ func CreateQuizGrade(c echo.Context) error {
 	userID := authController.FetchLoggedInUserID(c)
 	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
 	quiz := quizzesDBInteractions.GetQuizByID(quizID)
+	validTill := getSmallestDate(quiz.EndTime, time.Now().Add(time.Duration(quiz.StudentTime) * time.Minute))
 	quizGrade := quizzesModel.QuizGrade{
 		Grade:     0,
 		QuizID:    quizID,
 		UserID:    userID,
 		StartAt:   time.Now(),
-		ValidTill: time.Now().Add(time.Duration(quiz.StudentTime) * time.Minute),
+		ValidTill: validTill,
 	}
 	err := quizzesDBInteractions.CreateGrade(&quizGrade)
 	if err != nil {
@@ -63,4 +64,11 @@ func GetGradesByQuizForAllUsers(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"quizGrades": quizGrades,
 	})
+}
+
+func getSmallestDate(first, second time.Time) time.Time {
+	if first.Before(second) {
+		return first
+	}
+	return second
 }

@@ -18,7 +18,7 @@ func GetPartsByVideo(c echo.Context) error {
 	video := partsDBInteractions.GetVideoByHash(videoHash)
 	isAdmin := controllers.FetchLoggedInUserAdminStatus(c)
 	if !isAdmin {
-		if time.Now().Before(video.AvailableFrom) || time.Now().After(video.AvailableTo) {
+		if time.Now().Before(video.AvailableFrom) {
 			return c.JSON(http.StatusForbidden, echo.Map{
 				"message": "You cannot access the video parts before the time it'll be available in",
 				"route": "Videos",

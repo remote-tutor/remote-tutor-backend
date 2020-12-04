@@ -20,12 +20,11 @@ func GetClassesByUser(c echo.Context) error {
 
 func GetStudentsByClass(c echo.Context) error {
 	searchByValue := c.QueryParam("searchByValue")
-	searchByField := c.QueryParam("searchByField")
 	pending := utils.ConvertToBool(c.QueryParam("pending"))
 	class := c.QueryParam("selectedClass")
 
 	paginationData := paginationController.ExtractPaginationData(c)
-	users, totalUsers := classUsersDBInteractions.GetStudentsByClass(paginationData, searchByValue, searchByField, class, pending)
+	users, totalUsers := classUsersDBInteractions.GetStudentsByClass(paginationData, searchByValue, class, pending)
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"students":      users,

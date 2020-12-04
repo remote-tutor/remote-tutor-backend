@@ -2,6 +2,7 @@ package utils
 
 import (
 	utilsDiagnostics "backend/diagnostics/utils"
+	"github.com/jinzhu/now"
 	"strconv"
 	"time"
 )
@@ -51,4 +52,20 @@ func ConvertToTime(value string) time.Time {
 	intValue := ConvertToInt(value)
 	intValue /= 1000
 	return time.Unix(int64(intValue), 0)
+}
+
+// ConvertToStartOfDay converts the string time to a time object (at the beginning of the day)
+func ConvertToStartOfDay(value string) time.Time {
+	date := ConvertToTime(value)
+	return now.With(date).BeginningOfDay()
+}
+
+// ConvertToUIntArray converts the string array to uint array
+func ConvertToUIntArray(value []string) []uint {
+	length := len(value)
+	uintArray := make([]uint, length)
+	for i := 0; i < length; i++ {
+		uintArray[i] = ConvertToUInt(value[i])
+	}
+	return uintArray
 }

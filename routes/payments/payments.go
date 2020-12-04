@@ -15,6 +15,7 @@ func InitializeRoutes(e *echo.Echo, adminRouter *echo.Group) {
 	payments.GET("/week", paymentsController.GetPaymentsByUserAndWeekAndClass)
 
 	adminPayments := adminRouter.Group("/payments")
+	adminPayments.GET("/week", paymentsController.GetPaymentsByWeekAndClass)
 	adminPayments.POST("", paymentsController.CreatePayment)
 	adminPayments.POST("/all", paymentsController.GiveAccessToAllStudents)
 	adminPayments.DELETE("", paymentsController.DeletePayment)

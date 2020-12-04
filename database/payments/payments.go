@@ -44,6 +44,14 @@ func GetPaymentByUserAndWeekAndClass(userID uint, eventDate time.Time, class str
 	return payment
 }
 
+// GetPaymentsByWeekAndClass returns the payments of all selected users in a specific week and class
+func GetPaymentsByWeekAndClass(usersIDs []uint, date, endDate time.Time, class string) []paymentsModel.Payment {
+	payments := make([]paymentsModel.Payment, 0)
+	dbInstance.GetDBConnection().Where("user_id IN (?) AND start_date >= ? AND end_date <= ? AND class_hash = ?",
+		usersIDs, date, endDate, class).Find(&payments)
+	return payments
+}
+
 func GiveAccessToAllStudents(startDate, endDate time.Time, class string) {
 	// get all students' IDs who have payment in the given week
 	usersWithPayments := make([]uint, 0)

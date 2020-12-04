@@ -2,6 +2,7 @@ package payments
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo"
 
@@ -46,12 +47,30 @@ func GetPaymentsByUserAndWeekAndClass(c echo.Context) error {
 	})
 }
 
+// GetPaymentsByWeekAndClass gets the payments for specific collection of user by a specific week
+func GetPaymentsByWeekAndClass(c echo.Context) error {
+	date := utils.ConvertToStartOfDay(c.QueryParam("date"))
+	if date.Weekday() != time.Friday {
+		return c.JSON(http.StatusNotAcceptable, echo.Map{
+			"message": "Please select start of the week (Friday) to proceed",
+		})
+	}
+	endDate := date.AddDate(0, 0, 7)
+	class := c.QueryParam("selectedClass")
+	queryParams := c.Request().URL.Query()
+	usersIDs := utils.ConvertToUIntArray(queryParams["usersIDs[]"])
+	payments := paymentsDBInteractions.GetPaymentsByWeekAndClass(usersIDs, date, endDate, class)
+	return c.JSON(http.StatusOK, echo.Map{
+		"payments": payments,
+	})
+}
+
 // CreatePayment creates a new payment to the user
 func CreatePayment(c echo.Context) error {
 	payment := new(paymentsModel.Payment)
 	payment.UserID = utils.ConvertToUInt(c.FormValue("userID"))
-	payment.StartDate = utils.ConvertToTime(c.FormValue("startDate"))
-	payment.EndDate = utils.ConvertToTime(c.FormValue("endDate"))
+	payment.StartDate = utils.ConvertToStartOfDay(c.FormValue("startDate"))
+	payment.EndDate = utils.ConvertToStartOfDay(c.FormValue("endDate"))
 	payment.ClassHash = c.FormValue("selectedClass")
 
 	err := paymentsDBInteractions.CreatePayment(payment)

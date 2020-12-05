@@ -22,9 +22,11 @@ func GetStudentsByClass(c echo.Context) error {
 	searchByValue := c.QueryParam("searchByValue")
 	pending := utils.ConvertToBool(c.QueryParam("pending"))
 	class := c.QueryParam("selectedClass")
+	// variable to indicate weather to retrieve the admins or not
+	studentsOnly := utils.ConvertToBool(c.QueryParam("studentsOnly"))
 
 	paginationData := paginationController.ExtractPaginationData(c)
-	users, totalUsers := classUsersDBInteractions.GetStudentsByClass(paginationData, searchByValue, class, pending)
+	users, totalUsers := classUsersDBInteractions.GetStudentsByClass(paginationData, searchByValue, class, pending, studentsOnly)
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"students":      users,

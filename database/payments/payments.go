@@ -14,6 +14,21 @@ func CreatePayment(payment *paymentsModel.Payment) error {
 	return err
 }
 
+// UpdatePayments inserts/removes payments for multiple users
+func UpdatePayments(paymentsToAdd, paymentsToRemove []paymentsModel.Payment) error {
+	var err error
+	if len(paymentsToAdd) > 0 && len(paymentsToRemove) > 0 {
+		err = dbInstance.GetDBConnection().Create(&paymentsToAdd).Delete(paymentsToRemove).Error
+	} else if len(paymentsToAdd) > 0 {
+		err = dbInstance.GetDBConnection().Create(&paymentsToAdd).Error
+	} else {
+		err = dbInstance.GetDBConnection().Delete(&paymentsToRemove).Error
+	}
+
+	paymentsDiagnostics.WritePaymentsErr(err, "CreateDelete", append(paymentsToAdd, paymentsToRemove...))
+	return err
+}
+
 // UpdatePayment updates the payment data in the database
 func UpdatePayment(payment *paymentsModel.Payment) error {
 	err := dbInstance.GetDBConnection().Save(payment).Error

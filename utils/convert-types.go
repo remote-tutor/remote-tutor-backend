@@ -4,6 +4,7 @@ import (
 	utilsDiagnostics "backend/diagnostics/utils"
 	"github.com/jinzhu/now"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -68,4 +69,12 @@ func ConvertToUIntArray(value []string) []uint {
 		uintArray[i] = ConvertToUInt(value[i])
 	}
 	return uintArray
+}
+
+// ConvertToFormArray returns an array from the form recieved variable
+func ConvertToFormArray(value string) []string {
+	if len(value) == 0 {
+		return make([]string, 0)
+	}
+	return strings.Split(value, ",")
 }

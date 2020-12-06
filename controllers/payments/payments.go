@@ -82,6 +82,36 @@ func CreatePayment(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{})
 }
 
+// UpdatePayments creates/removes payments for a specific group of students
+func UpdatePayments(c echo.Context) error {
+	startDate := utils.ConvertToStartOfDay(c.FormValue("startDate"))
+	endDate := startDate.AddDate(0, 0, 7)
+	classHash := c.FormValue("selectedClass")
+	addedTo := utils.ConvertToUIntArray(
+		utils.ConvertToFormArray(c.FormValue("addedTo[]")))
+	removedFrom := utils.ConvertToUIntArray(
+		utils.ConvertToFormArray(c.FormValue("removedFrom[]")))
+	paymentsToAdd := make([]paymentsModel.Payment, len(addedTo))
+	for index, idToAdd := range addedTo {
+		paymentsToAdd[index] = paymentsModel.Payment{
+			UserID:    idToAdd,
+			StartDate: startDate,
+			EndDate:   endDate,
+			ClassHash: classHash,
+		}
+	}
+	paymentsToRemove := paymentsDBInteractions.GetPaymentsByWeekAndClass(removedFrom, startDate, endDate, classHash)
+	err := paymentsDBInteractions.UpdatePayments(paymentsToAdd, paymentsToRemove)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (payments not fully updated), please try again",
+		})
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Payments updated successfully",
+	})
+}
+
 // DeletePayment deletes the payment from the database
 func DeletePayment(c echo.Context) error {
 	payment := new(paymentsModel.Payment)

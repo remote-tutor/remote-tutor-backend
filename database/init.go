@@ -49,6 +49,7 @@ func MigrateTables() {
 			&videosModel.Video{},
 			&videosModel.VideoPart{},
 			&videosModel.UserWatch{},
+			&videosModel.Code{},
 			&organizationsModel.Organization{},
 			&organizationsModel.Class{},
 			&organizationsModel.ClassUser{},

@@ -5,12 +5,15 @@ import (
 	dbPagination "backend/database/scopes"
 	codesDiagnostics "backend/diagnostics/database/videos"
 	codesModel "backend/models/videos"
+	"fmt"
 	"gorm.io/gorm"
 )
 
-func GetCodesByVideo(paginationData *dbPagination.PaginationData, videoID uint) ([]codesModel.Code, int64) {
+func GetCodesByVideo(paginationData *dbPagination.PaginationData, search string, videoID uint) ([]codesModel.Code, int64) {
 	codes := make([]codesModel.Code, 0)
 	query := dbInstance.GetDBConnection().Where("video_id = ?", videoID).
+		Where("value LIKE ? OR used_by_user.full_name LIKE ? OR created_by_user.full_name LIKE ?",
+			fmt.Sprintf("%s%%", search), fmt.Sprintf("%%%s%%", search), fmt.Sprintf("%%%s%%", search)).
 		Joins("LEFT JOIN users AS used_by_user ON used_by_user_id = used_by_user.id").
 		Joins("LEFT JOIN users AS created_by_user ON created_by_user_id = created_by_user.id")
 	numberOfRecords := countCodes(query)

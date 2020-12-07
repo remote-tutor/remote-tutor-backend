@@ -7,5 +7,6 @@ import (
 
 
 func InitializeCodesRoutes(videos *echo.Group, adminVideos *echo.Group) {
+	adminVideos.GET("/codes", codesController.GetCodesByVideo)
 	adminVideos.POST("/codes", codesController.GenerateCodes)
 }

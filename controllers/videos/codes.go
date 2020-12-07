@@ -2,6 +2,7 @@ package videos
 
 import (
 	authController "backend/controllers/auth"
+	paginationController "backend/controllers/pagination"
 	codesDBInteractions "backend/database/videos"
 	codesModel "backend/models/videos"
 	"backend/utils"
@@ -10,6 +11,16 @@ import (
 	"github.com/labstack/echo"
 	"net/http"
 )
+
+func GetCodesByVideo(c echo.Context) error {
+	videoID := utils.ConvertToUInt(c.QueryParam("videoID"))
+	paginationData := paginationController.ExtractPaginationData(c)
+	codes, numberOfCodes := codesDBInteractions.GetCodesByVideo(paginationData, videoID)
+	return c.JSON(http.StatusOK, echo.Map{
+		"codes": codes,
+		"total": numberOfCodes,
+	})
+}
 
 func GenerateCodes(c echo.Context) error {
 	videoID := utils.ConvertToUInt(c.FormValue("videoID"))

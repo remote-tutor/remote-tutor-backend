@@ -9,10 +9,22 @@ import (
 	"gorm.io/gorm"
 )
 
+func GetCodeByValueAndVideo(value string, videoID uint) codesModel.Code {
+	var code codesModel.Code
+	dbInstance.GetDBConnection().Where("value = ? AND video_id = ?", value, videoID).First(&code)
+	return code
+}
+
+func GetCodeByUserAndVideo(userID, videoID uint) codesModel.Code {
+	var code codesModel.Code
+	dbInstance.GetDBConnection().Where("used_by_user_id = ? AND video_id = ?", userID, videoID).First(&code)
+	return code
+}
+
 func GetCodesByVideo(paginationData *dbPagination.PaginationData, search string, videoID uint) ([]codesModel.Code, int64) {
 	codes := make([]codesModel.Code, 0)
 	query := dbInstance.GetDBConnection().Where("video_id = ?", videoID).
-		Where("value LIKE ? OR used_by_user.full_name LIKE ? OR created_by_user.full_name LIKE ?",
+		Where("(value LIKE ? OR used_by_user.full_name LIKE ? OR created_by_user.full_name LIKE ?)",
 			fmt.Sprintf("%s%%", search), fmt.Sprintf("%%%s%%", search), fmt.Sprintf("%%%s%%", search)).
 		Joins("LEFT JOIN users AS used_by_user ON used_by_user_id = used_by_user.id").
 		Joins("LEFT JOIN users AS created_by_user ON created_by_user_id = created_by_user.id")
@@ -31,6 +43,12 @@ func GetCodesByVideo(paginationData *dbPagination.PaginationData, search string,
 func GenerateCodes(codes []codesModel.Code) error {
 	err := dbInstance.GetDBConnection().Omit("used_by_user_id").Create(&codes).Error
 	codesDiagnostics.WriteCodesErr(err, "Create", codes)
+	return err
+}
+
+func UpdateCode(code *codesModel.Code) error {
+	err := dbInstance.GetDBConnection().Save(code).Error
+	codesDiagnostics.WriteCodeErr(err, "Update", code)
 	return err
 }
 

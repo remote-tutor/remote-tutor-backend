@@ -12,6 +12,47 @@ import (
 	"net/http"
 )
 
+func GetCodeByUserAndVideo(c echo.Context) error {
+	videoID := utils.ConvertToUInt(c.QueryParam("videoID"))
+	userID := authController.FetchLoggedInUserID(c)
+	code := codesDBInteractions.GetCodeByUserAndVideo(userID, videoID)
+	if code.Value == "" {
+		return c.JSON(http.StatusOK, echo.Map{
+			"status": false,
+		})
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"status": true,
+	})
+}
+
+func GrantStudentAccess(c echo.Context) error {
+	userID := authController.FetchLoggedInUserID(c)
+	videoID := utils.ConvertToUInt(c.FormValue("videoID"))
+	codeString := c.FormValue("code")
+	code := codesDBInteractions.GetCodeByValueAndVideo(codeString, videoID)
+	if code.Value == "" {
+		return c.JSON(http.StatusNotAcceptable, echo.Map{
+			"message": "Make sure you've entered the correct code",
+		})
+	}
+	if code.UsedByUserID != 0 {
+		return c.JSON(http.StatusConflict, echo.Map{
+			"message": "This code has been used before",
+		})
+	}
+	code.UsedByUserID = userID
+	err := codesDBInteractions.UpdateCode(&code)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred, please try again",
+		})
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Code used successfully",
+	})
+}
+
 func GetCodesByVideo(c echo.Context) error {
 	videoID := utils.ConvertToUInt(c.QueryParam("videoID"))
 	paginationData := paginationController.ExtractPaginationData(c)

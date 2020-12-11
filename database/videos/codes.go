@@ -7,6 +7,7 @@ import (
 	codesModel "backend/models/videos"
 	"fmt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func GetCodeByValueAndVideo(value string, videoID uint) codesModel.Code {
@@ -43,6 +44,13 @@ func GetCodesByVideo(paginationData *dbPagination.PaginationData, search string,
 func GenerateCodes(codes []codesModel.Code) error {
 	err := dbInstance.GetDBConnection().Omit("used_by_user_id").Create(&codes).Error
 	codesDiagnostics.WriteCodesErr(err, "Create", codes)
+	return err
+}
+
+func CreateManualAccess(codes []codesModel.Code) error {
+	// to avoid condition where a student uses a code and an admin is trying to access him manually (race condition)
+	err := dbInstance.GetDBConnection().Clauses(clause.OnConflict{DoNothing: true}).Create(&codes).Error
+	codesDiagnostics.WriteCodesErr(err, "Create Manual", codes)
 	return err
 }
 

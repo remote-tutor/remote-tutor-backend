@@ -88,3 +88,29 @@ func GenerateCodes(c echo.Context) error {
 		"message": "Codes generated successfully",
 	})
 }
+
+func AddManualAccess(c echo.Context) error {
+	videoID := utils.ConvertToUInt(c.FormValue("videoID"))
+	usersToGiveAccess := utils.ConvertToUIntArray(utils.ConvertToFormArray(c.FormValue("addedTo[]")))
+	codes := make([]codesModel.Code, len(usersToGiveAccess))
+	for index, userID := range usersToGiveAccess {
+		bytes := make([]byte, 6)
+		rand.Read(bytes)
+		codes[index] = codesModel.Code{
+			Value:           hex.EncodeToString(bytes),
+			VideoID:         videoID,
+			CreatedByUserID: authController.FetchLoggedInUserID(c),
+			UsedByUserID:    userID,
+			Manual:          true,
+		}
+	}
+	err := codesDBInteractions.CreateManualAccess(codes)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (access may not be fully given)",
+		})
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Video access has been updated successfully",
+	})
+}

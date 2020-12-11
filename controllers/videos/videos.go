@@ -2,6 +2,7 @@ package videos
 
 import (
 	partsFiles "backend/controllers/files/videos"
+	paginationController "backend/controllers/pagination"
 	classesDBInteractions "backend/database/organizations"
 	videosDBInterations "backend/database/videos"
 	videosModel "backend/models/videos"
@@ -27,6 +28,18 @@ func GetVideoByHash(c echo.Context) error {
 	video := videosDBInterations.GetVideoByHash(videoHash)
 	return c.JSON(http.StatusOK, echo.Map{
 		"video": video,
+	})
+}
+
+func GetNonAccessedStudents(c echo.Context) error {
+	videoID := utils.ConvertToUInt(c.QueryParam("videoID"))
+	paginationData := paginationController.ExtractPaginationData(c)
+	classHash := c.QueryParam("selectedClass")
+	search := c.QueryParam("searchByValue")
+	students, numberOfStudents := videosDBInterations.GetNonAccessedStudents(paginationData, classHash, search, videoID)
+	return c.JSON(http.StatusOK, echo.Map{
+		"students": students,
+		"total": numberOfStudents,
 	})
 }
 

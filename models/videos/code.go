@@ -14,4 +14,5 @@ type Code struct {
 	CreatedByUserID uint            `json:"createdByUserID"`
 	UsedByUser      usersModel.User `json:"usedByUser" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	UsedByUserID    uint            `json:"usedByUserID" gorm:"uniqueIndex:idx_video_user"`
+	Manual          bool            `json:"manual" gorm:"default:0"`
 }

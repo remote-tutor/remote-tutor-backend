@@ -2,8 +2,12 @@ package videos
 
 import (
 	dbInstance "backend/database"
+	dbPagination "backend/database/scopes"
 	videosDiagnostics "backend/diagnostics/database/videos"
+	classesModel "backend/models/organizations"
 	videosModel "backend/models/videos"
+	"fmt"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -12,6 +16,24 @@ func GetVideosByClassAndMonthAndYear(class string, startOfMonth, endOfMonth time
 	dbInstance.GetDBConnection().Where("class_hash = ? AND available_from >= ? AND available_from <= ?",
 		class, startOfMonth, endOfMonth).Order("available_from").Find(&videos)
 	return videos
+}
+
+func GetNonAccessedStudents(paginationData *dbPagination.PaginationData, classHash, search string, videoID uint) ([]classesModel.ClassUser, int64) {
+	students := make([]classesModel.ClassUser, 0)
+	subQuery := dbInstance.GetDBConnection().Select("used_by_user_id").
+		Where("video_id = ? AND used_by_user_id IS NOT NULL", videoID).Table("codes")
+	query := dbInstance.GetDBConnection().Where("class_hash = ? AND admin = 0 AND activated = 1", classHash).
+		Where("(users.username LIKE ? OR users.full_name LIKE ? OR users.phone_number LIKE ?)",
+			fmt.Sprintf("%%%s%%", search), fmt.Sprintf("%%%s%%", search), fmt.Sprintf("%s%%", search)).
+		Where("user_id NOT IN (?)", subQuery).
+		Joins("JOIN users ON users.id = class_users.user_id")
+		//Where("codes.used_by_user_id IS NULL")
+	numberOfRecords := countClassUsers(query)
+	query.Scopes(dbPagination.Paginate(paginationData)).
+		Preload("User", func(db *gorm.DB) *gorm.DB {
+		return db.Omit("password") // omit 'password' column
+	}).Find(&students)
+	return students, numberOfRecords
 }
 
 func CreateVideo(video *videosModel.Video) error {
@@ -50,4 +72,10 @@ func DeleteVideo(video *videosModel.Video) error {
 	err := dbInstance.GetDBConnection().Unscoped().Delete(video).Error
 	videosDiagnostics.WriteVideoErr(err, "Delete", video)
 	return err
+}
+
+func countClassUsers(db *gorm.DB) int64 {
+	totalClassUsers := int64(0)
+	db.Model(&classesModel.ClassUser{}).Count(&totalClassUsers)
+	return totalClassUsers
 }

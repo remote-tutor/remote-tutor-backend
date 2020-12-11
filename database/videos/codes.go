@@ -22,13 +22,18 @@ func GetCodeByUserAndVideo(userID, videoID uint) codesModel.Code {
 	return code
 }
 
-func GetCodesByVideo(paginationData *dbPagination.PaginationData, search string, videoID uint) ([]codesModel.Code, int64) {
+func GetCodesByVideo(paginationData *dbPagination.PaginationData, search, accessedBy string, videoID uint) ([]codesModel.Code, int64) {
 	codes := make([]codesModel.Code, 0)
 	query := dbInstance.GetDBConnection().Where("video_id = ?", videoID).
 		Where("(value LIKE ? OR used_by_user.full_name LIKE ? OR created_by_user.full_name LIKE ?)",
 			fmt.Sprintf("%s%%", search), fmt.Sprintf("%%%s%%", search), fmt.Sprintf("%%%s%%", search)).
 		Joins("LEFT JOIN users AS used_by_user ON used_by_user_id = used_by_user.id").
 		Joins("LEFT JOIN users AS created_by_user ON created_by_user_id = created_by_user.id")
+	if accessedBy == "code" {
+		query = query.Where("manual = 0")
+	} else if accessedBy == "manual" {
+		query = query.Where("manual = 1")
+	}
 	numberOfRecords := countCodes(query)
 	query.Scopes(dbPagination.Paginate(paginationData)).
 		Preload("UsedByUser", func(db *gorm.DB) *gorm.DB {

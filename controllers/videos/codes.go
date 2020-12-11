@@ -57,7 +57,8 @@ func GetCodesByVideo(c echo.Context) error {
 	videoID := utils.ConvertToUInt(c.QueryParam("videoID"))
 	paginationData := paginationController.ExtractPaginationData(c)
 	search := c.QueryParam("search")
-	codes, numberOfCodes := codesDBInteractions.GetCodesByVideo(paginationData, search, videoID)
+	accessedBy := c.QueryParam("accessedBy")
+	codes, numberOfCodes := codesDBInteractions.GetCodesByVideo(paginationData, search, accessedBy, videoID)
 	return c.JSON(http.StatusOK, echo.Map{
 		"codes": codes,
 		"total": numberOfCodes,

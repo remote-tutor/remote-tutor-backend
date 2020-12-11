@@ -2,6 +2,7 @@ package videos
 
 import (
 	partsFiles "backend/controllers/files/videos"
+	paginationController "backend/controllers/pagination"
 	classesDBInteractions "backend/database/organizations"
 	videosDBInterations "backend/database/videos"
 	videosModel "backend/models/videos"
@@ -9,7 +10,6 @@ import (
 	"github.com/jinzhu/now"
 	"github.com/labstack/echo"
 	"net/http"
-	"time"
 )
 
 func GetVideosByClassAndMonthAndYear(c echo.Context) error {
@@ -31,9 +31,20 @@ func GetVideoByHash(c echo.Context) error {
 	})
 }
 
+func GetNonAccessedStudents(c echo.Context) error {
+	videoID := utils.ConvertToUInt(c.QueryParam("videoID"))
+	paginationData := paginationController.ExtractPaginationData(c)
+	classHash := c.QueryParam("selectedClass")
+	search := c.QueryParam("searchByValue")
+	students, numberOfStudents := videosDBInterations.GetNonAccessedStudents(paginationData, classHash, search, videoID)
+	return c.JSON(http.StatusOK, echo.Map{
+		"students": students,
+		"total": numberOfStudents,
+	})
+}
+
 func CreateVideo(c echo.Context) error {
 	availableFrom := utils.ConvertToTime(c.FormValue("availableFrom"))
-	availableTo := utils.ConvertToTime(c.FormValue("availableTo"))
 	class := c.FormValue("selectedClass")
 	title := c.FormValue("title")
 	studentHours := utils.ConvertToUInt(c.FormValue("studentTime"))
@@ -44,7 +55,6 @@ func CreateVideo(c echo.Context) error {
 	}
 	video := videosModel.Video{
 		AvailableFrom: now.With(availableFrom).BeginningOfDay(),
-		AvailableTo: now.With(availableTo).EndOfDay().Add(-time.Second),
 		ClassHash: class,
 		Title: title,
 		StudentHours: studentHours,
@@ -65,9 +75,7 @@ func UpdateVideo(c echo.Context) error {
 	id := utils.ConvertToUInt(c.FormValue("id"))
 	video := videosDBInterations.GetVideoByID(id)
 	availableFrom := utils.ConvertToTime(c.FormValue("availableFrom"))
-	availableTo := utils.ConvertToTime(c.FormValue("availableTo"))
 	video.AvailableFrom = now.With(availableFrom).BeginningOfDay()
-	video.AvailableTo = now.With(availableTo).EndOfDay().Add(-time.Second)
 	video.Title = c.FormValue("title")
 	studentHours := utils.ConvertToUInt(c.FormValue("studentTime"))
 	if studentHours <= 0 {

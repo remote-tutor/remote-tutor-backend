@@ -14,6 +14,21 @@ func CreatePayment(payment *paymentsModel.Payment) error {
 	return err
 }
 
+// UpdatePayments inserts/removes payments for multiple users
+func UpdatePayments(paymentsToAdd, paymentsToRemove []paymentsModel.Payment) error {
+	var err error
+	if len(paymentsToAdd) > 0 && len(paymentsToRemove) > 0 {
+		err = dbInstance.GetDBConnection().Create(&paymentsToAdd).Delete(paymentsToRemove).Error
+	} else if len(paymentsToAdd) > 0 {
+		err = dbInstance.GetDBConnection().Create(&paymentsToAdd).Error
+	} else {
+		err = dbInstance.GetDBConnection().Delete(&paymentsToRemove).Error
+	}
+
+	paymentsDiagnostics.WritePaymentsErr(err, "CreateDelete", append(paymentsToAdd, paymentsToRemove...))
+	return err
+}
+
 // UpdatePayment updates the payment data in the database
 func UpdatePayment(payment *paymentsModel.Payment) error {
 	err := dbInstance.GetDBConnection().Save(payment).Error
@@ -42,6 +57,14 @@ func GetPaymentByUserAndWeekAndClass(userID uint, eventDate time.Time, class str
 	dbInstance.GetDBConnection().Where("user_id = ? AND start_date <= ? AND end_date >= ? AND class_hash = ?",
 		userID, eventDate, eventDate, class).First(&payment)
 	return payment
+}
+
+// GetPaymentsByWeekAndClass returns the payments of all selected users in a specific week and class
+func GetPaymentsByWeekAndClass(usersIDs []uint, date, endDate time.Time, class string) []paymentsModel.Payment {
+	payments := make([]paymentsModel.Payment, 0)
+	dbInstance.GetDBConnection().Where("user_id IN (?) AND start_date >= ? AND end_date <= ? AND class_hash = ?",
+		usersIDs, date, endDate, class).Find(&payments)
+	return payments
 }
 
 func GiveAccessToAllStudents(startDate, endDate time.Time, class string) {

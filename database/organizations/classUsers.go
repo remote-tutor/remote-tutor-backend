@@ -16,15 +16,15 @@ func GetClassesByUser(userID uint) []classUsersModel.ClassUser {
 }
 
 func GetStudentsByClass(paginationData *dbPagination.PaginationData,
-	searchByValue, searchByField, class string, pending bool) ([]classUsersModel.ClassUser, int64) {
+	searchByValue, class string, pending, studentsOnly bool) ([]classUsersModel.ClassUser, int64) {
 	students := make([]classUsersModel.ClassUser, 0)
 	query := dbInstance.GetDBConnection().Joins("User").
 		Where("class_hash = ? AND activated = ?", class, !pending)
-	if searchByField == "username" {
-		query = query.Where("username LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
-	} else if searchByField == "fullName" {
-		query = query.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", searchByValue))
+	if studentsOnly {
+		query = query.Where("admin = false")
 	}
+	query = query.Where("(username LIKE ? OR full_name LIKE ? OR phone_number LIKE ?)",
+		fmt.Sprintf("%%%s%%", searchByValue), fmt.Sprintf("%%%s%%", searchByValue), fmt.Sprintf("%s%%", searchByValue))
 	numberOfRecords := countClassStudents(query)
 	query = query.Scopes(dbPagination.Paginate(paginationData))
 	query.Scopes(dbPagination.Paginate(paginationData)).Find(&students)

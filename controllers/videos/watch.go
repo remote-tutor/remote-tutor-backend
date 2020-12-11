@@ -30,7 +30,7 @@ func CreateUserWatch(c echo.Context) error {
 	partID := utils.ConvertToUInt(c.FormValue("videoPartID"))
 	currentTime := time.Now()
 	video := watchesDBInteractions.GetVideoByPartID(partID)
-	validTill := getSmallestDate(video.AvailableTo, time.Now().Add(time.Duration(video.StudentHours) * time.Hour))
+	validTill := time.Now().Add(time.Duration(video.StudentHours) * time.Hour)
 	userWatch := watchesModel.UserWatch{
 		UserID: userID,
 		VideoPartID: partID,
@@ -46,11 +46,4 @@ func CreateUserWatch(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"watch": userWatch,
 	})
-}
-
-func getSmallestDate(first, second time.Time) time.Time {
-	if first.Before(second) {
-		return first
-	}
-	return second
 }

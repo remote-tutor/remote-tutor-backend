@@ -3,6 +3,7 @@ package videos
 import (
 	authController "backend/controllers/auth"
 	paginationController "backend/controllers/pagination"
+	usersDBInteractions "backend/database/users"
 	codesDBInteractions "backend/database/videos"
 	codesModel "backend/models/videos"
 	"backend/utils"
@@ -113,5 +114,31 @@ func AddManualAccess(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "Video access has been updated successfully",
+	})
+}
+
+func DeleteCode(c echo.Context) error {
+	codeValue := c.FormValue("codeValue")
+	typedValue := c.FormValue("typedValue")
+	code := codesDBInteractions.GetCodeByValue(codeValue)
+	student := usersDBInteractions.GetUserByUserID(code.UsedByUserID)
+	if student.FullName != typedValue {
+		return c.JSON(http.StatusNotAcceptable, echo.Map{
+			"message": "Sorry, you've entered wrong name",
+		})
+	}
+	var err error
+	if code.Manual {
+		err = codesDBInteractions.DeleteCode(&code)
+	} else {
+		err = codesDBInteractions.DeleteUsedByUser(&code)
+	}
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred (user still has access)",
+		})
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "User's access has been removed",
 	})
 }

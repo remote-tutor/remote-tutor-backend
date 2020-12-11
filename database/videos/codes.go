@@ -10,6 +10,12 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+func GetCodeByValue(value string) codesModel.Code {
+	var code codesModel.Code
+	dbInstance.GetDBConnection().Where("value = ?", value).First(&code)
+	return code
+}
+
 func GetCodeByValueAndVideo(value string, videoID uint) codesModel.Code {
 	var code codesModel.Code
 	dbInstance.GetDBConnection().Where("value = ? AND video_id = ?", value, videoID).First(&code)
@@ -62,6 +68,19 @@ func CreateManualAccess(codes []codesModel.Code) error {
 func UpdateCode(code *codesModel.Code) error {
 	err := dbInstance.GetDBConnection().Save(code).Error
 	codesDiagnostics.WriteCodeErr(err, "Update", code)
+	return err
+}
+
+func DeleteCode(code *codesModel.Code) error {
+	err := dbInstance.GetDBConnection().Unscoped().Delete(code).Error
+	codesDiagnostics.WriteCodeErr(err, "Delete Permanent", code)
+	return err
+}
+
+func DeleteUsedByUser(code *codesModel.Code) error {
+	err := dbInstance.GetDBConnection().Model(code).Select("used_by_user_id").
+		Updates(map[string]interface{}{"used_by_user_id": nil}).Error
+	codesDiagnostics.WriteCodeErr(err, "Delete UsedByUser", code)
 	return err
 }
 

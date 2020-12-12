@@ -6,6 +6,7 @@ import (
 	usersDBInteractions "backend/database/users"
 	codesDBInteractions "backend/database/videos"
 	codesModel "backend/models/videos"
+	codesPDFHandler "backend/pdf/handlers/codes"
 	"backend/utils"
 	"crypto/rand"
 	"encoding/hex"
@@ -86,9 +87,13 @@ func GenerateCodes(c echo.Context) error {
 			"message": "Unexpected error occurred (codes not generated)",
 		})
 	}
-	return c.JSON(http.StatusOK, echo.Map{
-		"message": "Codes generated successfully",
-	})
+	video := codesDBInteractions.GetVideoByID(videoID)
+	pdfGenerator, err := codesPDFHandler.DeliverCodesPDF(video.Title, codes)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{})
+	}
+	c.Response().Header().Set("Content-Type", "application/pdf")
+	return c.Blob(http.StatusOK, "application/pdf", pdfGenerator.Bytes())
 }
 
 func AddManualAccess(c echo.Context) error {
@@ -141,4 +146,19 @@ func DeleteCode(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "User's access has been removed",
 	})
+}
+
+func GenerateCodesPDF(c echo.Context) error {
+	videoID := utils.ConvertToUInt(c.QueryParam("videoID"))
+	paginationData := paginationController.ExtractPaginationData(c)
+	search := c.QueryParam("search")
+	accessedBy := c.QueryParam("accessedBy")
+	codes, _ := codesDBInteractions.GetCodesByVideo(paginationData, search, accessedBy, videoID)
+	video := codesDBInteractions.GetVideoByID(videoID)
+	pdfGenerator, err := codesPDFHandler.DeliverCodesPDF(video.Title, codes)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{})
+	}
+	c.Response().Header().Set("Content-Type", "application/pdf")
+	return c.Blob(http.StatusOK, "application/pdf", pdfGenerator.Bytes())
 }

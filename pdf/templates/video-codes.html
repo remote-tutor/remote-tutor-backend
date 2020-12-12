@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Example Pdf</title>
+    <style>
+        h3 {
+            text-align: center;
+        }
+
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 15px;
+        }
+
+        /*tr:nth-child(even) {*/
+        /*    background-color: #dddddd;*/
+        /*}*/
+    </style>
+</head>
+<body>
+<h3>Codes for "{{.VideoTitle}}" video</h3>
+<table id="codesTable">
+    <tbody id="codesTableBody">
+    {{range .Codes}}
+        <tr>
+            {{range .}}
+                <td>{{.Value}}</td>
+            {{end}}
+        </tr>
+    {{end}}
+    </tbody>
+</table>
+
+</body>
+</html>

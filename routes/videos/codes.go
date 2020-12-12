@@ -11,6 +11,7 @@ func InitializeCodesRoutes(videos *echo.Group, adminVideos *echo.Group) {
 	videos.PUT("/codes/code", codesController.GrantStudentAccess)
 
 	adminVideos.GET("/codes", codesController.GetCodesByVideo)
+	adminVideos.GET("/codes/pdf", codesController.GenerateCodesPDF)
 	adminVideos.POST("/codes", codesController.GenerateCodes)
 	adminVideos.POST("/codes/manual", codesController.AddManualAccess)
 	adminVideos.DELETE("/codes/code", codesController.DeleteCode)

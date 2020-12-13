@@ -2,9 +2,11 @@ package quizzes
 
 import (
 	authController "backend/controllers/auth"
+	classesDBInteractions "backend/database/organizations"
 	quizzesDBInteractions "backend/database/quizzes"
 	quizzesModel "backend/models/quizzes"
 	usersModel "backend/models/users"
+	gradesPDFHandler "backend/pdf/handlers/quizzes"
 	"backend/utils"
 	"github.com/jinzhu/now"
 	"net/http"
@@ -57,7 +59,7 @@ func GetGradesByMonthAndUser(c echo.Context) error {
 	class := c.QueryParam("selectedClass")
 	userID := authController.FetchLoggedInUserID(c)
 	quizzes, grades := quizzesDBInteractions.GetGradesByMonthAndUser(class, userID, startOfMonth, endOfMonth)
-	organizedGrades, quizzesTotalMarks := organizeGrades(quizzes, grades)
+	organizedGrades, quizzesTotalMarks, _ := organizeGrades(quizzes, grades)
 	return c.JSON(http.StatusOK, echo.Map{
 		"quizzes": quizzes,
 		"quizzesTotalMarks": quizzesTotalMarks,
@@ -71,7 +73,7 @@ func GetGradesByMonthForAllUsers(c echo.Context) error {
 	endOfMonth := now.With(month).EndOfMonth()
 	class := c.QueryParam("selectedClass")
 	quizzes, grades := quizzesDBInteractions.GetGradesByMonthForAllUsers(class, startOfMonth, endOfMonth)
-	organizedGrades, quizzesTotalMarks := organizeGrades(quizzes, grades)
+	organizedGrades, quizzesTotalMarks, _ := organizeGrades(quizzes, grades)
 	return c.JSON(http.StatusOK, echo.Map{
 		"quizzes": quizzes,
 		"quizzesTotalMarks": quizzesTotalMarks,
@@ -79,7 +81,7 @@ func GetGradesByMonthForAllUsers(c echo.Context) error {
 	})
 }
 
-func organizeGrades(quizzes []quizzesModel.Quiz, grades []quizzesModel.QuizGrade) ([]map[string]interface{}, int) {
+func organizeGrades(quizzes []quizzesModel.Quiz, grades []quizzesModel.QuizGrade) ([]map[string]interface{}, int, [][]int) {
 	quizzesIDsMap := make(map[uint]int) // map to hold the index of each quizID
 	studentsIDsMap := make(map[uint]int) // map to hold the index of each studentID
 	quizzesTotalMarks := 0
@@ -120,7 +122,24 @@ func organizeGrades(quizzes []quizzesModel.Quiz, grades []quizzesModel.QuizGrade
 		}
 		returnedObject[index]["total"] = totalMarks
 	}
-	return returnedObject, quizzesTotalMarks
+	return returnedObject, quizzesTotalMarks, grades2DArray
+}
+
+func GenerateGradesPDF(c echo.Context) error {
+	month := utils.ConvertToTime(c.QueryParam("month"))
+	startOfMonth := now.With(month).BeginningOfMonth()
+	endOfMonth := now.With(month).EndOfMonth()
+	classHash := c.QueryParam("selectedClass")
+	class := classesDBInteractions.GetClassByHash(classHash)
+	quizzes, grades := quizzesDBInteractions.GetGradesByMonthForAllUsers(classHash, startOfMonth, endOfMonth)
+	organizedGrades, quizzesTotalMarks, gradesOnly := organizeGrades(quizzes, grades)
+	pdfGenerator, err := gradesPDFHandler.DeliverGradesPDF(organizedGrades, quizzesTotalMarks,
+		class.Organization.TeacherName, class.Name, startOfMonth, endOfMonth, quizzes, gradesOnly)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{})
+	}
+	c.Response().Header().Set("Content-Type", "application/pdf")
+	return c.Blob(http.StatusOK, "application/pdf", pdfGenerator.Bytes())
 }
 
 func getSmallestDate(first, second time.Time) time.Time {

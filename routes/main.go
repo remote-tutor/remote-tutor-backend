@@ -25,6 +25,7 @@ func InitializeRoutes(e *echo.Echo) {
 			"http://192.168.1.100:8080",
 			"https://remote-tutor.github.io",
 			"https://thematrixeg.com",
+			"https://remotetutoreg.com",
 		},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))

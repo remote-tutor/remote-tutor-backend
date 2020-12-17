@@ -2,6 +2,7 @@ package videos
 
 import (
 	authController "backend/controllers/auth"
+	"backend/controllers/pagination"
 	classUsersDBInteractions "backend/database/organizations"
 	watchesDBInteractions "backend/database/videos"
 	watchesModel "backend/models/videos"
@@ -17,6 +18,16 @@ func GetWatchByUserAndPart(c echo.Context) error {
 	watch := watchesDBInteractions.GetUserWatchByUserAndPart(userID, partID)
 	return c.JSON(http.StatusOK, echo.Map{
 		"watch": watch,
+	})
+}
+
+func GetPartWatchesForAllUsers(c echo.Context) error {
+	partID := utils.ConvertToUInt(c.QueryParam("partID"))
+	paginationData := pagination.ExtractPaginationData(c)
+	watches, total := watchesDBInteractions.GetPartWatchesForAllUsers(partID, paginationData)
+	return c.JSON(http.StatusOK, echo.Map{
+		"watches": watches,
+		"total": total,
 	})
 }
 

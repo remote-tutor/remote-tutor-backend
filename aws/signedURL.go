@@ -20,7 +20,7 @@ func GenerateSignedURL(fullURL, sourceIP string) (string, error) {
 	signer := sign.NewURLSigner(os.Getenv("CLOUDFRONT_USER_KEY"), privateKey)
 
 	if os.Getenv("APP_ENV") == "development" {
-		signedURL, err := signer.Sign(fullURL, time.Now().Add(5 * time.Second))
+		signedURL, err := signer.Sign(fullURL, time.Now().Add(5 * time.Minute))
 		if err != nil {
 			awsDiagnostics.WriteAWSSignedURLErr(err, "Generate Signed URL (generating signed URL)")
 			return "", err
@@ -38,7 +38,7 @@ func GenerateSignedURL(fullURL, sourceIP string) (string, error) {
 					// Optional IP source address range
 					IPAddress: &sign.IPAddress{SourceIP: sourceIP},
 					// Required date the URL will expire after
-					DateLessThan: &sign.AWSEpochTime{Time: time.Now().Add(5 * time.Minute)},
+					DateLessThan: &sign.AWSEpochTime{Time: time.Now().Add(4 * time.Hour)},
 				},
 			},
 		},

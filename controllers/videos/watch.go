@@ -6,6 +6,7 @@ import (
 	classUsersDBInteractions "backend/database/organizations"
 	watchesDBInteractions "backend/database/videos"
 	watchesModel "backend/models/videos"
+	watchesPDFHandler "backend/pdf/handlers/videos"
 	"backend/utils"
 	"github.com/labstack/echo"
 	"net/http"
@@ -29,6 +30,19 @@ func GetPartWatchesForAllUsers(c echo.Context) error {
 		"watches": watches,
 		"total": total,
 	})
+}
+
+func GetPartWatchesPDF(c echo.Context) error {
+	partID := utils.ConvertToUInt(c.QueryParam("partID"))
+	part := watchesDBInteractions.GetPartByID(partID)
+	paginationData := pagination.ExtractPaginationData(c)
+	watches, _ := watchesDBInteractions.GetPartWatchesForAllUsers(partID, paginationData)
+	pdfGenerator, err := watchesPDFHandler.DeliverWatchesPDF(&part, watches)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{})
+	}
+	c.Response().Header().Set("Content-Type", "application/pdf")
+	return c.Blob(http.StatusOK, "application/pdf", pdfGenerator.Bytes())
 }
 
 func CreateUserWatch(c echo.Context) error {

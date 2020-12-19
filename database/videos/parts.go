@@ -14,7 +14,7 @@ func GetPartsByVideo(videoID uint) []videoParts.VideoPart {
 
 func GetPartByID(id uint) videoParts.VideoPart {
 	var part videoParts.VideoPart
-	dbInstance.GetDBConnection().First(&part, id)
+	dbInstance.GetDBConnection().Preload("Video").First(&part, id)
 	return part
 }
 

@@ -30,6 +30,13 @@
 <h3>Part #{{.Part.Number}} ({{.Part.Name}}) of video ({{.Part.Video.Title}})</h3>
 <h3>Video Available At: {{.Part.Video.AvailableFrom.Format "2006 Jan 02"}}</h3>
 <table id="watchesTable">
+    <thead>
+    <tr>
+        <td>Full Name</td>
+        <td>Start Time</td>
+        <td>End Time</td>
+    </tr>
+    </thead>
     <tbody id="watchesTableBody">
     {{range .Watches}}
         <tr>

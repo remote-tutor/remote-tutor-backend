@@ -24,7 +24,12 @@ func NewRequestPdf(body string) *RequestPdf {
 
 //parsing template function
 func (r *RequestPdf) ParseTemplate(templateName string, data interface{}) error {
-	templatePath := "pdf/templates/" + templateName
+	var templatePath string
+	if os.Getenv("APP_ENV") == "development" {
+		templatePath = "pdf/templates/" + templateName
+	} else {
+		templatePath = "/home/ubuntu/project/pdf/templates/" + templateName
+	}
 	t, err := template.ParseFiles(templatePath)
 	if err != nil {
 		return err
@@ -41,7 +46,12 @@ func (r *RequestPdf) ParseTemplate(templateName string, data interface{}) error 
 func (r *RequestPdf) GeneratePDF() (*wkhtmltopdf.PDFGenerator, error) {
 	t := time.Now().Unix()
 	// write whole the body
-	filename := "pdf/generated-html/" + strconv.FormatInt(t, 10) + ".html"
+	var filename string
+	if os.Getenv("APP_ENV") == "development" {
+		filename = "pdf/generated-html/" + strconv.FormatInt(t, 10) + ".html"
+	} else {
+		filename = "/home/ubuntu/project/pdf/generated-html/" + strconv.FormatInt(t, 10) + ".html"
+	}
 	err := ioutil.WriteFile(filename, []byte(r.body), 0644)
 	if err != nil {
 		return nil, err

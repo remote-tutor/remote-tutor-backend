@@ -5,9 +5,12 @@ import (
 	submissionsFiles "backend/controllers/files/assignments"
 	paginationController "backend/controllers/pagination"
 	submissionsDBInteractions "backend/database/assignments"
+	classesDBInteractions "backend/database/organizations"
 	submissionsModel "backend/models/assignments"
+	assignmentsPDFHandler "backend/pdf/handlers/assignments"
 	"backend/utils"
 	"github.com/labstack/echo"
+	"log"
 	"net/http"
 	"time"
 )
@@ -102,4 +105,20 @@ func UpdateSubmissionByAdmin(c echo.Context) error {
 		"message": "Submission Updated Successfully",
 		"submission": submission,
 	})
+}
+
+func GetSubmissionsPDFByAssignment(c echo.Context) error {
+	assignmentID := utils.ConvertToUInt(c.QueryParam("assignmentID"))
+	classHash := c.QueryParam("selectedClass")
+	class := classesDBInteractions.GetClassByHash(classHash)
+	paginationData := paginationController.ExtractPaginationData(c)
+	submissions, _ := submissionsDBInteractions.GetSubmissionsByAssignmentForAllUsers(paginationData, assignmentID, "")
+	assignment := submissionsDBInteractions.GetAssignmentByID(assignmentID)
+	pdfGenerator, err := assignmentsPDFHandler.DeliverAssignmentsPDF(&assignment, submissions, &class)
+	if err != nil {
+		log.Fatal(err)
+		//return c.JSON(http.StatusInternalServerError, echo.Map{})
+	}
+	c.Response().Header().Set("Content-Type", "application/pdf")
+	return c.Blob(http.StatusOK, "application/pdf", pdfGenerator.Bytes())
 }

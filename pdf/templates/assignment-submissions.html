@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assignment Submissions</title>
+    <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
+          rel="stylesheet">
+
+    <style>
+        h3 {
+            text-align: center;
+        }
+
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #000000;
+            text-align: left;
+            padding: 15px;
+        }
+
+        tbody > tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Mr. {{.TeacherName}} - Class: {{.ClassName}}</h1>
+<h3>Assignment Submissions for ({{.Assignment.Title}})</h3>
+<h3>Deadline: {{.Assignment.Deadline.Format "2006 Jan 02"}}, Total Mark: {{.Assignment.TotalMark}}</h3>
+{{$parent := .}}
+<table id="submissionsTable">
+    <thead>
+    <tr>
+        <td>Full Name</td>
+        <td>Uploaded At</td>
+        <td>Mark</td>
+        <td>In Time</td>
+        <td>Graded</td>
+    </tr>
+    </thead>
+    <tbody id="watchesTableBody">
+    {{range $index, $submission := .Submissions}}
+        <tr>
+            <td>{{$submission.User.FullName}}</td>
+            <td>{{$submission.UploadedAt.Format "2006 Jan 02 15:04"}}</td>
+            <td>{{$submission.Mark}}</td>
+            <td>
+                {{ if $parent.IsSubmissionInTime $parent.Assignment.Deadline $submission.UploadedAt }}
+                    <span>Yes</span>
+                {{else}}
+                    <span>No</span>
+                {{end}}
+            </td>
+            <td>
+                {{if $submission.Graded}}
+                    <span>Yes</span>
+                {{else}}
+                    <span>No</span>
+                {{end}}
+            </td>
+        </tr>
+    {{end}}
+    </tbody>
+</table>
+
+
+</body>
+</html>

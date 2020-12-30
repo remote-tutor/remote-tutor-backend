@@ -14,4 +14,5 @@ func InitializeSubmissionsRoutes(assignments *echo.Group, adminAssignments *echo
 	adminSubmissions := adminAssignments.Group("/submissions")
 	adminSubmissions.GET("", submissionsController.GetSubmissionsByAssignmentForAllUsers)
 	adminSubmissions.PUT("", submissionsController.UpdateSubmissionByAdmin)
+	adminSubmissions.GET("/pdf", submissionsController.GetSubmissionsPDFByAssignment)
 }

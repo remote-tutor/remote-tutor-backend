@@ -12,6 +12,7 @@ func InitializeCodesRoutes(videos *echo.Group, adminVideos *echo.Group) {
 
 	adminVideos.GET("/codes", codesController.GetCodesByVideo)
 	adminVideos.GET("/codes/pdf", codesController.GenerateCodesPDF)
+	adminVideos.GET("/codes/access/pdf", codesController.GenerateAccessPDF)
 	adminVideos.POST("/codes", codesController.GenerateCodes)
 	adminVideos.POST("/codes/manual", codesController.AddManualAccess)
 	adminVideos.DELETE("/codes/code", codesController.DeleteCode)

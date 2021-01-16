@@ -7,6 +7,7 @@ import (
 	codesDBInteractions "backend/database/videos"
 	codesModel "backend/models/videos"
 	codesPDFHandler "backend/pdf/handlers/codes"
+	videosPDFHandler "backend/pdf/handlers/videos"
 	"backend/utils"
 	"crypto/rand"
 	"encoding/hex"
@@ -156,6 +157,20 @@ func GenerateCodesPDF(c echo.Context) error {
 	codes, _ := codesDBInteractions.GetCodesByVideo(paginationData, search, accessedBy, videoID)
 	video := codesDBInteractions.GetVideoByID(videoID)
 	pdfGenerator, err := codesPDFHandler.DeliverCodesPDF(video.Title, codes)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{})
+	}
+	c.Response().Header().Set("Content-Type", "application/pdf")
+	return c.Blob(http.StatusOK, "application/pdf", pdfGenerator.Bytes())
+}
+
+// method to get all the accessed students in one PDF
+func GenerateAccessPDF(c echo.Context) error {
+	videoID := utils.ConvertToUInt(c.QueryParam("videoID"))
+	paginationData := paginationController.ExtractPaginationData(c)
+	codes, _ := codesDBInteractions.GetCodesByVideo(paginationData, "", "both", videoID)
+	video := codesDBInteractions.GetVideoByID(videoID)
+	pdfGenerator, err := videosPDFHandler.DeliverVideoAccessPDF(video.Title, codes)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{})
 	}

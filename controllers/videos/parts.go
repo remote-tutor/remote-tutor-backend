@@ -37,7 +37,7 @@ func CreatePart(c echo.Context) error {
 	fileName := c.FormValue("fileName")
 	video := partsDBInteractions.GetVideoByID(videoID)
 	class := classesDBInteractions.GetClassByHash(video.ClassHash)
-	fileLocation, err := partsFiles.UploadVideoPart(c, &video, &class)
+	fileLocation, isVideo, err := partsFiles.UploadVideoPart(c, &video, &class)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": "Sorry, we're unable to upload the part right now, please try again later",
@@ -49,6 +49,7 @@ func CreatePart(c echo.Context) error {
 		Link:    fileLocation,
 		Number:  number,
 		Name:    fileName,
+		IsVideo: isVideo,
 	}
 	err = partsDBInteractions.CreatePart(&part)
 	if err != nil {

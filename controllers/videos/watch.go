@@ -35,9 +35,10 @@ func GetPartWatchesForAllUsers(c echo.Context) error {
 func GetPartWatchesPDF(c echo.Context) error {
 	partID := utils.ConvertToUInt(c.QueryParam("partID"))
 	part := watchesDBInteractions.GetPartByID(partID)
+	parts := watchesDBInteractions.GetPartsByVideo(part.VideoID)
 	paginationData := pagination.ExtractPaginationData(c)
 	watches, _ := watchesDBInteractions.GetPartWatchesForAllUsers(partID, paginationData)
-	pdfGenerator, err := watchesPDFHandler.DeliverWatchesPDF(&part, watches)
+	pdfGenerator, err := watchesPDFHandler.DeliverWatchesPDF(&part, parts, watches)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{})
 	}

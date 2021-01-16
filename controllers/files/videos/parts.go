@@ -8,30 +8,36 @@ import (
 	videoParts "backend/models/videos"
 	"bytes"
 	"fmt"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/labstack/echo"
 	"io"
+	"strings"
 )
 
-func UploadVideoPart(c echo.Context, video *videoParts.Video, class *classesModel.Class) (string, error) {
+func UploadVideoPart(c echo.Context, video *videoParts.Video, class *classesModel.Class) (string, bool, error) {
 	fileName, src, err := filesUtils.ReadFromSource(c, "videoPart")
+	if src != nil {
+		defer src.Close()
+	}
 	if err != nil {
 		awsDiagnostics.WriteAWSPartErr(err, "Upload Video Part (ReadFromSource)")
-		return "", err
+		return "", false, err
 	}
-	defer src.Close()
 	buffer := bytes.NewBuffer(nil)
 	_, err = io.Copy(buffer, src)
 	if err != nil {
 		awsDiagnostics.WriteAWSPartErr(err, "Upload Video Part (Copy)")
-		return "", err
+		return "", false, err
 	}
 	filePath := fmt.Sprintf("%s/videos/%s/%s", video.ClassHash, video.Hash, fileName)
+	mime := mimetype.Detect(buffer.Bytes())
+	isVideo := strings.HasPrefix(strings.ToLower(mime.String()), "video/")
 	fileLocation, err := aws.Upload(buffer, filePath, &class.Organization)
 	if err != nil {
 		awsDiagnostics.WriteAWSPartErr(err, "Upload Video Part")
-		return "", err
+		return "", false, err
 	}
-	return fileLocation, nil
+	return fileLocation, isVideo, nil
 }
 
 func DeleteVideoPart(part *videoParts.VideoPart, video *videoParts.Video, class *classesModel.Class) error {

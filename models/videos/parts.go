@@ -9,4 +9,5 @@ type VideoPart struct {
 	Link    string `json:"link"`
 	Number  int    `json:"number"`
 	Name    string `json:"name"`
+	IsVideo bool   `json:"isVideo"`
 }

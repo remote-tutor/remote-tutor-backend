@@ -7,7 +7,7 @@ import (
 	"github.com/SebastiaanKlippert/go-wkhtmltopdf"
 )
 
-func DeliverWatchesPDF(part *watchesModel.VideoPart, watches []watchesModel.UserWatch) (*wkhtmltopdf.PDFGenerator, error) {
+func DeliverWatchesPDF(part *watchesModel.VideoPart, parts []watchesModel.VideoPart, watches []watchesModel.UserWatch) (*wkhtmltopdf.PDFGenerator, error) {
 	//html template name
 	templateName := "video-part-watches.html"
 	requestPDF := pdf.NewRequestPdf("")
@@ -16,6 +16,7 @@ func DeliverWatchesPDF(part *watchesModel.VideoPart, watches []watchesModel.User
 		Part: *part,
 		Watches: watches,
 	}
+	watchesPDF.AdjustPartsNumbers(parts, len(parts))
 	if err := requestPDF.ParseTemplate(templateName, watchesPDF); err != nil {
 		return nil, err
 	}

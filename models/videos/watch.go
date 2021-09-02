@@ -2,6 +2,7 @@ package videos
 
 import (
 	usersModel "backend/models/users"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -12,4 +13,5 @@ type UserWatch struct {
 	VideoPart   VideoPart       `json:"videoPart" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	StartAt     time.Time       `json:"startAt"`
 	ValidTill   time.Time       `json:"validTill"`
+	DeletedAt   gorm.DeletedAt
 }

@@ -28,7 +28,7 @@ func GetPartWatchesForAllUsers(c echo.Context) error {
 	watches, total := watchesDBInteractions.GetPartWatchesForAllUsers(partID, paginationData)
 	return c.JSON(http.StatusOK, echo.Map{
 		"watches": watches,
-		"total": total,
+		"total":   total,
 	})
 }
 
@@ -58,10 +58,10 @@ func CreateUserWatch(c echo.Context) error {
 	video := watchesDBInteractions.GetVideoByPartID(partID)
 	validTill := time.Now().Add(time.Duration(video.StudentHours) * time.Hour)
 	userWatch := watchesModel.UserWatch{
-		UserID: userID,
+		UserID:      userID,
 		VideoPartID: partID,
-		StartAt: currentTime,
-		ValidTill: validTill,
+		StartAt:     currentTime,
+		ValidTill:   validTill,
 	}
 	err := watchesDBInteractions.CreateUserWatch(&userWatch)
 	if err != nil {
@@ -72,4 +72,20 @@ func CreateUserWatch(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"watch": userWatch,
 	})
+}
+
+func DeleteUserWatch(c echo.Context) error {
+	partID := utils.ConvertToUInt(c.QueryParam("partID"))
+	userToDelete := utils.ConvertToUInt(c.QueryParam("userID"))
+	userWatchToDelete := watchesModel.UserWatch{
+		UserID:      userToDelete,
+		VideoPartID: partID,
+	}
+	err := watchesDBInteractions.DeleteUserWatch(&userWatchToDelete)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": "Unexpected error occurred, please try again",
+		})
+	}
+	return c.JSON(http.StatusOK, echo.Map{})
 }

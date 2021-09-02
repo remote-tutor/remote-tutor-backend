@@ -10,4 +10,5 @@ func InitializeWatchesRoutes(videos *echo.Group, adminVideos *echo.Group) {
 	adminVideos.GET("/watches/part", watchesController.GetPartWatchesForAllUsers)
 	adminVideos.GET("/watches/part/pdf", watchesController.GetPartWatchesPDF)
 	videos.POST("/watches", watchesController.CreateUserWatch)
+	adminVideos.DELETE("/watches", watchesController.DeleteUserWatch)
 }

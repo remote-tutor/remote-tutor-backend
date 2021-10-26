@@ -16,12 +16,23 @@ import (
 	"github.com/labstack/echo"
 )
 
+// GetGradesByQuiz Fetches logged-in user's grade for a quiz
+func GetGradesByQuiz(c echo.Context) error {
+	userID := authController.FetchLoggedInUserID(c)
+	quizID := utils.ConvertToUInt(c.QueryParam("quizID"))
+
+	quizGrade := quizzesDBInteractions.GetGradesByQuizID(userID, quizID)
+	return c.JSON(http.StatusOK, echo.Map{
+		"quizGrade": []quizzesModel.QuizGrade{quizGrade},
+	})
+}
+
 // CreateQuizGrade creates a quiz grade record for the logged-in user
 func CreateQuizGrade(c echo.Context) error {
 	userID := authController.FetchLoggedInUserID(c)
 	quizID := utils.ConvertToUInt(c.FormValue("quizID"))
 	quiz := quizzesDBInteractions.GetQuizByID(quizID)
-	validTill := getSmallestDate(quiz.EndTime, time.Now().Add(time.Duration(quiz.StudentTime) * time.Minute))
+	validTill := getSmallestDate(quiz.EndTime, time.Now().Add(time.Duration(quiz.StudentTime)*time.Minute))
 	quizGrade := quizzesModel.QuizGrade{
 		Grade:     0,
 		QuizID:    quizID,
@@ -61,9 +72,9 @@ func GetGradesByMonthAndUser(c echo.Context) error {
 	quizzes, grades := quizzesDBInteractions.GetGradesByMonthAndUser(class, userID, startOfMonth, endOfMonth)
 	organizedGrades, quizzesTotalMarks, _ := organizeGrades(quizzes, grades)
 	return c.JSON(http.StatusOK, echo.Map{
-		"quizzes": quizzes,
+		"quizzes":           quizzes,
 		"quizzesTotalMarks": quizzesTotalMarks,
-		"grades": organizedGrades,
+		"grades":            organizedGrades,
 	})
 }
 
@@ -75,28 +86,28 @@ func GetGradesByMonthForAllUsers(c echo.Context) error {
 	quizzes, grades := quizzesDBInteractions.GetGradesByMonthForAllUsers(class, startOfMonth, endOfMonth)
 	organizedGrades, quizzesTotalMarks, _ := organizeGrades(quizzes, grades)
 	return c.JSON(http.StatusOK, echo.Map{
-		"quizzes": quizzes,
+		"quizzes":           quizzes,
 		"quizzesTotalMarks": quizzesTotalMarks,
-		"grades": organizedGrades,
+		"grades":            organizedGrades,
 	})
 }
 
 func organizeGrades(quizzes []quizzesModel.Quiz, grades []quizzesModel.QuizGrade) ([]map[string]interface{}, int, [][]int) {
-	quizzesIDsMap := make(map[uint]int) // map to hold the index of each quizID
+	quizzesIDsMap := make(map[uint]int)  // map to hold the index of each quizID
 	studentsIDsMap := make(map[uint]int) // map to hold the index of each studentID
 	quizzesTotalMarks := 0
 	for index, quiz := range quizzes {
-		quizzesIDsMap[quiz.ID] = index // store each ID to the corresponding index in the 2D array
+		quizzesIDsMap[quiz.ID] = index      // store each ID to the corresponding index in the 2D array
 		quizzesTotalMarks += quiz.TotalMark // add to the quizzes total marks
 	}
 	studentIndex := 0 // index of UNIQUE users
 	studentsArr := make([]usersModel.User, 0)
 	for _, quizGrade := range grades { // loop over the grades
 		_, isFound := studentsIDsMap[quizGrade.UserID] // check if the userID has been seen before
-		if !isFound { // if NOT
-			studentsIDsMap[quizGrade.UserID] = studentIndex // store its index
+		if !isFound {                                  // if NOT
+			studentsIDsMap[quizGrade.UserID] = studentIndex   // store its index
 			studentsArr = append(studentsArr, quizGrade.User) // add the user to the users array
-			studentIndex++ // increment the unique users index
+			studentIndex++                                    // increment the unique users index
 		}
 	}
 	grades2DArray := make([][]int, studentIndex) // 2D array to store grades
@@ -104,17 +115,17 @@ func organizeGrades(quizzes []quizzesModel.Quiz, grades []quizzesModel.QuizGrade
 		grades2DArray[arr] = make([]int, len(quizzes)) // initialize each inner array
 	}
 	for _, quizGrade := range grades {
-		currentStudentIndex := studentsIDsMap[quizGrade.UserID] // get the index of the student
-		currentQuizIndex := quizzesIDsMap[quizGrade.QuizID] // get the index of the quiz
+		currentStudentIndex := studentsIDsMap[quizGrade.UserID]                // get the index of the student
+		currentQuizIndex := quizzesIDsMap[quizGrade.QuizID]                    // get the index of the quiz
 		grades2DArray[currentStudentIndex][currentQuizIndex] = quizGrade.Grade // store the quizGrade
 	}
 	returnedObject := make([]map[string]interface{}, len(grades2DArray)) // array of custom objects to be returned to the frontend
 	for index, student := range studentsArr {
 		returnedObject[index] = map[string]interface{}{} // initialize the current object
-		returnedObject[index]["user"] = student // add student object to the returned value
+		returnedObject[index]["user"] = student          // add student object to the returned value
 	}
-	for index, _ := range grades2DArray {
-		totalMarks := 0 // calculate total marks for each user
+	for index := range grades2DArray {
+		totalMarks := 0                                              // calculate total marks for each user
 		for gradeIndex, studentGrade := range grades2DArray[index] { // add each quizGrade under its correct quizID
 			returnedObject[index][strconv.Itoa(int(quizzes[gradeIndex].ID))] = 0
 			returnedObject[index][strconv.Itoa(int(quizzes[gradeIndex].ID))] = studentGrade

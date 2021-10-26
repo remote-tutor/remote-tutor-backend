@@ -9,16 +9,18 @@ import (
 	"time"
 )
 
+// GetGradesByQuizID gets grade for logged-in user for a specific quiz
+func GetGradesByQuizID(userID uint, quizID uint) quizzesModel.QuizGrade {
+	var quizGrade quizzesModel.QuizGrade
+	dbInstance.GetDBConnection().Where("user_id = ? AND quiz_id = ?", userID, quizID).Preload("User").FirstOrInit(&quizGrade)
+	return quizGrade
+}
+
 // CreateGrade inserts a new quiz grade to the database
 func CreateGrade(grade *quizzesModel.QuizGrade) error {
 	err := dbInstance.GetDBConnection().FirstOrCreate(grade).Error
 	gradesDiagnostics.WriteGradeErr(err, "Create", grade)
 	return err
-}
-
-// UpdateGrade updates an existing quiz grade in the database
-func UpdateGrade(grade *quizzesModel.QuizGrade) {
-	dbInstance.GetDBConnection().Save(grade)
 }
 
 // GetStudentRemainingTime fetches the remaining time for a quiz by given student
@@ -30,7 +32,7 @@ func GetStudentRemainingTime(userID, quizID uint) (time.Time, bool) {
 }
 
 // GetGradesByMonthForAllUsers gets the grades of all quizzes in a specific month
-func GetGradesByMonthForAllUsers(class string, startOfMonth, endOfMonth time.Time) ([]quizzesModel.Quiz,[]quizzesModel.QuizGrade) {
+func GetGradesByMonthForAllUsers(class string, startOfMonth, endOfMonth time.Time) ([]quizzesModel.Quiz, []quizzesModel.QuizGrade) {
 	quizzes := GetQuizzesByClassAndMonthAndYear(class, startOfMonth, endOfMonth)
 	quizzesIDs := make([]uint, len(quizzes))
 	for i := 0; i < len(quizzes); i++ {
